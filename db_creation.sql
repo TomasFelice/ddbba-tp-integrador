@@ -17,8 +17,10 @@
 -- Nacho: En realidad el CHAR es cuando tenés un tipo de dato fijo. 
 -- Ejemplo: sé que mi código se compone de 5 valores alfanumérico, no importa cómo.
 --  Con un nombre, apellido, correo no es así
+--
 
 -- Creo que en vez de DATE nos conviene usar DATETIME para tener la referencia de H, M y S
+-- Nacho: no sé en cuáles. Por ahí en algún turno no vendría mal
 
 
 CREATE DATABASE com2900g09
