@@ -60,7 +60,7 @@ CREATE TABLE ddbba.Paciente (
     nro_de_documento INT UNIQUE NOT NULL,
     sexo_biologico CHAR(1),
     genero CHAR(1),
-    nacionalidad CHAR(18),
+    nacionalidad VARCHAR(18),
     foto_de_perfil VARCHAR(255), --Aquí se insertarán URLS generadas desde otro sistema
     mail VARCHAR(100),
     telefono_fijo CHAR(15),
@@ -69,8 +69,22 @@ CREATE TABLE ddbba.Paciente (
     fecha_de_registro DATE NOT NULL,
     fecha_de_actualizacion DATE,
     usuario_actualizacion DATE,
+    CONSTRAINT fk_cobertura FOREIGN KEY (id_cobertura) REFERENCES ddbba.Cobertura(id_cobertura),
     CONSTRAINT fk_cobertura FOREIGN KEY (id_cobertura) REFERENCES ddbba.Cobertura(id_cobertura)
 )
+GO
+
+CREATE TABLE ddbba.turnoAsignado( -- Sirve para ver la lista de turnos que ya tiene asignado. La reserva del turno es un proceso intermedio a tenerlo asignado
+    id_turno_asignado INT IDENTITY(1,1) PRIMARY KEY,
+    nro_de_documento_paciente INT NOT NULL,
+    id_prestador INT NOT NULL,
+    id_estado_turno INT,
+    fecha DATE,
+    hora TIME,
+    direccion VARCHAR(100), --POSIBLE UNION CON SEDE
+    CONSTRAINT fk_prestador FOREIGN KEY (id_prestador) REFERENCES ddbba.Prestador(id_prestador)
+)
+
 GO
 
 CREATE TABLE ddbba.Usuario (
@@ -129,14 +143,14 @@ GO
 CREATE TABLE ddbba.AlianzaComercial (
     id_alianza INT IDENTITY(1,1) PRIMARY KEY,
     id_prestador INT NOT NULL,
-    nombre --Aquí se insertarán URLS generadas desde otro sistema(50),
-    estado BIT DEFAULT 0, -- este tipo de dato nunca lo vi. No dejamos int mejor?
+    nombre VARCHAR(50),-- Aquí se insertarán URLS generadas desde otro sistema
+    estado BIT DEFAULT 0, -- Nacho: este tipo de dato nunca lo vi. No dejamos int mejor?
     CONSTRAINT fk_prestador FOREIGN KEY (id_prestador) REFERENCES ddbba.Prestador(id_prestador)
 )
 GO
 
 CREATE TABLE ddbba.EstadoTurno (
-    id_estado INT IDENTITY(1,1) PRIMARY KEY,
+    id_estado INT IDENTITY(1,1) PRIMARY KEY, -- Nacho: acá hay algo que no me gusta, id estado es medio falopa
     nombre_estado VARCHAR(9) NOT NULL
 )
 GO
@@ -149,7 +163,7 @@ GO
 
 CREATE TABLE ddbba.ReservaDeTurnoMedico (
     id_turno INT IDENTITY(1,1) PRIMARY KEY,
-    nro_documento_paciente INT,
+    --nro_documento_paciente INT, -- Nacho: comento esto ya que para un SP tengo que encontrar todos los pacientes que reservaron turno para cancelarlos
     fecha DATE,
     hora TIME,
     id_medico INT NOT NULL,
@@ -159,7 +173,7 @@ CREATE TABLE ddbba.ReservaDeTurnoMedico (
     id_tipo_turno INT,
     CONSTRAINT fk_estado_turno FOREIGN KEY (id_estado_turno) REFERENCES ddbba.EstadoTurno(id_estado),
     CONSTRAINT fk_tipo_turno FOREIGN KEY (id_tipo_turno) REFERENCES ddbba.TipoTurno(id_tipo_turno),
-    CONSTRAINT fk_paciente FOREIGN KEY (nro_documento_paciente) REFERENCES ddbba.Paciente(nro_de_documento)
+    --CONSTRAINT fk_paciente FOREIGN KEY (nro_documento_paciente) REFERENCES ddbba.Paciente(nro_de_documento)
 )
 GO
 
@@ -194,3 +208,50 @@ CREATE TABLE ddbba.Dias_x_sede (
     CONSTRAINT fk_sede FOREIGN KEY (id_sede) REFERENCES ddbba.SedeDeAtencion(id_sede)
 )
 GO
+
+-- Nacho: Tenemos que ver en esto que si hay estudios en progreso, esto tampoco se autorice, no? Esto está en el alcance?
+--
+
+CREATE PROCEDURE ActualizarAlianzasYTurnos(@idPrestador INT, @nuevoEstado BIT)
+AS
+BEGIN
+
+    UPDATE ddbba.AlianzaComercial
+    SET estado = @nuevoEstado
+    WHERE id_prestador = @idPrestador
+
+
+    IF @nuevoEstado = 0 --CANCELO LOS TURNOS QUE ESTÁN RESERVADOS POR EL PACIENTE Y LOS VUELVO DISPONBILES EN LA RESERVA PARA OTRA PERSONA
+    BEGIN
+
+        DECLARE @id_estado_cancelado INT
+        SET @id_estado_cancelado = SELECT id_estado FROM ddbba.EstadoTurno
+                                    WHERE nombre_estado = 'Cancelado'
+
+        DECLARE @id_estado_disponible INT
+        SET @id_estado_disponible = SELECT id_estado FROM ddbba.EstadoTurno
+                                    WHERE nombre_estado = 'Disponible'
+
+        UPDATE ddbba.turnoAsignado
+        SET id_estado_turno = @id_estado_cancelado
+        WHERE id_prestador = @idPrestador
+        AND id_estado_turno = 'Disponible'
+
+        UPDATE ddbba.ReservaDeTurnoMedico
+        SET id_estado_turno = @id_estado_disponible
+        WHERE id_estado_turno = 'Atendido'
+
+    END
+
+END
+
+
+
+CREATE PROCEDURE DisponibilizarTurnosSegunMedicoEspecialidadSede(@idMedico INT, @idEspecialidad INT, @SedeAtencion INT) --Deberíamos hacer un SP para disponibilizar las reserva de turnos médicos. 
+AS(
+
+) -- Nacho: Podemos poner nosotros las reglas de negocio para esto:
+
+--Condiciones para NO contar con el default de turno DISPONIBLE:
+-- 1) Todo lo que sea médico de especialidad clínica, podemos poner por default Disponible si es cede Central
+-- 2) Podemos decir que tenemos 2 Sedes: Central y secundaria. Si es primaria, default Disponible
