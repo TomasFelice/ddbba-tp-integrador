@@ -143,8 +143,9 @@ CREATE TABLE ddbba.Factura (
     id_pago INT,
     id_estudio INT, -- Nacho: se asume que el sistema la única información de facturas que reciben son de los estudios -- REVISAR
     dni_paciente INT,
-    costo_factura NUMERIC(10, 2),
-    porcentaje_pagado decimal(3,2), -- Nacho: sirve para poder dejar asentado si pagó el porcentaje de la factura o no, se insertar con el SP actualizarAutorizacionEstudios
+    costo_factura_inicial DECIMAL(10, 2),
+    costo_adeudado DECIMAL(10,2),
+    porcentaje_pagado DECIMAL(3,2), -- Nacho: sirve para poder dejar asentado si pagó el porcentaje de la factura o no, se insertar con el SP actualizarAutorizacionEstudios
 	CONSTRAINT pk_factura PRIMARY KEY CLUSTERED (id_factura),
     CONSTRAINT fk_pago FOREIGN KEY (id_pago) REFERENCES ddbba.Pago(id_pago),
     CONSTRAINT fk_paciente FOREIGN KEY (dni_paciente) REFERENCES ddbba.Paciente(nro_de_documento),
@@ -540,10 +541,10 @@ GO
 
 /**
     FIN SPs de ReservaTurnoMedico
-*/ 
+**/ 
 
 
-CREATE PROCEDURE ddbba.actualizarAutorizacionEstudios(@id_estudio INT, @nro_de_documento_paciente INT, @monto DECIMAL(10, 2))
+CREATE PROCEDURE ddbba.actualizarAutorizacionEstudios(@id_estudio INT, @nro_de_documento_paciente INT) --Nacho: saqué el @monto de acá, no le veo sentido
 AS
 BEGIN
     -- Declarar variables para los costos
@@ -551,7 +552,7 @@ BEGIN
     DECLARE @CostoAbonadoPago DECIMAL(10, 2);
 
     -- Obtener el costo de la factura del estudio para el paciente
-    SELECT @CostoFactura = costo_factura 
+    SELECT @CostoFactura = costo_factura_inicial 
     FROM ddbba.Factura 
     WHERE dni_paciente = @nro_de_documento_paciente 
     AND id_estudio = @id_estudio;
@@ -573,7 +574,7 @@ BEGIN
 
         -- Registrar que el costo ha sido cubierto completamente
         UPDATE ddbba.Factura
-        SET porcentaje_pagado = 1.00
+        SET porcentaje_pagado = 100
         WHERE dni_paciente = @nro_de_documento_paciente 
         AND id_estudio = @id_estudio;
     END
@@ -581,9 +582,11 @@ BEGIN
     BEGIN
         -- Calcular el porcentaje pagado y actualizar la factura
         UPDATE ddbba.Factura
-        SET porcentaje_pagado = @CostoAbonadoPago / @CostoFactura
+        SET porcentaje_pagado = (@CostoAbonadoPago / @CostoFactura) * 100
         WHERE dni_paciente = @nro_de_documento_paciente 
         AND id_estudio = @id_estudio;
+
+        -- Nacho: Deberíamos poner un atributo monto adeudado?
     END
 END
 
@@ -609,22 +612,21 @@ BEGIN
 
         DECLARE @id_estado_disponible INT
         SET @id_estado_disponible = (SELECT id_estado FROM ddbba.EstadoTurno
-                                    WHERE nombre_estado = 'Disponible')
+                                    WHERE nombre_estado = 'Disponible') -- Nacho: esto me parece que tenés razón amigo, no va @tomi felice
 
         UPDATE ddbba.turnoAsignado
         SET id_estado_turno = @id_estado_cancelado
         WHERE id_prestador = @idPrestador
-        AND id_estado_turno = 'Disponible'
+        AND id_estado_turno = @id_estado_disponible
 
-        UPDATE ddbba.ReservaTurnoMedico
-        SET id_estado_turno = @id_estado_disponible
-        WHERE id_estado_turno = 'Atendido'
+        INSERT INTO ddbba.ReservaTurnoMedico
 
     END
 
 END
 GO
 
+CREATE 
 
 CREATE OR ALTER PROCEDURE ddbba.DisponibilizarTurnosSegunMedicoEspecialidadSede(@idMedico INT, @idEspecialidad INT, @idSedeAtencion INT) --Deberíamos hacer un SP para disponibilizar las reserva de turnos médicos. 
 AS
