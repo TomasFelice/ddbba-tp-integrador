@@ -84,7 +84,7 @@ CREATE TABLE ddbba.turnoAsignado( -- Sirve para ver la lista de turnos que ya ti
     id_estado_turno INT,
     fecha DATE,
     hora TIME,
-    direccion VARCHAR(100), --POSIBLE UNION CON SEDE
+    direccion VARCHAR(100), --POSIBLE UNION CON SEDE -- REVISAR 
 	CONSTRAINT pk_turno_asignado PRIMARY KEY CLUSTERED (id_turno_asignado),
     CONSTRAINT fk_prestador FOREIGN KEY (id_prestador) REFERENCES ddbba.Prestador(id_prestador)
 )
@@ -133,7 +133,7 @@ GO
 CREATE TABLE ddbba.Pago (
     id_pago INT IDENTITY(1,1),
     fecha DATE,
-    monto NUMERIC(10, 2),
+    monto DECIMAL(10, 2), -- Nacho: me parece que mirándolo bien sería mejor un DECIMAL, no? @tomi felice. También hay un tipo de dato "Money", re falopa.
 	CONSTRAINT pk_pago PRIMARY KEY CLUSTERED (id_pago),
 )
 GO
@@ -141,11 +141,14 @@ GO
 CREATE TABLE ddbba.Factura (
     id_factura INT IDENTITY(1,1),
     id_pago INT,
+    id_estudio INT, -- Nacho: se asume que el sistema la única información de facturas que reciben son de los estudios -- REVISAR
     dni_paciente INT,
     costo_factura NUMERIC(10, 2),
+    porcentaje_pagado decimal(3,2), -- Nacho: sirve para poder dejar asentado si pagó el porcentaje de la factura o no, se insertar con el SP actualizarAutorizacionEstudios
 	CONSTRAINT pk_factura PRIMARY KEY CLUSTERED (id_factura),
     CONSTRAINT fk_pago FOREIGN KEY (id_pago) REFERENCES ddbba.Pago(id_pago),
     CONSTRAINT fk_paciente FOREIGN KEY (dni_paciente) REFERENCES ddbba.Paciente(nro_de_documento)
+    CONSTRAINT fk_estudio FOREIGN KEY (id_estudio) REFERENCES ddbba.Estudio(id_estudio)
 )
 GO
 
@@ -156,6 +159,7 @@ CREATE TABLE ddbba.AlianzaComercial (
     estado BIT DEFAULT 0, -- Nacho: este tipo de dato nunca lo vi. No dejamos int mejor?
 						  -- Tomi: Bit es como un boolean - 1 o 0. Igual no se por que lo puse, si es habilitado / deshabilitado esta OK
 								-- SI es un estado mas variablke (como el de estadoturno) hay q ponerle int y vincularlo con el id del estado
+                                -- Nacho: dale, lo dejamos así
 	CONSTRAINT id_alianza PRIMARY KEY CLUSTERED (id_alianza),
     CONSTRAINT fk_prestador FOREIGN KEY (id_prestador) REFERENCES ddbba.Prestador(id_prestador)
 )
@@ -165,6 +169,7 @@ CREATE TABLE ddbba.EstadoTurno (
     id_estado INT IDENTITY(1,1), -- Nacho: acá hay algo que no me gusta, id estado es medio falopa
 											 -- Tomi: Para mi esta OK. es para que sea mas facil referenciarlo y hacer joins si es necesario
 														-- Es mucho mas eficiente comparar ints que cadenas d texto
+                                                        -- Nacho: dale, lo dejamos así
     nombre_estado VARCHAR(9) NOT NULL,
 	CONSTRAINT pk_estado PRIMARY KEY CLUSTERED (id_estado)
 )
@@ -319,6 +324,51 @@ BEGIN
 
 END
 
+CREATE PROCEDURE ddbba.actualizarAutorizacionEstudios(@id_estudio INT, @nro_de_documento_paciente INT, @monto DECIMAL(10, 2))
+AS
+BEGIN
+    -- Declarar variables para los costos
+    DECLARE @CostoFactura DECIMAL(10, 2);
+    DECLARE @CostoAbonadoPago DECIMAL(10, 2);
+
+    -- Obtener el costo de la factura del estudio para el paciente
+    SELECT @CostoFactura = costo_factura 
+    FROM ddbba.Factura 
+    WHERE dni_paciente = @nro_de_documento_paciente 
+    AND id_estudio = @id_estudio;
+
+    -- Obtener el monto abonado por el paciente
+    SELECT @CostoAbonadoPago = SUM(p.monto)
+    FROM ddbba.Pago p
+    JOIN ddbba.Factura f ON p.id_pago = f.id_pago 
+    WHERE f.dni_paciente = @nro_de_documento_paciente 
+    AND f.id_estudio = @id_estudio;
+
+    -- Verificar si el monto abonado es mayor o igual al costo de la factura
+    IF(@CostoAbonadoPago >= @CostoFactura)
+    BEGIN
+        -- Actualizar el estudio como autorizado
+        UPDATE ddbba.Estudio
+        SET autorizado = 1
+        WHERE id_estudio = @id_estudio;
+
+        -- Registrar que el costo ha sido cubierto completamente
+        UPDATE ddbba.Factura
+        SET porcentaje_pagado = 1.00
+        WHERE dni_paciente = @nro_de_documento_paciente 
+        AND id_estudio = @id_estudio;
+    END
+    ELSE
+    BEGIN
+        -- Calcular el porcentaje pagado y actualizar la factura
+        UPDATE ddbba.Factura
+        SET porcentaje_pagado = @CostoAbonadoPago / @CostoFactura
+        WHERE dni_paciente = @nro_de_documento_paciente 
+        AND id_estudio = @id_estudio;
+    END
+END
+
+GO
 -- Nacho: Tenemos que ver en esto que si hay estudios en progreso, esto tampoco se autorice, no? Esto está en el alcance?
 --
 
@@ -357,7 +407,7 @@ END
 
 
 
-CREATE OR ALTER PROCEDURE ddbba.DisponibilizarTurnosSegunMedicoEspecialidadSede(@idMedico INT, @idEspecialidad INT, @SedeAtencion INT) --Deberíamos hacer un SP para disponibilizar las reserva de turnos médicos. 
+CREATE OR ALTER PROCEDURE ddbba.DisponibilizarTurnosSegunMedicoEspecialidadSede(@idMedico INT, @idEspecialidad INT, @idSedeAtencion INT) --Deberíamos hacer un SP para disponibilizar las reserva de turnos médicos. 
 AS
 BEGIN
 
