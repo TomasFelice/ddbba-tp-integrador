@@ -147,7 +147,7 @@ CREATE TABLE ddbba.Factura (
     porcentaje_pagado decimal(3,2), -- Nacho: sirve para poder dejar asentado si pagó el porcentaje de la factura o no, se insertar con el SP actualizarAutorizacionEstudios
 	CONSTRAINT pk_factura PRIMARY KEY CLUSTERED (id_factura),
     CONSTRAINT fk_pago FOREIGN KEY (id_pago) REFERENCES ddbba.Pago(id_pago),
-    CONSTRAINT fk_paciente FOREIGN KEY (dni_paciente) REFERENCES ddbba.Paciente(nro_de_documento)
+    CONSTRAINT fk_paciente FOREIGN KEY (dni_paciente) REFERENCES ddbba.Paciente(nro_de_documento),
     CONSTRAINT fk_estudio FOREIGN KEY (id_estudio) REFERENCES ddbba.Estudio(id_estudio)
 )
 GO
@@ -604,12 +604,12 @@ BEGIN
     BEGIN
 
         DECLARE @id_estado_cancelado INT
-        SET @id_estado_cancelado = SELECT id_estado FROM ddbba.EstadoTurno
-                                    WHERE nombre_estado = 'Cancelado'
+        SET @id_estado_cancelado = (SELECT id_estado FROM ddbba.EstadoTurno
+                                    WHERE nombre_estado = 'Cancelado')
 
         DECLARE @id_estado_disponible INT
-        SET @id_estado_disponible = SELECT id_estado FROM ddbba.EstadoTurno
-                                    WHERE nombre_estado = 'Disponible'
+        SET @id_estado_disponible = (SELECT id_estado FROM ddbba.EstadoTurno
+                                    WHERE nombre_estado = 'Disponible')
 
         UPDATE ddbba.turnoAsignado
         SET id_estado_turno = @id_estado_cancelado
@@ -623,14 +623,15 @@ BEGIN
     END
 
 END
-
+GO
 
 
 CREATE OR ALTER PROCEDURE ddbba.DisponibilizarTurnosSegunMedicoEspecialidadSede(@idMedico INT, @idEspecialidad INT, @idSedeAtencion INT) --Deberíamos hacer un SP para disponibilizar las reserva de turnos médicos. 
 AS
 BEGIN
 
-END -- Nacho: Podemos poner nosotros las reglas de negocio para esto:
+END
+GO -- Nacho: Podemos poner nosotros las reglas de negocio para esto:
 
 --Condiciones para NO contar con el default de turno DISPONIBLE:
 -- 1) Todo lo que sea médico de especialidad clínica, podemos poner por default Disponible si es cede Central
