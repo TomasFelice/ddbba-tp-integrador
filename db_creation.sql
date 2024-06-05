@@ -22,13 +22,29 @@
 -- Creo que en vez de DATE nos conviene usar DATETIME para tener la referencia de H, M y S
 -- Nacho: no sé en cuáles. Por ahí en algún turno no vendría mal
 
-
+--------------------------------------------------
+------  CREACION DB
+--------------------------------------------------
+USE master
+GO
+DROP DATABASE IF EXISTS com2900g09
+GO
 CREATE DATABASE com2900g09
 GO
-
 USE com2900g09
 GO
 
+--------------------------------------------------
+------  CREACION ROLES
+--------------------------------------------------
+
+-- Crear roles segun lo visto en la ultima clase
+
+--------------------------------------------------
+------  CREACION SCHEMAS
+--------------------------------------------------
+
+-- Crear los schemas correspondientes para cada funcionalidad / permiso
 CREATE SCHEMA ddbba
 GO
 
@@ -47,7 +63,7 @@ CREATE TABLE ddbba.Cobertura (
     nro_de_socio INT,
     fecha_de_registro DATE,
 	CONSTRAINT pk_cobertura PRIMARY KEY CLUSTERED (id_cobertura),
-    CONSTRAINT fk_prestador FOREIGN KEY (id_prestador) REFERENCES ddbba.Prestador(id_prestador)
+    CONSTRAINT fk_prestador FOREIGN KEY (id_prestador) REFERENCES ddbba.Prestador(id_prestador) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 
@@ -72,8 +88,7 @@ CREATE TABLE ddbba.Paciente (
     fecha_de_actualizacion DATE,
     usuario_actualizacion DATE,
 	CONSTRAINT pk_historia_clinica PRIMARY KEY CLUSTERED (id_historia_clinica),
-    CONSTRAINT fk_cobertura FOREIGN KEY (id_cobertura) REFERENCES ddbba.Cobertura(id_cobertura),
-    CONSTRAINT fk_cobertura FOREIGN KEY (id_cobertura) REFERENCES ddbba.Cobertura(id_cobertura)
+    CONSTRAINT fk_cobertura FOREIGN KEY (id_cobertura) REFERENCES ddbba.Cobertura(id_cobertura) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 
@@ -86,7 +101,7 @@ CREATE TABLE ddbba.turnoAsignado( -- Sirve para ver la lista de turnos que ya ti
     hora TIME,
     direccion VARCHAR(100), --POSIBLE UNION CON SEDE -- REVISAR 
 	CONSTRAINT pk_turno_asignado PRIMARY KEY CLUSTERED (id_turno_asignado),
-    CONSTRAINT fk_prestador FOREIGN KEY (id_prestador) REFERENCES ddbba.Prestador(id_prestador)
+    CONSTRAINT fk_prestador FOREIGN KEY (id_prestador) REFERENCES ddbba.Prestador(id_prestador) ON DELETE CASCADE ON UPDATE CASCADE
 )
 
 GO
@@ -97,7 +112,7 @@ CREATE TABLE ddbba.Usuario (
     contrasenia VARCHAR(255),
     fecha_de_creacion DATE,
 	CONSTRAINT pk_usuario PRIMARY KEY CLUSTERED (id_usuario),
-    CONSTRAINT fk_paciente FOREIGN KEY (nro_de_documento) REFERENCES ddbba.Paciente(nro_de_documento)
+    CONSTRAINT fk_paciente FOREIGN KEY (nro_de_documento) REFERENCES ddbba.Paciente(nro_de_documento) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 
@@ -113,7 +128,7 @@ CREATE TABLE ddbba.Domicilio (
     provincia VARCHAR(50),
     localidad VARCHAR(50),
 	CONSTRAINT pk_domicilio PRIMARY KEY CLUSTERED (id_domicilio),
-    CONSTRAINT fk_paciente FOREIGN KEY (nro_documento_paciente) REFERENCES ddbba.Paciente(nro_de_documento)
+    CONSTRAINT fk_paciente FOREIGN KEY (nro_documento_paciente) REFERENCES ddbba.Paciente(nro_de_documento) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 
@@ -126,14 +141,14 @@ CREATE TABLE ddbba.Estudio (
     documento_resultado BIT DEFAULT 0,
     imagen_resultado VARCHAR(255), --Aquí se insertarán URLS generadas desde otro sistema
 	CONSTRAINT pk_estudio PRIMARY KEY CLUSTERED (id_estudio),
-    CONSTRAINT fk_paciente FOREIGN KEY (nro_documento_paciente) REFERENCES ddbba.Paciente(nro_de_documento)
+    CONSTRAINT fk_paciente FOREIGN KEY (nro_documento_paciente) REFERENCES ddbba.Paciente(nro_de_documento) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 
 CREATE TABLE ddbba.Pago (
     id_pago INT IDENTITY(1,1),
     fecha DATE,
-    monto DECIMAL(10, 2), -- Nacho: me parece que mirándolo bien sería mejor un DECIMAL, no? @tomi felice. También hay un tipo de dato "Money", re falopa.
+    monto DECIMAL(10, 2),
 	CONSTRAINT pk_pago PRIMARY KEY CLUSTERED (id_pago),
 )
 GO
@@ -147,9 +162,9 @@ CREATE TABLE ddbba.Factura (
     costo_adeudado DECIMAL(10,2),
     porcentaje_pagado DECIMAL(3,2), -- Nacho: sirve para poder dejar asentado si pagó el porcentaje de la factura o no, se insertar con el SP actualizarAutorizacionEstudios
 	CONSTRAINT pk_factura PRIMARY KEY CLUSTERED (id_factura),
-    CONSTRAINT fk_pago FOREIGN KEY (id_pago) REFERENCES ddbba.Pago(id_pago),
-    CONSTRAINT fk_paciente FOREIGN KEY (dni_paciente) REFERENCES ddbba.Paciente(nro_de_documento),
-    CONSTRAINT fk_estudio FOREIGN KEY (id_estudio) REFERENCES ddbba.Estudio(id_estudio)
+    CONSTRAINT fk_pago FOREIGN KEY (id_pago) REFERENCES ddbba.Pago(id_pago) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_paciente FOREIGN KEY (dni_paciente) REFERENCES ddbba.Paciente(nro_de_documento) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_estudio FOREIGN KEY (id_estudio) REFERENCES ddbba.Estudio(id_estudio) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 
@@ -162,7 +177,7 @@ CREATE TABLE ddbba.AlianzaComercial (
 								-- SI es un estado mas variablke (como el de estadoturno) hay q ponerle int y vincularlo con el id del estado
                                 -- Nacho: dale, lo dejamos así
 	CONSTRAINT id_alianza PRIMARY KEY CLUSTERED (id_alianza),
-    CONSTRAINT fk_prestador FOREIGN KEY (id_prestador) REFERENCES ddbba.Prestador(id_prestador)
+    CONSTRAINT fk_prestador FOREIGN KEY (id_prestador) REFERENCES ddbba.Prestador(id_prestador) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 
@@ -196,7 +211,7 @@ CREATE TABLE ddbba.Medico (
     apellido VARCHAR(50),
     nro_matricula CHAR(10),
 	CONSTRAINT pk_medico PRIMARY KEY CLUSTERED (id_medico),
-    CONSTRAINT fk_especialidad FOREIGN KEY (id_especialidad) REFERENCES ddbba.Especialidad(id_especialidad)
+    CONSTRAINT fk_especialidad FOREIGN KEY (id_especialidad) REFERENCES ddbba.Especialidad(id_especialidad) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 
@@ -216,11 +231,11 @@ CREATE TABLE ddbba.ReservaTurnoMedico (
 									-- Podemos debatir si es mejor hacer una tabla aparte "de auditoria" que mantenga todos los registros
 									-- y aca hacer el borrado fisico
 	CONSTRAINT pk_turno PRIMARY KEY CLUSTERED (id_turno),
-    CONSTRAINT fk_estado_turno FOREIGN KEY (id_estado_turno) REFERENCES ddbba.EstadoTurno(id_estado),
-    CONSTRAINT fk_tipo_turno FOREIGN KEY (id_tipo_turno) REFERENCES ddbba.TipoTurno(id_tipo_turno),
-	CONSTRAINT fk_historia_clinica FOREIGN KEY (id_historia_clinica) REFERENCES ddbba.Paciente(id_historia_clinica),
-	CONSTRAINT fk_medico FOREIGN KEY (id_medico) REFERENCES ddbba.Medico(id_medico),
-	CONSTRAINT fk_especialidad FOREIGN KEY (id_especialidad) REFERENCES ddbba.Especialidad(id_especialidad)
+    CONSTRAINT fk_estado_turno FOREIGN KEY (id_estado_turno) REFERENCES ddbba.EstadoTurno(id_estado) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_tipo_turno FOREIGN KEY (id_tipo_turno) REFERENCES ddbba.TipoTurno(id_tipo_turno) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT fk_historia_clinica FOREIGN KEY (id_historia_clinica) REFERENCES ddbba.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT fk_medico FOREIGN KEY (id_medico) REFERENCES ddbba.Medico(id_medico) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT fk_especialidad FOREIGN KEY (id_especialidad) REFERENCES ddbba.Especialidad(id_especialidad) ON DELETE CASCADE ON UPDATE CASCADE
     --CONSTRAINT fk_paciente FOREIGN KEY (nro_documento_paciente) REFERENCES ddbba.Paciente(nro_de_documento)
 )
 GO
@@ -240,8 +255,8 @@ CREATE TABLE ddbba.DiasPorSede (
     dia VARCHAR(9),
     hora_inicio TIME,
 	CONSTRAINT pk_dia_sede PRIMARY KEY CLUSTERED (id_dia_sede),
-    CONSTRAINT fk_medico FOREIGN KEY (id_medico) REFERENCES ddbba.Medico(id_medico),
-    CONSTRAINT fk_sede FOREIGN KEY (id_sede) REFERENCES ddbba.SedeDeAtencion(id_sede)
+    CONSTRAINT fk_medico FOREIGN KEY (id_medico) REFERENCES ddbba.Medico(id_medico) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_sede FOREIGN KEY (id_sede) REFERENCES ddbba.SedeDeAtencion(id_sede) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 
