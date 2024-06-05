@@ -3,7 +3,8 @@
 -- DB: com2900g09
 -- SCHEMA: ddbba
 -- TABLAS: UpperCamelCase 
--- CAMPOS: camel_case
+-- CAMPOS: camel_case+
+-- ROLES: UpperCamelCase
 
 -- Falta revisar con profundidad los tipos de datos
 -- y valores por defecto
@@ -37,16 +38,32 @@ GO
 --------------------------------------------------
 ------  CREACION ROLES
 --------------------------------------------------
-
--- Crear roles segun lo visto en la ultima clase
+-- Definir como los vamos a usar --
+-- CREATE ROLE Paciente
+-- GO
+-- CREATE ROLE Medico
+-- GO
+-- CREATE ROLE AdministradorGeneral
+-- GO
+-- CREATE ROLE TecnicoClinico
+-- GO
+-- CREATE ROLE Administrativo
+-- GO
 
 --------------------------------------------------
 ------  CREACION SCHEMAS
 --------------------------------------------------
-
--- Crear los schemas correspondientes para cada funcionalidad / permiso
-CREATE SCHEMA ddbba
+CREATE SCHEMA ObraSocial
 GO
+CREATE SCHEMA Pacientes
+GO
+CREATE SCHEMA Hospital
+GO
+CREATE SCHEMA Turnos
+
+--------------------------------------------------
+------  CREACION TABLAS
+--------------------------------------------------
 
 CREATE TABLE ddbba.Prestador (
     id_prestador INT IDENTITY(1,1),
@@ -75,7 +92,7 @@ CREATE TABLE ddbba.Paciente (
     apellido_materno VARCHAR(50),
     fecha_de_nacimiento DATE NOT NULL,
     tipo_documento VARCHAR(25),
-    nro_de_documento INT UNIQUE NOT NULL,
+    id_historia_clinica INT UNIQUE NOT NULL,
     sexo_biologico CHAR(1),
     genero CHAR(1),
     nacionalidad VARCHAR(18),
@@ -92,33 +109,19 @@ CREATE TABLE ddbba.Paciente (
 )
 GO
 
-CREATE TABLE ddbba.turnoAsignado( -- Sirve para ver la lista de turnos que ya tiene asignado. La reserva del turno es un proceso intermedio a tenerlo asignado
-    id_turno_asignado INT IDENTITY(1,1),
-    nro_de_documento_paciente INT NOT NULL,
-    id_prestador INT NOT NULL,
-    id_estado_turno INT,
-    fecha DATE,
-    hora TIME,
-    direccion VARCHAR(100), --POSIBLE UNION CON SEDE -- REVISAR 
-	CONSTRAINT pk_turno_asignado PRIMARY KEY CLUSTERED (id_turno_asignado),
-    CONSTRAINT fk_prestador FOREIGN KEY (id_prestador) REFERENCES ddbba.Prestador(id_prestador) ON DELETE CASCADE ON UPDATE CASCADE
-)
-
-GO
-
 CREATE TABLE ddbba.Usuario (
     id_usuario INT IDENTITY(1,1),
-    nro_de_documento INT NOT NULL,
+    id_historia_clinica INT NOT NULL,
     contrasenia VARCHAR(255),
     fecha_de_creacion DATE,
 	CONSTRAINT pk_usuario PRIMARY KEY CLUSTERED (id_usuario),
-    CONSTRAINT fk_paciente FOREIGN KEY (nro_de_documento) REFERENCES ddbba.Paciente(nro_de_documento) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT fk_paciente FOREIGN KEY (id_historia_clinica) REFERENCES ddbba.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 
 CREATE TABLE ddbba.Domicilio (
     id_domicilio INT IDENTITY(1,1),
-    nro_documento_paciente INT NOT NULL,
+    id_historia_clinica INT NOT NULL,
     calle VARCHAR(50),
     numero INT,
     piso int, -- es texto o es numero? yo me imagino: Piso 1 por ej. --- Nacho: lo podemos considerar como int, está bien
@@ -128,20 +131,20 @@ CREATE TABLE ddbba.Domicilio (
     provincia VARCHAR(50),
     localidad VARCHAR(50),
 	CONSTRAINT pk_domicilio PRIMARY KEY CLUSTERED (id_domicilio),
-    CONSTRAINT fk_paciente FOREIGN KEY (nro_documento_paciente) REFERENCES ddbba.Paciente(nro_de_documento) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT fk_paciente FOREIGN KEY (id_historia_clinica) REFERENCES ddbba.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 
 CREATE TABLE ddbba.Estudio (
     id_estudio INT IDENTITY(1,1),
-    nro_documento_paciente INT NOT NULL,
+    id_historia_clinica INT NOT NULL,
     fecha DATE,
     nombre_estudio VARCHAR(50) NOT NULL,
     autorizado BIT DEFAULT 0,
     documento_resultado BIT DEFAULT 0,
     imagen_resultado VARCHAR(255), --Aquí se insertarán URLS generadas desde otro sistema
 	CONSTRAINT pk_estudio PRIMARY KEY CLUSTERED (id_estudio),
-    CONSTRAINT fk_paciente FOREIGN KEY (nro_documento_paciente) REFERENCES ddbba.Paciente(nro_de_documento) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT fk_paciente FOREIGN KEY (id_historia_clinica) REFERENCES ddbba.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 
@@ -157,27 +160,14 @@ CREATE TABLE ddbba.Factura (
     id_factura INT IDENTITY(1,1),
     id_pago INT,
     id_estudio INT, -- Nacho: se asume que el sistema la única información de facturas que reciben son de los estudios -- REVISAR
-    dni_paciente INT,
+    id_historia_clinica INT,
     costo_factura_inicial DECIMAL(10, 2),
     costo_adeudado DECIMAL(10,2),
     porcentaje_pagado DECIMAL(3,2), -- Nacho: sirve para poder dejar asentado si pagó el porcentaje de la factura o no, se insertar con el SP actualizarAutorizacionEstudios
 	CONSTRAINT pk_factura PRIMARY KEY CLUSTERED (id_factura),
     CONSTRAINT fk_pago FOREIGN KEY (id_pago) REFERENCES ddbba.Pago(id_pago) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_paciente FOREIGN KEY (dni_paciente) REFERENCES ddbba.Paciente(nro_de_documento) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_paciente FOREIGN KEY (id_historia_clinica) REFERENCES ddbba.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_estudio FOREIGN KEY (id_estudio) REFERENCES ddbba.Estudio(id_estudio) ON DELETE CASCADE ON UPDATE CASCADE
-)
-GO
-
-CREATE TABLE ddbba.AlianzaComercial (
-    id_alianza INT IDENTITY(1,1),
-    id_prestador INT NOT NULL,
-    nombre VARCHAR(50),-- Aquí se insertarán URLS generadas desde otro sistema
-    estado BIT DEFAULT 0, -- Nacho: este tipo de dato nunca lo vi. No dejamos int mejor?
-						  -- Tomi: Bit es como un boolean - 1 o 0. Igual no se por que lo puse, si es habilitado / deshabilitado esta OK
-								-- SI es un estado mas variablke (como el de estadoturno) hay q ponerle int y vincularlo con el id del estado
-                                -- Nacho: dale, lo dejamos así
-	CONSTRAINT id_alianza PRIMARY KEY CLUSTERED (id_alianza),
-    CONSTRAINT fk_prestador FOREIGN KEY (id_prestador) REFERENCES ddbba.Prestador(id_prestador) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 
@@ -559,7 +549,7 @@ GO
 **/ 
 
 
-CREATE PROCEDURE ddbba.actualizarAutorizacionEstudios(@id_estudio INT, @nro_de_documento_paciente INT) --Nacho: saqué el @monto de acá, no le veo sentido
+CREATE PROCEDURE ddbba.actualizarAutorizacionEstudios(@id_estudio INT, @id_historia_clinica_paciente INT) --Nacho: saqué el @monto de acá, no le veo sentido
 AS
 BEGIN
     -- Declarar variables para los costos
@@ -569,14 +559,14 @@ BEGIN
     -- Obtener el costo de la factura del estudio para el paciente
     SELECT @CostoFactura = costo_factura_inicial 
     FROM ddbba.Factura 
-    WHERE dni_paciente = @nro_de_documento_paciente 
+    WHERE id_historia_clinica = @id_historia_clinica_paciente 
     AND id_estudio = @id_estudio;
 
     -- Obtener el monto abonado por el paciente
     SELECT @CostoAbonadoPago = SUM(p.monto)
     FROM ddbba.Pago p
     JOIN ddbba.Factura f ON p.id_pago = f.id_pago 
-    WHERE f.dni_paciente = @nro_de_documento_paciente 
+    WHERE f.id_historia_clinica = @id_historia_clinica_paciente 
     AND f.id_estudio = @id_estudio;
 
     -- Verificar si el monto abonado es mayor o igual al costo de la factura
@@ -590,7 +580,7 @@ BEGIN
         -- Registrar que el costo ha sido cubierto completamente
         UPDATE ddbba.Factura
         SET porcentaje_pagado = 100
-        WHERE dni_paciente = @nro_de_documento_paciente 
+        WHERE id_historia_clinica = @id_historia_clinica_paciente 
         AND id_estudio = @id_estudio;
     END
     ELSE
@@ -598,7 +588,7 @@ BEGIN
         -- Calcular el porcentaje pagado y actualizar la factura
         UPDATE ddbba.Factura
         SET porcentaje_pagado = (@CostoAbonadoPago / @CostoFactura) * 100
-        WHERE dni_paciente = @nro_de_documento_paciente 
+        WHERE id_historia_clinica = @id_historia_clinica_paciente 
         AND id_estudio = @id_estudio;
 
         -- Nacho: Deberíamos poner un atributo monto adeudado?
