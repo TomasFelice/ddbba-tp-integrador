@@ -22,43 +22,43 @@ BEGIN
     IF @nombre IS NULL
     BEGIN
         RAISERROR ('El campo  nombre es obligatorio.', 16, 1);
-        RETURN;
+        RETURN
     END
 
     IF @apellido IS NULL
     BEGIN
         RAISERROR ('El campo apellido es obligatorio.', 16, 1);
-        RETURN;
+        RETURN
     END
 
     IF @fecha_de_nacimiento IS NULL
     BEGIN
         RAISERROR ('El campo fecha de nacimiento es obligatorio.', 16, 1);
-        RETURN;
+        RETURN
     END
 
     IF @tipo_documento IS NULL
     BEGIN
         RAISERROR ('El campo tipo_documento es obligatorio.', 16, 1);
-        RETURN;
+        RETURN
     END
 
     IF @sexo_biologico IS NULL
     BEGIN
         RAISERROR ('El campo sexo_biologico es obligatorio.', 16, 1);
-        RETURN;
+        RETURN
     END
 
     IF @genero IS NULL
     BEGIN
         RAISERROR ('El campo genero es obligatorio.', 16, 1);
-        RETURN;
+        RETURN
     END
 
     IF @nacionalidad IS NULL
     BEGIN
         RAISERROR ('El campo nacionalidad es obligatorio.', 16, 1);
-        RETURN;
+        RETURN
     END
 
     IF @mail IS NULL
@@ -70,7 +70,7 @@ BEGIN
     IF @usuario_actualizacion IS NULL
     BEGIN
         RAISERROR ('El campo usuario_actualizacion es obligatorio.', 16, 1); -- ver si tomamos el dato de que se obtenga el id del usuario que lo está insertando
-        RETURN;
+        RETURN
     END
 
     INSERT INTO Paciente.Paciente (
@@ -195,7 +195,7 @@ BEGIN
     -- Si la fecha no se proporciona, se genera un error
     IF @fecha IS NULL
     BEGIN
-        RAISERROR ('La fecha es un campo obligatorio.', 16, 1);
+        RAISERROR ('La fecha es un campo obligatorio.', 16, 1)
         RETURN;
     END
 
@@ -225,7 +225,7 @@ BEGIN
 
     IF @monto IS NULL
     BEGIN
-        RAISERROR ('El campo monto es obligatorio.', 16, 1);
+        RAISERROR ('El campo monto es obligatorio.', 16, 1)
         RETURN;
     END
 
