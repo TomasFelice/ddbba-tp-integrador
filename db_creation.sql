@@ -65,7 +65,15 @@ CREATE SCHEMA Turnos
 ------  CREACION TABLAS
 --------------------------------------------------
 
-CREATE TABLE ddbba.Prestador (
+/*
+    * Colocamos ON DELETE CASCADE y ON UPDATE CASCADE en las relaciones para que si se elimina un registro padre, se eliminen los registros hijos
+    * Definimos manualmente las CONSTRAINTS para poder nombrarlas y tener un mejor control de las mismas
+    * Todo el manejo de imagenes se hará con URLS generadas desde otro sistema. No se almacenarán imagenes en la base de datos
+    * El borrado lógico se realiza registrando la fecha y hora de borrado en un campo de la tabla
+*/
+
+
+CREATE TABLE ObraSocial.Prestador (
     id_prestador INT IDENTITY(1,1),
     nombre_prestador VARCHAR(100),
     plan_prestador VARCHAR(50)
@@ -73,18 +81,18 @@ CREATE TABLE ddbba.Prestador (
 )
 GO
 
-CREATE TABLE ddbba.Cobertura (
+CREATE TABLE ObraSocial.Cobertura (
     id_cobertura INT IDENTITY(1,1),
     id_prestador INT,
     imagen_de_la_credencial VARCHAR(255), --Aquí se insertarán URLS generadas desde otro sistema
     nro_de_socio INT,
-    fecha_de_registro DATE,
+    fecha_de_registro DATE DEFAULT GETDATE(),
 	CONSTRAINT pk_cobertura PRIMARY KEY CLUSTERED (id_cobertura),
-    CONSTRAINT fk_prestador FOREIGN KEY (id_prestador) REFERENCES ddbba.Prestador(id_prestador) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT fk_prestador FOREIGN KEY (id_prestador) REFERENCES Obrasocial.Prestador(id_prestador) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 
-CREATE TABLE ddbba.Paciente (
+CREATE TABLE Pacientes.Paciente (
     id_historia_clinica INT IDENTITY(1,1),
     id_cobertura INT,
     nombre VARCHAR(50) NOT NULL,
@@ -92,7 +100,6 @@ CREATE TABLE ddbba.Paciente (
     apellido_materno VARCHAR(50),
     fecha_de_nacimiento DATE NOT NULL,
     tipo_documento VARCHAR(25),
-    id_historia_clinica INT UNIQUE NOT NULL,
     sexo_biologico CHAR(1),
     genero CHAR(1),
     nacionalidad VARCHAR(18),
@@ -101,77 +108,82 @@ CREATE TABLE ddbba.Paciente (
     telefono_fijo CHAR(15),
     telefono_de_contacto_alternativo CHAR(15),
     telefono_laboral CHAR(15),
-    fecha_de_registro DATE NOT NULL,
-    fecha_de_actualizacion DATE,
+    fecha_de_registro DATE DEFAULT GETDATE(),
+    fecha_de_actualizacion DATE DEFAULT GETDATE(),
     usuario_actualizacion DATE,
+    fecha_borrado DATETIME DEFAULT NULL,
 	CONSTRAINT pk_historia_clinica PRIMARY KEY CLUSTERED (id_historia_clinica),
-    CONSTRAINT fk_cobertura FOREIGN KEY (id_cobertura) REFERENCES ddbba.Cobertura(id_cobertura) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT fk_cobertura FOREIGN KEY (id_cobertura) REFERENCES ObraSocial.Cobertura(id_cobertura) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 
-CREATE TABLE ddbba.Usuario (
+CREATE TABLE Pacientes.Usuario (
     id_usuario INT IDENTITY(1,1),
     id_historia_clinica INT NOT NULL,
+    nombre_usuario VARCHAR(50) UNIQUE,
     contrasenia VARCHAR(255),
-    fecha_de_creacion DATE,
+    fecha_de_creacion DATE DEFAULT GETDATE(),
+    fecha_borrado DATETIME DEFAULT NULL,
 	CONSTRAINT pk_usuario PRIMARY KEY CLUSTERED (id_usuario),
-    CONSTRAINT fk_paciente FOREIGN KEY (id_historia_clinica) REFERENCES ddbba.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT fk_paciente FOREIGN KEY (id_historia_clinica) REFERENCES Pacientes.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 
-CREATE TABLE ddbba.Domicilio (
+CREATE TABLE Pacientes.Domicilio (
     id_domicilio INT IDENTITY(1,1),
     id_historia_clinica INT NOT NULL,
     calle VARCHAR(50),
     numero INT,
-    piso int, -- es texto o es numero? yo me imagino: Piso 1 por ej. --- Nacho: lo podemos considerar como int, está bien
-    departamento CHAR(10), -- testo o unmero? yo me imagino: dpto 2 por ej o dpto A por ej
+    piso INT,
+    departamento CHAR(10),
     codigo_postal CHAR(10),
     pais VARCHAR(40),
     provincia VARCHAR(50),
     localidad VARCHAR(50),
 	CONSTRAINT pk_domicilio PRIMARY KEY CLUSTERED (id_domicilio),
-    CONSTRAINT fk_paciente FOREIGN KEY (id_historia_clinica) REFERENCES ddbba.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT fk_paciente FOREIGN KEY (id_historia_clinica) REFERENCES Pacientes.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 
-CREATE TABLE ddbba.Estudio (
+CREATE TABLE Pacientes.Estudio (
     id_estudio INT IDENTITY(1,1),
     id_historia_clinica INT NOT NULL,
-    fecha DATE,
-    nombre_estudio VARCHAR(50) NOT NULL,
+    fecha DATE NOT NULL,
+    nombre_estudio VARCHAR(100) NOT NULL,
     autorizado BIT DEFAULT 0,
-    documento_resultado BIT DEFAULT 0,
-    imagen_resultado VARCHAR(255), --Aquí se insertarán URLS generadas desde otro sistema
+    documento_resultado VARCHAR(255), -- Se intepreta con la URL al documento
+    imagen_resultado VARCHAR(255), -- Aquí se insertarán URLS generadas desde otro sistema
 	CONSTRAINT pk_estudio PRIMARY KEY CLUSTERED (id_estudio),
-    CONSTRAINT fk_paciente FOREIGN KEY (id_historia_clinica) REFERENCES ddbba.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT fk_paciente FOREIGN KEY (id_historia_clinica) REFERENCES Pacientes.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 
-CREATE TABLE ddbba.Pago (
+CREATE TABLE Pacientes.Pago (
     id_pago INT IDENTITY(1,1),
-    fecha DATE,
+    id_historia_clinica INT NOT NULL,
+    fecha DATE DEFAULT GETDATE(),
     monto DECIMAL(10, 2),
 	CONSTRAINT pk_pago PRIMARY KEY CLUSTERED (id_pago),
+    CONSTRAINT fk_paciente FOREIGN KEY (id_historia_clinica) REFERENCES Pacientes.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 
-CREATE TABLE ddbba.Factura (
+CREATE TABLE Pacientes.Factura (
     id_factura INT IDENTITY(1,1),
     id_pago INT,
-    id_estudio INT, -- Nacho: se asume que el sistema la única información de facturas que reciben son de los estudios -- REVISAR
+    id_estudio INT,
     id_historia_clinica INT,
     costo_factura_inicial DECIMAL(10, 2),
     costo_adeudado DECIMAL(10,2),
     porcentaje_pagado DECIMAL(3,2), -- Nacho: sirve para poder dejar asentado si pagó el porcentaje de la factura o no, se insertar con el SP actualizarAutorizacionEstudios
 	CONSTRAINT pk_factura PRIMARY KEY CLUSTERED (id_factura),
-    CONSTRAINT fk_pago FOREIGN KEY (id_pago) REFERENCES ddbba.Pago(id_pago) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_paciente FOREIGN KEY (id_historia_clinica) REFERENCES ddbba.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_estudio FOREIGN KEY (id_estudio) REFERENCES ddbba.Estudio(id_estudio) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT fk_pago FOREIGN KEY (id_pago) REFERENCES Pacientes.Pago(id_pago) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_paciente FOREIGN KEY (id_historia_clinica) REFERENCES Pacientes.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_estudio FOREIGN KEY (id_estudio) REFERENCES Pacientes.Estudio(id_estudio) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 
-CREATE TABLE ddbba.EstadoTurno (
+CREATE TABLE Turnos.EstadoTurno (
     id_estado INT IDENTITY(1,1), -- Nacho: acá hay algo que no me gusta, id estado es medio falopa
 											 -- Tomi: Para mi esta OK. es para que sea mas facil referenciarlo y hacer joins si es necesario
 														-- Es mucho mas eficiente comparar ints que cadenas d texto
@@ -181,31 +193,32 @@ CREATE TABLE ddbba.EstadoTurno (
 )
 GO
 
-CREATE TABLE ddbba.TipoTurno (
+CREATE TABLE Turnos.TipoTurno (
     id_tipo_turno INT IDENTITY(1,1),
     nombre_del_tipo_de_turno VARCHAR(10) NOT NULL,
+    minutos_duracion INT DEFAULT 15,
 	CONSTRAINT pk_tipo_turno PRIMARY KEY CLUSTERED (id_tipo_turno)
 )
 GO
 
-CREATE TABLE ddbba.Especialidad (
+CREATE TABLE Hospital.Especialidad (
     id_especialidad INT IDENTITY(1,1),
     nombre_especialidad VARCHAR(50),
 	CONSTRAINT pk_especialidad PRIMARY KEY CLUSTERED (id_especialidad),
 )
 
-CREATE TABLE ddbba.Medico (
+CREATE TABLE Hospital.Medico (
     id_medico INT IDENTITY(1,1),
     id_especialidad INT,
     nombre VARCHAR(50),
     apellido VARCHAR(50),
     nro_matricula CHAR(10),
 	CONSTRAINT pk_medico PRIMARY KEY CLUSTERED (id_medico),
-    CONSTRAINT fk_especialidad FOREIGN KEY (id_especialidad) REFERENCES ddbba.Especialidad(id_especialidad) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT fk_especialidad FOREIGN KEY (id_especialidad) REFERENCES Hospital.Especialidad(id_especialidad) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 
-CREATE TABLE ddbba.ReservaTurnoMedico (
+CREATE TABLE Turnos.ReservaTurnoMedico (
     id_turno INT IDENTITY(1,1),
     --nro_documento_paciente INT, -- Nacho: comento esto ya que para un SP tengo que encontrar todos los pacientes que reservaron turno para cancelarlos
 									-- Tomi: Podemos agregar el id_historia_clinica (PACIENTE) y con eso va joya creo. Procedo a hacerlo
@@ -221,16 +234,16 @@ CREATE TABLE ddbba.ReservaTurnoMedico (
 									-- Podemos debatir si es mejor hacer una tabla aparte "de auditoria" que mantenga todos los registros
 									-- y aca hacer el borrado fisico
 	CONSTRAINT pk_turno PRIMARY KEY CLUSTERED (id_turno),
-    CONSTRAINT fk_estado_turno FOREIGN KEY (id_estado_turno) REFERENCES ddbba.EstadoTurno(id_estado) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_tipo_turno FOREIGN KEY (id_tipo_turno) REFERENCES ddbba.TipoTurno(id_tipo_turno) ON DELETE CASCADE ON UPDATE CASCADE,
-	CONSTRAINT fk_historia_clinica FOREIGN KEY (id_historia_clinica) REFERENCES ddbba.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE,
-	CONSTRAINT fk_medico FOREIGN KEY (id_medico) REFERENCES ddbba.Medico(id_medico) ON DELETE CASCADE ON UPDATE CASCADE,
-	CONSTRAINT fk_especialidad FOREIGN KEY (id_especialidad) REFERENCES ddbba.Especialidad(id_especialidad) ON DELETE CASCADE ON UPDATE CASCADE
-    --CONSTRAINT fk_paciente FOREIGN KEY (nro_documento_paciente) REFERENCES ddbba.Paciente(nro_de_documento)
+    CONSTRAINT fk_estado_turno FOREIGN KEY (id_estado_turno) REFERENCES Turnos.EstadoTurno(id_estado) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_tipo_turno FOREIGN KEY (id_tipo_turno) REFERENCES Turnos.TipoTurno(id_tipo_turno) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT fk_historia_clinica FOREIGN KEY (id_historia_clinica) REFERENCES Pacientes.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT fk_medico FOREIGN KEY (id_medico) REFERENCES Hospital.Medico(id_medico) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT fk_especialidad FOREIGN KEY (id_especialidad) REFERENCES Hospital.Especialidad(id_especialidad) ON DELETE CASCADE ON UPDATE CASCADE
+    --CONSTRAINT fk_paciente FOREIGN KEY (nro_documento_paciente) REFERENCES Pacientes.Paciente(nro_de_documento)
 )
 GO
 
-CREATE TABLE ddbba.SedeDeAtencion (
+CREATE TABLE Hospital.SedeDeAtencion (
     id_sede INT IDENTITY(1,1),
     nombre_de_la_sede VARCHAR(50),
     direccion_sede VARCHAR(50),
@@ -238,17 +251,29 @@ CREATE TABLE ddbba.SedeDeAtencion (
 )
 GO
 
-CREATE TABLE ddbba.DiasPorSede (
+CREATE TABLE Hospital.DiasPorSede (
 	id_dia_sede INT IDENTITY(1,1),
     id_sede INT,
     id_medico INT,
     dia VARCHAR(9),
     hora_inicio TIME,
 	CONSTRAINT pk_dia_sede PRIMARY KEY CLUSTERED (id_dia_sede),
-    CONSTRAINT fk_medico FOREIGN KEY (id_medico) REFERENCES ddbba.Medico(id_medico) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_sede FOREIGN KEY (id_sede) REFERENCES ddbba.SedeDeAtencion(id_sede) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT fk_medico FOREIGN KEY (id_medico) REFERENCES Hospital.Medico(id_medico) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_sede FOREIGN KEY (id_sede) REFERENCES Hospital.SedeDeAtencion(id_sede) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
+
+/**
+    FIN CREACION TABLAS
+*/
+
+--------------------------------------------------
+------  INSERCION VALORES DEFINIDOS
+--------------------------------------------------
+INSERT INTO Turnos.EstadoTurno (nombre_estado)
+VALUES ('Disponible'), ('Reservado'), ('Cancelado'), ('Atendido'), ('Ausente')
+GO
+
 
 /**
     SPs de Prestador
@@ -260,7 +285,7 @@ AS
 BEGIN
     BEGIN TRY
         -- Insertar el registro
-        INSERT INTO ddbba.Prestador (nombre_prestador, plan_prestador)
+        INSERT INTO Obrasocial.Prestador (nombre_prestador, plan_prestador)
         VALUES (@nombrePrestador, @planPrestador);
         
         SELECT 'Prestador creado exitosamente.';
@@ -278,7 +303,7 @@ CREATE OR ALTER PROCEDURE ddbba.ActualizarPrestador
 AS
 BEGIN
     BEGIN TRY
-        IF NOT EXISTS (SELECT 1 FROM ddbba.Prestador WHERE id_prestador = @idPrestador)
+        IF NOT EXISTS (SELECT 1 FROM Obrasocial.Prestador WHERE id_prestador = @idPrestador)
         BEGIN
             SELECT 'Error: El prestador a actualizar no existe.';
             RETURN;
@@ -286,7 +311,7 @@ BEGIN
 
         -- Se arma la consulta SQL dinámica
         DECLARE @consulta NVARCHAR(MAX);
-        SET @consulta = N'UPDATE ddbba.Prestador
+        SET @consulta = N'UPDATE Obrasocial.Prestador
                             SET ';
 
         -- Se agregan las asignaciones de campos a actualizar, solo si se envía un valor distinto de NULL
@@ -329,7 +354,7 @@ BEGIN
 	BEGIN TRY
         IF EXISTS( SELECT 1 FROM ddbba.EliminarPrestador WHERE id_prestador = @idPrestador )
 		BEGIN
-			DELETE ddbba.ReservaTurnoMedico
+			DELETE Turnos.ReservaTurnoMedico
 				WHERE id_prestador = @idPrestador;
             SELECT 'Prestador eliminado exitosamente.';
 		END
@@ -361,11 +386,11 @@ AS
 BEGIN
     BEGIN TRY
         -- Validación de existencia de referenciados
-        IF EXISTS (SELECT 1 FROM ddbba.Paciente WHERE id_historia_clinica = @idHistoriaClinica)
-            AND EXISTS (SELECT 1 FROM ddbba.Medico WHERE id_medico = @idMedico)
-            AND EXISTS (SELECT 1 FROM ddbba.Especialidad WHERE id_especialidad = @idEspecialidad)
-            AND EXISTS (SELECT 1 FROM ddbba.EstadoTurno WHERE id_estado_turno = @idEstadoTurno)
-            AND EXISTS (SELECT 1 FROM ddbba.TipoTurno WHERE id_tipo_turno = @idTipoTurno)
+        IF EXISTS (SELECT 1 FROM Pacientes.Paciente WHERE id_historia_clinica = @idHistoriaClinica)
+            AND EXISTS (SELECT 1 FROM Hospital.Medico WHERE id_medico = @idMedico)
+            AND EXISTS (SELECT 1 FROM Hospital.Especialidad WHERE id_especialidad = @idEspecialidad)
+            AND EXISTS (SELECT 1 FROM Turnos.EstadoTurno WHERE id_estado_turno = @idEstadoTurno)
+            AND EXISTS (SELECT 1 FROM Turnos.TipoTurno WHERE id_tipo_turno = @idTipoTurno)
         BEGIN
             DECLARE @fecha DATE,
                     @hora TIME;
@@ -374,7 +399,7 @@ BEGIN
                     @hora = GETDATE();
 
             -- Insertar el registro
-            INSERT INTO ddbba.ReservaTurnoMedico (id_historia_clinica, fecha, hora, id_medico, id_especialidad, id_direccion_atencion, id_estado_turno, id_tipo_turno)
+            INSERT INTO Turnos.ReservaTurnoMedico (id_historia_clinica, fecha, hora, id_medico, id_especialidad, id_direccion_atencion, id_estado_turno, id_tipo_turno)
             VALUES (@idHistoriaClinica, @fecha, @hora, @idMedico, @idEspecialidad, @id_direccion_atencion, @idEstadoTurno, @idTipoTurno);
             
             SELECT 'Reserva de turno creada exitosamente.';
@@ -400,37 +425,37 @@ AS
 BEGIN
     BEGIN TRY
         -- Validación de existencia de referenciados
-        IF NOT EXISTS (SELECT 1 FROM ddbba.ReservaTurnoMedico WHERE id_turno = @idTurno)
+        IF NOT EXISTS (SELECT 1 FROM Turnos.ReservaTurnoMedico WHERE id_turno = @idTurno)
         BEGIN
             SELECT 'Error: El turno a actualizar no existe.';
             RETURN;
         END
 
-        IF NOT EXISTS (SELECT 1 FROM ddbba.Paciente WHERE id_historia_clinica = @idHistoriaClinica)
+        IF NOT EXISTS (SELECT 1 FROM Pacientes.Paciente WHERE id_historia_clinica = @idHistoriaClinica)
         BEGIN
             SELECT 'Error: El paciente no existe.';
             RETURN;
         END
 
-        IF NOT EXISTS (SELECT 1 FROM ddbba.Medico WHERE id_medico = @idMedico)
+        IF NOT EXISTS (SELECT 1 FROM Hospital.Medico WHERE id_medico = @idMedico)
         BEGIN
             SELECT 'Error: El médico no existe.';
             RETURN;
         END
 
-        IF NOT EXISTS (SELECT 1 FROM ddbba.Especialidad WHERE id_especialidad = @idEspecialidad)
+        IF NOT EXISTS (SELECT 1 FROM Hospital.Especialidad WHERE id_especialidad = @idEspecialidad)
         BEGIN
             SELECT 'Error: La especialidad no existe.';
             RETURN;
         END
 
-        IF NOT EXISTS (SELECT 1 FROM ddbba.EstadoTurno WHERE id_estado_turno = @idEstadoTurno)
+        IF NOT EXISTS (SELECT 1 FROM Turnos.EstadoTurno WHERE id_estado_turno = @idEstadoTurno)
         BEGIN
             SELECT 'Error: El estado del turno no existe.';
             RETURN;
         END
 
-        IF NOT EXISTS (SELECT 1 FROM ddbba.TipoTurno WHERE id_tipo_turno = @idTipoTurno)
+        IF NOT EXISTS (SELECT 1 FROM Turnos.TipoTurno WHERE id_tipo_turno = @idTipoTurno)
         BEGIN
             SELECT 'Error: El tipo de turno no existe.';
             RETURN;
@@ -438,7 +463,7 @@ BEGIN
 
         -- Se arma la consulta SQL dinámica
         DECLARE @consulta NVARCHAR(MAX);
-        SET @consulta = N'UPDATE ddbba.ReservaTurnoMedico
+        SET @consulta = N'UPDATE Turnos.ReservaTurnoMedico
                             SET ';
 
         -- Se agregan las asignaciones de campos a actualizar, solo si se envía un valor distinto de NULL
@@ -505,9 +530,9 @@ CREATE OR ALTER PROCEDURE ddbba.EliminarReservaTurnoMedico
 AS
 BEGIN
 	BEGIN TRY
-        IF EXISTS( SELECT 1 FROM ddbba.ReservaTurnoMedico WHERE id_turno = @idTurno )
+        IF EXISTS( SELECT 1 FROM Turnos.ReservaTurnoMedico WHERE id_turno = @idTurno )
 		BEGIN
-			UPDATE ddbba.ReservaTurnoMedico
+			UPDATE Turnos.ReservaTurnoMedico
 				SET  deleted = 1
 				WHERE id_turno = @idTurno
             SELECT 'Reserva de turno eliminada exitosamente.';
@@ -527,9 +552,9 @@ CREATE OR ALTER PROCEDURE ddbba.CancelarReservaTurnoMedico
 AS
 BEGIN
 	BEGIN TRY
-        IF EXISTS( SELECT 1 FROM ddbba.ReservaTurnoMedico WHERE id_turno = @idTurno )
+        IF EXISTS( SELECT 1 FROM Turnos.ReservaTurnoMedico WHERE id_turno = @idTurno )
 		BEGIN
-			UPDATE ddbba.ReservaTurnoMedico
+			UPDATE Turnos.ReservaTurnoMedico
 				SET  id_estado_turno = @idEstadoCancelado
 				WHERE id_turno = @idTurno
             SELECT 'Reserva de turno cancelada exitosamente.';
@@ -558,14 +583,14 @@ BEGIN
 
     -- Obtener el costo de la factura del estudio para el paciente
     SELECT @CostoFactura = costo_factura_inicial 
-    FROM ddbba.Factura 
+    FROM Pacientes.Factura 
     WHERE id_historia_clinica = @id_historia_clinica_paciente 
     AND id_estudio = @id_estudio;
 
     -- Obtener el monto abonado por el paciente
     SELECT @CostoAbonadoPago = SUM(p.monto)
-    FROM ddbba.Pago p
-    JOIN ddbba.Factura f ON p.id_pago = f.id_pago 
+    FROM Pacientes.Pago p
+    JOIN Pacientes.Factura f ON p.id_pago = f.id_pago 
     WHERE f.id_historia_clinica = @id_historia_clinica_paciente 
     AND f.id_estudio = @id_estudio;
 
@@ -573,12 +598,12 @@ BEGIN
     IF(@CostoAbonadoPago >= @CostoFactura)
     BEGIN
         -- Actualizar el estudio como autorizado
-        UPDATE ddbba.Estudio
+        UPDATE Pacientes.Estudio
         SET autorizado = 1
         WHERE id_estudio = @id_estudio;
 
         -- Registrar que el costo ha sido cubierto completamente
-        UPDATE ddbba.Factura
+        UPDATE Pacientes.Factura
         SET porcentaje_pagado = 100
         WHERE id_historia_clinica = @id_historia_clinica_paciente 
         AND id_estudio = @id_estudio;
@@ -586,7 +611,7 @@ BEGIN
     ELSE
     BEGIN
         -- Calcular el porcentaje pagado y actualizar la factura
-        UPDATE ddbba.Factura
+        UPDATE Pacientes.Factura
         SET porcentaje_pagado = (@CostoAbonadoPago / @CostoFactura) * 100
         WHERE id_historia_clinica = @id_historia_clinica_paciente 
         AND id_estudio = @id_estudio;
@@ -612,11 +637,11 @@ BEGIN
     BEGIN
 
         DECLARE @id_estado_cancelado INT
-        SET @id_estado_cancelado = (SELECT id_estado FROM ddbba.EstadoTurno
+        SET @id_estado_cancelado = (SELECT id_estado FROM Turnos.EstadoTurno
                                     WHERE nombre_estado = 'Cancelado')
 
         DECLARE @id_estado_disponible INT
-        SET @id_estado_disponible = (SELECT id_estado FROM ddbba.EstadoTurno
+        SET @id_estado_disponible = (SELECT id_estado FROM Turnos.EstadoTurno
                                     WHERE nombre_estado = 'Disponible') -- Nacho: esto me parece que tenés razón amigo, no va @tomi felice
 
         UPDATE ddbba.turnoAsignado
@@ -624,7 +649,7 @@ BEGIN
         WHERE id_prestador = @idPrestador
         AND id_estado_turno = @id_estado_disponible
 
-        INSERT INTO ddbba.ReservaTurnoMedico
+        INSERT INTO Turnos.ReservaTurnoMedico
 
     END
 
