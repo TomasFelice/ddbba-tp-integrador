@@ -1,3 +1,5 @@
+USE com2900g09
+GO
 CREATE PROCEDURE Paciente.InsertarPaciente
     @id_cobertura INT = NULL, -- Lo dejamos como nulo ya que se insertará como identity(1,1). La inserción le da el id secuencial de 1 en 1
     @nombre VARCHAR(50),
@@ -235,5 +237,48 @@ BEGIN
         @id_historia_clinica,
         @fecha,
         @monto
+    )
+END
+GO
+CREATE PROCEDURE Paciente.InsertarFactura
+    @id_pago INT,
+    @id_estudio INT,
+    @costo_factura_inicial DECIMAL(10, 2),
+    @costo_adeudado DECIMAL(10, 2),
+    @porcentaje_pagado DECIMAL(3, 2)
+AS
+BEGIN
+    -- Validaciones de campos obligatorios 
+
+    IF @costo_factura_inicial IS NULL
+    BEGIN
+        RAISERROR ('El campo costo_factura_inicial es obligatorio.', 16, 1);
+        RETURN;
+    END
+
+    IF @costo_adeudado IS NULL
+    BEGIN
+        RAISERROR ('El campo costo_adeudado es obligatorio.', 16, 1);
+        RETURN;
+    END
+
+    IF @porcentaje_pagado > 100.00
+    BEGIN
+        RAISERROR ('El campo porcentaje_pagado no puede ser mayor que 100%', 16, 1);
+        RETURN;
+    END
+    -- Inserción de datos
+    INSERT INTO Paciente.Factura (
+        id_pago,
+        id_estudio,
+        costo_factura_inicial,
+        costo_adeudado,
+        porcentaje_pagado
+    ) VALUES (
+        @id_pago,
+        @id_estudio,
+        @costo_factura_inicial,
+        @costo_adeudado,
+        @porcentaje_pagado
     )
 END
