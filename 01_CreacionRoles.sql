@@ -1,0 +1,14 @@
+--------------------------------------------------
+------  CREACION ROLES
+--------------------------------------------------
+-- Definir como los vamos a usar --
+-- CREATE ROLE Paciente
+-- GO
+-- CREATE ROLE Medico
+-- GO
+-- CREATE ROLE AdministradorGeneral
+-- GO
+-- CREATE ROLE TecnicoClinico
+-- GO
+-- CREATE ROLE Administrativo
+-- GO
