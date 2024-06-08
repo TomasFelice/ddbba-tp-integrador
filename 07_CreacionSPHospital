@@ -4,6 +4,8 @@ USE com2900g09
 GO -- Inserción: 
 --
 
+-- NACHO: faltan actualizar varios sp con condiciones lógicas de que si se elimina/inserta/actualiza alguno hay que tener en cuenta cómo le pega a las tablas
+
 CREATE OR ALTER PROCEDURE Hospital.InsertarEspecialidad
     @nombre_especialidad VARCHAR(50)
 AS
@@ -34,11 +36,18 @@ BEGIN
     BEGIN TRY
         IF EXISTS(SELECT 1 FROM Hospital.Medico WHERE nro_matricula = @nro_matricula)
         BEGIN
-            UPDATE Hospital.Medico
+            
+            /*UPDATE Hospital.Medico
             SET id_especialidad = @id_especialidad,
                 nombre = @nombre,
                 apellido = @apellido
             WHERE nro_matricula = @nro_matricula; -- Nacho: en caso de resolver línea 19 de archivo 04_CreacionSchemaHospital.sql actualizarlo por id_medico
+
+            UPDATE Hospital.Medico
+            SET id_especialidad = @id_especialidad,
+                nombre = @nombre,
+                apellido = @apellido
+            WHERE nro_matricula = @nro_matricula; -- Nacho: deberíamos tener en cuenta que acá le deberíamos pegar a la tabla de medico_especialidad, no? */
         END
         ELSE
         BEGIN
@@ -100,8 +109,17 @@ CREATE OR ALTER PROCEDURE Hospital.InsertarDiasPorSede
 AS
 BEGIN
     BEGIN TRY
-        INSERT INTO Hospital.DiasPorSede (id_sede, id_medico, dia, hora_inicio, hora_fin)
-        VALUES (@id_sede, @id_medico, @dia, @hora_inicio, @hora_fin);
+        IF EXISTS (SELECT 1 FROM Hospital.DiasPorSede WHERE id_sede = @id_sede AND id_medico = @id_medico)
+        BEGIN
+            UPDATE Hospital.DiasPorSede 
+            SET hora_inicio = @hora_inicio, hora_fin = @hora_fin 
+            WHERE id_sede = @id_sede AND id_medico = @id_medico;
+        END
+        ELSE IF EXISTS (SELECT 1 FROM Hospital.DiasPorSede WHERE id_sede = @id_sede AND id_medico = @id_medico AND dia = @dia)
+        BEGIN
+            INSERT INTO Hospital.DiasPorSede (id_sede, id_medico, dia, hora_inicio, hora_fin)
+            VALUES (@id_sede, @id_medico, @dia, @hora_inicio, @hora_fin);
+        END
     END TRY
     BEGIN CATCH
         SELECT CONCAT('Error: El dia de la sede de atencion con id_sede: ', @id_sede, ' y id_medico: ', @id_medico, ' no se puede insertar ya que ', ERROR_MESSAGE());
@@ -189,6 +207,32 @@ BEGIN
     END CATCH
 END
 
+
+CREATE OR ALTER PROCEDURE Hospital.ActualizarSedeAtencion
+    @nombre_sede VARCHAR(50),
+    @direccion_sede VARCHAR(50)
+AS
+BEGIN
+    BEGIN TRY
+        IF EXISTS(SELECT 1 FROM Hospital.SedeDeAtencion WHERE nombre_sede = @nombre_sede)
+        BEGIN
+            UPDATE Hospital.SedeDeAtencion
+            SET
+                nombre_sede = @nombre_sede,
+                direccion_sede = @direccion_sede
+            WHERE nombre_sede = @nombre_sede;
+        END
+        ELSE
+        BEGIN
+            SELECT CONCAT('Error: La sede de atencion con nombre: ', @nombre_sede, ' no existe');
+        END
+    END TRY
+    BEGIN CATCH
+        SELECT CONCAT('Error: La actualización de la sede de atencion con nombre: ', @nombre_sede, ' no se pudo realizar');
+    END CATCH
+END
+
+
 --
 GO -- Eliminación:
 --
@@ -213,7 +257,7 @@ BEGIN
     END CATCH
 END
 GO
-CREATE OR ALTER PROCEDURE Hospital.EliminarMedico
+CREATE OR ALTER PROCEDURE Hospital.EliminarMedico -- PENDIENTE: acá deberíamos tener en cuenta también que si eliminamos un médico puede impactar en las tablas médico especialidad, los días por sede, la reserva del algún turno y los días x sede
     @id_medico INT
 AS
 BEGIN
@@ -256,3 +300,5 @@ BEGIN
 END
 GO
 CREATE OR ALTER PROCEDURE Hospital.EliminarMedico_Especialidad
+
+
