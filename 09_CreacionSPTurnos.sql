@@ -360,3 +360,37 @@ BEGIN
         SELECT 'Error al actualizar el tipo de turno.', ERROR_MESSAGE();
     END CATCH
 END
+
+CREATE OR ALTER PROCEDURE Turnos.EliminarTipoTurno
+    @idTipoTurno INT
+AS
+BEGIN
+    BEGIN TRY
+        -- Validación de existencia de referenciados
+        IF NOT EXISTS (SELECT 1 FROM Turnos.TipoTurno WHERE id_tipo_turno = @idTipoTurno)
+        BEGIN
+            SELECT 'Error: El tipo de turno a eliminar no existe.';
+            RETURN;
+        END
+
+        -- La foreign key esta creada con ON DELETE CASCADE, por lo que no es necesario validar la existencia de referenciados, solo lanzaremos un mensaje si existen
+
+        IF EXISTS (SELECT 1 FROM Turnos.ReservaTurnoMedico WHERE id_tipo_turno = @idTipoTurno)
+        BEGIN
+            SELECT 'Advertencia: Existen reservas de turno que hacen referencia a este tipo de turno. Se eliminaran junto con el tipo de turno.';
+            RETURN;
+        END
+
+        DELETE FROM Turnos.TipoTurno
+            WHERE id_tipo_turno = @idTipoTurno;
+
+        SELECT 'Tipo de turno eliminado exitosamente.';
+    END TRY
+    BEGIN CATCH
+        SELECT 'Error al eliminar el tipo de turno.', ERROR_MESSAGE();
+    END CATCH
+END
+
+/**
+    FIN SPs de TipoTurno
+**/
