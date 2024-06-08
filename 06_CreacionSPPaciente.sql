@@ -1,7 +1,7 @@
 USE com2900g09
-
+GO
 --
-GO -- Inserción:
+-- Inserción:
 --
 
 -- Creo que esto de verificar si ya esta en la db y para ver si acer un update o un insert

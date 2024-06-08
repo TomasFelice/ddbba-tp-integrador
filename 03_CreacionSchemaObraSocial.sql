@@ -1,25 +1,35 @@
 USE com2900g09
 GO
 
+DROP TABLE IF EXISTS ObraSocial.Cobertura
+GO
+DROP TABLE IF EXISTS ObraSocial.Prestador
+GO
+DROP TABLE IF EXISTS ObraSocial.TipoCobertura
+GO
+
+DROP SCHEMA IF EXISTS ObraSocial
+GO
+
 CREATE SCHEMA ObraSocial
 GO
 
-CREATE OR ALTER TABLE ObraSocial.Prestador (
+CREATE TABLE ObraSocial.Prestador (
     id_prestador INT IDENTITY(1,1),
-    nombre_prestador VARCHAR(100),
-    plan_prestador VARCHAR(50)
+    nombre_prestador VARCHAR(100) NOT NULL UNIQUE,
+    plan_prestador VARCHAR(50),
 	CONSTRAINT pk_prestador PRIMARY KEY CLUSTERED (id_prestador)
 )
 GO
 
-CREATE OR ALTER TABLE ObraSocial.TipoCobertura (
+CREATE TABLE ObraSocial.TipoCobertura (
     id_tipo_cobertura INT IDENTITY(1,1),
     nombre_tipo_cobertura VARCHAR(50) NOT NULL UNIQUE,
     CONSTRAINT pk_tipo_cobertura PRIMARY KEY CLUSTERED (id_tipo_cobertura)
 )
 GO
 
-CREATE OR ALTER TABLE ObraSocial.Cobertura (
+CREATE TABLE ObraSocial.Cobertura (
     id_cobertura INT IDENTITY(1,1),
     id_tipo_cobertura INT NOT NULL,
     id_prestador INT NOT NULL,
@@ -29,8 +39,8 @@ CREATE OR ALTER TABLE ObraSocial.Cobertura (
     fecha_de_registro DATE DEFAULT GETDATE(),
     borrado_en DATETIME DEFAULT NULL,
 	CONSTRAINT pk_cobertura PRIMARY KEY CLUSTERED (id_cobertura),
-    CONSTRAINT fk_prestador FOREIGN KEY (id_prestador) REFERENCES Obrasocial.Prestador(id_prestador) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_historia_clinica FOREIGN KEY (id_historia_clinica) REFERENCES Paciente.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_tipo_cobertura FOREIGN KEY (id_tipo_cobertura) REFERENCES ObraSocial.TipoCobertura(id_tipo_cobertura) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT fk_cobertura_prestador FOREIGN KEY (id_prestador) REFERENCES Obrasocial.Prestador(id_prestador) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_cobertura_historia_clinica FOREIGN KEY (id_historia_clinica) REFERENCES Paciente.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_cobertura_tipo_cobertura FOREIGN KEY (id_tipo_cobertura) REFERENCES ObraSocial.TipoCobertura(id_tipo_cobertura) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
