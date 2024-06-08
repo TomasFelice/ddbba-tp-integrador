@@ -4,25 +4,31 @@ GO
 /**
     SPs de Prestador
 */ 
-CREATE OR ALTER PROCEDURE ObraSocial.CrearPrestador
+CREATE OR ALTER PROCEDURE ObraSocial.insertarPrestador
     @nombrePrestador VARCHAR(100), 
     @planPrestador VARCHAR(50)
 AS
 BEGIN
     BEGIN TRY
         -- Insertar el registro
-        INSERT INTO Obrasocial.Prestador (nombre_prestador, plan_prestador)
-        VALUES (@nombrePrestador, @planPrestador);
-        
-        SELECT 'Prestador creado exitosamente.';
+        IF EXISTS (SELECT 1 FROM ObraSocial.Prestador WHERE nombrePrestador = @nombrePrestador) -- Si existe, actualizo los datos. En nuestra regla de negocio cada prestador debe llamarse distinto
+        BEGIN
+            SELECT 'Prestador existía. Actualizado exitosamente.';
+        END
+        ELSE
+        BEGIN
+            INSERT INTO Obrasocial.Prestador (nombre_prestador, plan_prestador)
+            VALUES (@nombrePrestador, @planPrestador);
+            SELECT 'Prestador creado exitosamente.';
+        END
     END TRY
     BEGIN CATCH
-        SELECT 'Error al crear el prestador.', ERROR_MESSAGE();
+		SELECT CONCAT('Error: El prestador con nombre: ', @nombrePrestador, ' no se puede insertar');
     END CATCH
 END
 GO
 
-CREATE OR ALTER PROCEDURE ObraSocial.ActualizarPrestador
+CREATE OR ALTER PROCEDURE ObraSocial.actualizarPrestador
     @idPrestador INT,
     @nombrePrestador VARCHAR(100), 
     @planPrestador VARCHAR(50)
@@ -68,12 +74,12 @@ BEGIN
         SELECT 'Prestador actualizado exitosamente.';
     END TRY
     BEGIN CATCH
-        SELECT 'Error al actualizar el prestador.', ERROR_MESSAGE();
+		SELECT CONCAT('Error: El prestador con id: ', @idPrestador, ' no se puede actualizar');
     END CATCH
 END
 GO
 
-CREATE OR ALTER PROCEDURE ObraSocial.EliminarPrestador
+CREATE OR ALTER PROCEDURE ObraSocial.eliminarPrestador
 	@idPrestador INT
 AS
 BEGIN
@@ -88,7 +94,7 @@ BEGIN
 			SELECT CONCAT('Error: El prestador con id: ', @idPrestador, ' no existe');
     END TRY
     BEGIN CATCH
-        SELECT 'Error al eliminar el prestador.', ERROR_MESSAGE();
+		SELECT CONCAT('Error: El prestador con id: ', @idPrestador, ' no se puede eliminar');
     END CATCH
 END
 GO

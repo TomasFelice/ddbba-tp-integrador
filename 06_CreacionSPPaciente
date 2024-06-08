@@ -86,7 +86,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-        SELECT 'Error al insertar el Paciente.', ERROR_MESSAGE();
+		SELECT CONCAT('Error: El paciente con dni: ', @nro_de_documento, ' no se puede insertar');
     END CATCH
 END
 
@@ -122,7 +122,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-        SELECT 'Error al insertar el Usuario.', ERROR_MESSAGE();
+		SELECT CONCAT('Error: El usuario con dni: ', @nro_de_documento, ' no se puede insertar');
     END CATCH
 END
 
@@ -183,7 +183,7 @@ BEGIN
        END
     END TRY
     BEGIN CATCH
-        SELECT 'Error al insertar el Domicilio.', ERROR_MESSAGE();
+		SELECT CONCAT('Error: El domicilio del paciente con dni: ', @nro_de_documento, ' no se puede insertar');
     END CATCH 
 END
 
@@ -231,7 +231,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-        SELECT 'Error al insertar el Estudio.', ERROR_MESSAGE();
+		SELECT CONCAT('Error: El estudio del paciente con dni: ', @nro_de_documento, ' no se puede insertar');
     END CATCH 
 END
 
@@ -267,7 +267,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-        SELECT 'Error al insertar el Pago.', ERROR_MESSAGE();
+		SELECT CONCAT('Error: El pago del paciente con dni: ', @nro_de_documento, ' no se puede insertar');
     END CATCH 
 END
 
@@ -320,7 +320,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-        SELECT 'Error al insertar el Factura.', ERROR_MESSAGE();
+		SELECT CONCAT('Error: La factura del estudio con id', @id_estudio, ' no se puede insertar');
     END CATCH 
 END
 
@@ -382,7 +382,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-        SELECT 'Error al actualizar el Paciente.', ERROR_MESSAGE();
+		SELECT CONCAT('Error: El paciente con con dni', @nro_de_documento, ' no se puede actualizar');
     END CATCH
 END
 GO
@@ -407,12 +407,13 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-        SELECT 'Error al actualizar el Usuario.', ERROR_MESSAGE();
+		SELECT CONCAT('Error: El usuario con dni', @nro_de_documento, ' no se puede actualizar');
     END CATCH
 END
 GO
 
 CREATE OR ALTER PROCEDURE Paciente.ActualizarDomicilio
+    @id_domicilio INT,
     @nro_de_documento INT,
     @calle VARCHAR(50),
     @numero INT,
@@ -425,7 +426,7 @@ CREATE OR ALTER PROCEDURE Paciente.ActualizarDomicilio
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Paciente.Domicilio WHERE nro_de_documento = @nro_de_documento)
+        IF EXISTS (SELECT 1 FROM Paciente.Domicilio WHERE id_domicilio = @id_domicilio AND nro_de_documento = @nro_de_documento)
         BEGIN
             UPDATE Paciente.Domicilio
             SET calle = @calle,
@@ -436,7 +437,7 @@ BEGIN
                 pais = @pais,
                 provincia = @provincia,
                 localidad = @localidad
-            WHERE nro_de_documento = @nro_de_documento
+            WHERE id_domicilio = @id_domicilio AND nro_de_documento = @nro_de_documento
         END
         ELSE
         BEGIN
@@ -444,13 +445,13 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-        SELECT 'Error al actualizar el Domicilio.', ERROR_MESSAGE();
+		SELECT CONCAT('Error: El domicilio con id', @id_domicilio,' del paciente con dni', @nro_de_documento,' no se puede actualizar'); 
     END CATCH 
 END
 GO
 
 CREATE OR ALTER PROCEDURE Paciente.ActualizarEstudio
-    @nro_de_documento INT,
+    @id_estudio INT,
     @fecha DATE,
     @nombre_estudio VARCHAR(100),
     @autorizado BIT,
@@ -459,7 +460,7 @@ CREATE OR ALTER PROCEDURE Paciente.ActualizarEstudio
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Paciente.Estudio WHERE nro_de_documento = @nro_de_documento)
+        IF EXISTS (SELECT 1 FROM Paciente.Estudio WHERE id_estudio = @id_estudio)
         BEGIN
             UPDATE Paciente.Estudio
             SET fecha = @fecha,
@@ -467,7 +468,7 @@ BEGIN
                 autorizado = @autorizado,
                 documento_resultado = @documento_resultado,
                 imagen_resultado = @imagen_resultado
-            WHERE nro_de_documento = @nro_de_documento
+            WHERE id_estudio = @id_estudio
         END
         ELSE
         BEGIN
@@ -475,24 +476,24 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-        SELECT 'Error al actualizar el Estudio.', ERROR_MESSAGE();
+		SELECT CONCAT('Error: El estudio con id', @id_estudio,' no se puede actualizar'); 
     END CATCH 
 END
 GO
 
 CREATE OR ALTER PROCEDURE Paciente.ActualizarPago
-    @nro_de_documento INT,
+    @id_pago INT,
     @fecha DATE,
     @monto DECIMAL(10, 2)
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Paciente.Pago WHERE nro_de_documento = @nro_de_documento)
+        IF EXISTS (SELECT 1 FROM Paciente.Pago WHERE id_pago = @id_pago)
         BEGIN
             UPDATE Paciente.Pago
             SET fecha = @fecha,
                 monto = @monto
-            WHERE nro_de_documento = @nro_de_documento
+            WHERE id_pago = @id_pago
         END
         ELSE 
         BEGIN
@@ -500,12 +501,13 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-        SELECT 'Error al actualizar el Pago.', ERROR_MESSAGE();
+		SELECT CONCAT('Error: El pago con id', @id_pago,' no se puede actualizar'); 
     END CATCH 
 END
 GO
 
 CREATE OR ALTER PROCEDURE Paciente.ActualizarFactura
+    @id_factura INT,
     @id_pago INT,
     @id_estudio INT,
     @costo_factura_inicial DECIMAL(10, 2),
@@ -520,7 +522,7 @@ BEGIN
     END
 
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Paciente.Factura WHERE id_pago = @id_pago AND id_estudio = @id_estudio)
+        IF EXISTS (SELECT 1 FROM Paciente.Factura WHERE id_factura = @id_factura)
         BEGIN
             UPDATE Paciente.Factura
             SET costo_factura_inicial = @costo_factura_inicial,
@@ -534,7 +536,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-        SELECT 'Error al actualizar la Factura.', ERROR_MESSAGE();
+		SELECT CONCAT('Error: La factura con id', @id_factura,' no se puede actualizar'); 
     END CATCH 
 END
 
@@ -550,7 +552,7 @@ GO -- Eliminación
 --------------------------------------------------------------------------------
 
 --- Nacho: si eliminamos paciente deberíamos borrar absolutamente todo lo que está relacionado a él? :s alto quilombito. ¿Qué opinan?
-
+--- Nacho: otra cosa, me dio pajita porque me quiero concentrar en otra cosa, pero los mensajes de error en los catch no lo puse con select concat como los otros. PENDIENTE
 CREATE OR ALTER PROCEDURE Paciente.EliminarUsuario
     @nro_de_documento INT
 AS
@@ -571,13 +573,13 @@ END
 GO
 
 CREATE OR ALTER PROCEDURE Paciente.EliminarDomicilio
-    @nro_de_documento INT
+    @id_domicilio INT
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS(SELECT 1 FROM Paciente.Domicilio WHERE nro_de_documento = @nro_de_documento)
+        IF EXISTS(SELECT 1 FROM Paciente.Domicilio WHERE id_domicilio = @id_domicilio)
         BEGIN
-            DELETE FROM Paciente.Domicilio WHERE nro_de_documento = @nro_de_documento;
+            DELETE FROM Paciente.Domicilio WHERE id_domicilio = @id_domicilio;
             SELECT 'Domicilio eliminado exitosamente.';
         END
         ELSE
@@ -590,13 +592,13 @@ END
 GO
 
 CREATE OR ALTER PROCEDURE Paciente.EliminarEstudio
-    @nro_de_documento INT
+    @id_estudio INT
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS(SELECT 1 FROM Paciente.Estudio WHERE nro_de_documento = @nro_de_documento)
+        IF EXISTS(SELECT 1 FROM Paciente.Estudio WHERE id_estudio = @id_estudio)
         BEGIN
-            DELETE FROM Paciente.Estudio WHERE nro_de_documento = @nro_de_documento;
+            DELETE FROM Paciente.Estudio WHERE id_estudio = @id_estudio;
             SELECT 'Estudio eliminado exitosamente.';
         END
         ELSE

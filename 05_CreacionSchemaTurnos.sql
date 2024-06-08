@@ -1,24 +1,24 @@
 USE com2900g09
 GO
 
-CREATE SCHEMA Turnos
+CREATE SCHEMA Turno
 GO
 
-CREATE OR ALTER TABLE Turnos.EstadoTurno (
+CREATE OR ALTER TABLE Turno.EstadoTurno (
     id_estado INT IDENTITY(1,1),
     nombre_estado VARCHAR(10) NOT NULL UNIQUE,
 	CONSTRAINT pk_estado PRIMARY KEY CLUSTERED (id_estado)
 )
 GO
 
-CREATE OR ALTER TABLE Turnos.TipoTurno (
+CREATE OR ALTER TABLE Turno.TipoTurno (
     id_tipo_turno INT IDENTITY(1,1),
     nombre_tipo_turno VARCHAR(10) NOT NULL,
 	CONSTRAINT pk_tipo_turno PRIMARY KEY CLUSTERED (id_tipo_turno)
 )
 GO
 
-CREATE OR ALTER TABLE Turnos.ReservaTurnoMedico (
+CREATE OR ALTER TABLE Turno.ReservaTurnoMedico (
     id_turno INT IDENTITY(1,1),
 	id_historia_clinica INT NOT NULL,
     id_medico_especialidad INT NOT NULL,
@@ -40,10 +40,10 @@ GO
 --------------------------------------------------
 ------  INSERCION VALORES DEFINIDOS
 --------------------------------------------------
-INSERT INTO Turnos.EstadoTurno (nombre_estado)
+INSERT INTO Turno.EstadoTurno (nombre_estado)
 VALUES ('Disponible'), ('Reservado'), ('Cancelado'), ('Atendido'), ('Ausente')
 GO
 
-INSERT INTO Turnos.TipoTurno (nombre_estado)
+INSERT INTO Turno.TipoTurno (nombre_estado)
 VALUES ('Presencial'), ('Virtual')
 GO

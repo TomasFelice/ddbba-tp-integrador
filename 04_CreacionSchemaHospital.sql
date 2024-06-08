@@ -16,7 +16,7 @@ CREATE TABLE Hospital.Medico (
     id_especialidad INT NOT NULL,
     nombre VARCHAR(50),
     apellido VARCHAR(50),
-    nro_matricula CHAR(10),
+    nro_matricula CHAR(10), -- Nacho: @tomi f no debería ser esta la pk?
 	CONSTRAINT pk_medico PRIMARY KEY CLUSTERED (id_medico),
     CONSTRAINT fk_especialidad FOREIGN KEY (id_especialidad) REFERENCES Hospital.Especialidad(id_especialidad) ON DELETE CASCADE ON UPDATE CASCADE
 )
@@ -53,7 +53,7 @@ CREATE OR ALTER TABLE Hospital.DiasPorSede (
 	id_dia_sede INT IDENTITY(1,1),
     id_sede INT NOT NULL,
     id_medico INT NOT NULL,
-    dia VARCHAR(9),
+    dia VARCHAR(9) CHECK (dia IN ('Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo')) UNIQUE
     hora_inicio TIME,
     hora_fin TIME,
 	CONSTRAINT pk_dia_sede PRIMARY KEY CLUSTERED (id_dia_sede),
