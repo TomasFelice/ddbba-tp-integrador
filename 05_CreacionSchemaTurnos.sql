@@ -4,21 +4,21 @@ GO
 CREATE SCHEMA Turnos
 GO
 
-CREATE TABLE Turnos.EstadoTurno (
+CREATE OR ALTER TABLE Turnos.EstadoTurno (
     id_estado INT IDENTITY(1,1),
     nombre_estado VARCHAR(10) NOT NULL UNIQUE,
 	CONSTRAINT pk_estado PRIMARY KEY CLUSTERED (id_estado)
 )
 GO
 
-CREATE TABLE Turnos.TipoTurno (
+CREATE OR ALTER TABLE Turnos.TipoTurno (
     id_tipo_turno INT IDENTITY(1,1),
     nombre_tipo_turno VARCHAR(10) NOT NULL,
 	CONSTRAINT pk_tipo_turno PRIMARY KEY CLUSTERED (id_tipo_turno)
 )
 GO
 
-CREATE TABLE Turnos.ReservaTurnoMedico (
+CREATE OR ALTER TABLE Turnos.ReservaTurnoMedico (
     id_turno INT IDENTITY(1,1),
 	id_historia_clinica INT NOT NULL,
     id_medico_especialidad INT NOT NULL,

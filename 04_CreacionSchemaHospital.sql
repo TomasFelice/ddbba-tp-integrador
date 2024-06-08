@@ -27,7 +27,7 @@ GO
     Debido a que un medico puede tener varias especialidades
     y una especialidad puede ser ejercida por varios medicos
 */
-CREATE TABLE Hospital.Medico_Especialidad (
+CREATE OR ALTER TABLE Hospital.Medico_Especialidad (
     id_medico_especialidad INT IDENTITY(1,1),
     id_medico INT,
     id_especialidad INT,
@@ -37,7 +37,7 @@ CREATE TABLE Hospital.Medico_Especialidad (
 )
 GO
 
-CREATE TABLE Hospital.SedeDeAtencion (
+CREATE OR ALTER TABLE Hospital.SedeDeAtencion (
     id_sede INT IDENTITY(1,1),
     nombre_sede VARCHAR(50),
     direccion_sede VARCHAR(50),
@@ -49,7 +49,7 @@ GO
     hora_inicio se refiere a la hora a la que empieza a operar un medico en la sede
     hora_fin se refiere a la hora a la que termina de operar un medico en la sede
 */
-CREATE TABLE Hospital.DiasPorSede (
+CREATE OR ALTER TABLE Hospital.DiasPorSede (
 	id_dia_sede INT IDENTITY(1,1),
     id_sede INT NOT NULL,
     id_medico INT NOT NULL,

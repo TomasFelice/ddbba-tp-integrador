@@ -4,7 +4,7 @@ GO
 CREATE SCHEMA ObraSocial
 GO
 
-CREATE TABLE ObraSocial.Prestador (
+CREATE OR ALTER TABLE ObraSocial.Prestador (
     id_prestador INT IDENTITY(1,1),
     nombre_prestador VARCHAR(100),
     plan_prestador VARCHAR(50)
@@ -12,7 +12,7 @@ CREATE TABLE ObraSocial.Prestador (
 )
 GO
 
-CREATE TABLE ObraSocial.Cobertura (
+CREATE OR ALTER TABLE ObraSocial.Cobertura (
     id_cobertura INT IDENTITY(1,1),
     id_prestador INT,
     imagen_de_la_credencial VARCHAR(255), --Aquí se insertarán URLS generadas desde otro sistema

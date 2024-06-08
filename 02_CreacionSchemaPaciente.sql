@@ -2,7 +2,7 @@ USE com2900g09
 GO
 CREATE SCHEMA Paciente
 GO
-CREATE TABLE Paciente.Paciente (
+CREATE OR ALTER TABLE Paciente.Paciente (
     id_historia_clinica INT IDENTITY(1,1),
     id_cobertura INT,
     nombre VARCHAR(50) NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE Paciente.Paciente (
     CONSTRAINT fk_cobertura FOREIGN KEY (id_cobertura) REFERENCES ObraSocial.Cobertura(id_cobertura) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
-CREATE TABLE Paciente.Usuario (
+CREATE OR ALTER TABLE Paciente.Usuario (
     id_usuario INT IDENTITY(1,1),
     nro_de_documento INT NOT NULL,
     nombre_usuario VARCHAR(50) UNIQUE NOT NULL,
@@ -38,7 +38,7 @@ CREATE TABLE Paciente.Usuario (
     CONSTRAINT fk_paciente FOREIGN KEY (nro_de_documento) REFERENCES Pacientes.Paciente(nro_de_documento) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
-CREATE TABLE Paciente.Domicilio (
+CREATE OR ALTER TABLE Paciente.Domicilio (
     id_domicilio INT IDENTITY(1,1),
     nro_de_documento INT NOT NULL,
     calle VARCHAR(50),
@@ -53,7 +53,7 @@ CREATE TABLE Paciente.Domicilio (
     CONSTRAINT fk_paciente FOREIGN KEY (nro_de_documento) REFERENCES Pacientes.Paciente(nro_de_documento) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
-CREATE TABLE Paciente.Estudio (
+CREATE OR ALTER TABLE Paciente.Estudio (
     id_estudio INT IDENTITY(1,1),
     nro_de_documento INT NOT NULL,
     fecha DATE NOT NULL,
@@ -65,7 +65,7 @@ CREATE TABLE Paciente.Estudio (
     CONSTRAINT fk_paciente FOREIGN KEY (nro_de_documento) REFERENCES Pacientes.Paciente(nro_de_documento) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
-CREATE TABLE Paciente.Pago (
+CREATE OR ALTER TABLE Paciente.Pago (
     id_pago INT IDENTITY(1,1),
     nro_de_documento INT NOT NULL,
     fecha DATE DEFAULT GETDATE(),
@@ -74,7 +74,7 @@ CREATE TABLE Paciente.Pago (
     CONSTRAINT fk_paciente FOREIGN KEY (nro_de_documento) REFERENCES Pacientes.Paciente(nro_de_documento) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
-CREATE TABLE Paciente.Factura (
+CREATE OR ALTER TABLE Paciente.Factura (
     id_factura INT IDENTITY(1,1),
     id_pago INT NOT NULL,
     id_estudio INT NOT NULL,
