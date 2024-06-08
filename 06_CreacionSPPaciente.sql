@@ -12,13 +12,12 @@ GO
 --------------------------------------------------------------------------------
 
 CREATE OR ALTER PROCEDURE Paciente.InsertarPaciente
-    @id_cobertura INT,
     @nombre VARCHAR(50),
     @apellido VARCHAR(50),
     @apellido_materno VARCHAR(50),
     @fecha_de_nacimiento DATE,
     @tipo_documento VARCHAR(25),
-    nro_de_documento INT,
+    @nro_de_documento INT,
     @sexo_biologico CHAR(1),
     @genero CHAR(1),
     @nacionalidad VARCHAR(18),
@@ -33,8 +32,7 @@ BEGIN
         IF EXISTS (SELECT 1 FROM Paciente.Paciente WHERE nro_de_documento = @nro_de_documento) -- Si existe, actualizo los datos
         BEGIN
             UPDATE Paciente.Paciente
-            SET id_cobertura = @id_cobertura,
-                nombre = @nombre, 
+            SET nombre = @nombre, 
                 apellido = @apellido,
                 apellido_materno = @apellido_materno,
                 fecha_de_nacimiento = @fecha_de_nacimiento,
@@ -67,15 +65,15 @@ BEGIN
                 mail,
                 telefono_fijo,
                 telefono_de_contacto_alternativo,
-                telefono_laboral
+                telefono_laboral,
+                usuario_actualizacion
             ) VALUES (
-                @id_cobertura,
                 @nombre,
                 @apellido,
                 @apellido_materno,
                 @fecha_de_nacimiento,
-                @nro_de_documento,
                 @tipo_documento,
+                @nro_de_documento,
                 @sexo_biologico,
                 @genero,
                 @nacionalidad,
@@ -89,7 +87,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error: El paciente con dni: ', @nro_de_documento, ' no se puede insertar');
+		SELECT CONCAT('Error al insertar el paciente: ', ERROR_MESSAGE());
     END CATCH
 END
 
@@ -98,34 +96,34 @@ GO
 --
 
 CREATE OR ALTER PROCEDURE Paciente.InsertarUsuario
-    @nro_de_documento INT,
+    @id_historia_clinica INT,
     @nombre_usuario VARCHAR(50),
     @contrasenia VARCHAR(255)
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Paciente.Usuario WHERE nro_de_documento = @nro_de_documento) -- Si existe, actualizo los datos
+        IF EXISTS (SELECT 1 FROM Paciente.Usuario WHERE id_historia_clinica = @id_historia_clinica) -- Si existe, actualizo los datos
         BEGIN
             UPDATE Paciente.Usuario
             SET nombre_usuario = @nombre_usuario,
                 contrasenia = @contrasenia
-            WHERE nro_de_documento = @nro_de_documento 
+            WHERE id_historia_clinica = @id_historia_clinica 
         END
         ELSE
         BEGIN
             INSERT INTO Paciente.Usuario (
-                nro_de_documento,
+                id_historia_clinica,
                 nombre_usuario,
                 contrasenia
             ) VALUES (
-                @nro_de_documento,
+                @id_historia_clinica,
                 @nombre_usuario,
                 @contrasenia
             )
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error: El usuario con dni: ', @nro_de_documento, ' no se puede insertar');
+		SELECT CONCAT('Error al insertar el usuario: ', ERROR_MESSAGE());
     END CATCH
 END
 
@@ -134,7 +132,7 @@ GO
 --
 
 CREATE OR ALTER PROCEDURE Paciente.InsertarDomicilio
-    @nro_de_documento INT,
+    @id_historia_clinica INT,
     @calle VARCHAR(50),
     @numero INT,
     @piso INT,
@@ -147,7 +145,7 @@ AS
 BEGIN
 
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Paciente.Domicilio WHERE nro_de_documento = @nro_de_documento) -- Si existe, actualizo los datos
+        IF EXISTS (SELECT 1 FROM Paciente.Domicilio WHERE id_historia_clinica = @id_historia_clinica) -- Si existe, actualizo los datos
        BEGIN
             UPDATE Paciente.Domicilio
             SET calle = @calle,
@@ -158,12 +156,12 @@ BEGIN
                 pais = @pais,
                 provincia = @provincia,
                 localidad = @localidad
-            WHERE nro_de_documento = @nro_de_documento
+            WHERE id_historia_clinica = @id_historia_clinica
        END
        ELSE
        BEGIN
             INSERT INTO Paciente.Domicilio (
-                nro_de_documento,
+                id_historia_clinica,
                 calle,
                 numero,
                 piso,
@@ -173,7 +171,7 @@ BEGIN
                 provincia,
                 localidad
             ) VALUES (
-                @nro_de_documento,
+                @id_historia_clinica,
                 @calle,
                 @numero,
                 @piso,
@@ -186,7 +184,7 @@ BEGIN
        END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error: El domicilio del paciente con dni: ', @nro_de_documento, ' no se puede insertar');
+		SELECT CONCAT('Error al insertar el domicilio: ', ERROR_MESSAGE());
     END CATCH 
 END
 
@@ -195,7 +193,7 @@ GO
 --
 
 CREATE OR ALTER PROCEDURE Paciente.InsertarEstudio
-    @nro_de_documento INT,
+    @id_historia_clinica INT,
     @fecha DATE,
     @nombre_estudio VARCHAR(100),
     @autorizado BIT,
@@ -204,7 +202,7 @@ CREATE OR ALTER PROCEDURE Paciente.InsertarEstudio
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Paciente.Estudio WHERE nro_de_documento = @nro_de_documento) -- Si existe, actualizo los datos
+        IF EXISTS (SELECT 1 FROM Paciente.Estudio WHERE id_historia_clinica = @id_historia_clinica) -- Si existe, actualizo los datos
         BEGIN
             UPDATE Paciente.Estudio
             SET fecha = @fecha,
@@ -212,19 +210,19 @@ BEGIN
                 autorizado = @autorizado,
                 documento_resultado = @documento_resultado,
                 imagen_resultado = @imagen_resultado,
-            WHERE nro_de_documento = @nro_de_documento
+            WHERE id_historia_clinica = @id_historia_clinica
         END
         ELSE
         BEGIN
             INSERT INTO Paciente.Estudio (
-                nro_de_documento,
+                id_historia_clinica,
                 fecha,
                 nombre_estudio,
                 autorizado,
                 documento_resultado,
                 imagen_resultado
             ) VALUES (
-                @nro_de_documento,
+                @id_historia_clinica,
                 @fecha,
                 @nombre_estudio,
                 @autorizado,
@@ -234,7 +232,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error: El estudio del paciente con dni: ', @nro_de_documento, ' no se puede insertar');
+		SELECT CONCAT('Error al insertar el estudio: ', ERROR_MESSAGE());
     END CATCH 
 END
 
@@ -243,34 +241,34 @@ GO
 --
 
 CREATE OR ALTER PROCEDURE Paciente.InsertarPago
-    @nro_de_documento INT,
+    @id_historia_clinica INT,
     @fecha DATE,
     @monto DECIMAL(10, 2)
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Paciente.Pago WHERE nro_de_documento = @nro_de_documento) -- Si existe, actualizo los datos
+        IF EXISTS (SELECT 1 FROM Paciente.Pago WHERE id_historia_clinica = @id_historia_clinica) -- Si existe, actualizo los datos
         BEGIN
             UPDATE Paciente.Pago
             SET fecha = @fecha,
                 monto = @monto,
-            WHERE nro_de_documento = @nro_de_documento
+            WHERE id_historia_clinica = @id_historia_clinica
         END
         ELSE 
         BEGIN
             INSERT INTO Paciente.Pago (
-                nro_de_documento,
+                id_historia_clinica,
                 fecha,
                 monto
             ) VALUES (
-                @nro_de_documento,
+                @id_historia_clinica,
                 @fecha,
                 @monto
             )
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error: El pago del paciente con dni: ', @nro_de_documento, ' no se puede insertar');
+		SELECT CONCAT('Error al insertar el pago: ', ERROR_MESSAGE());
     END CATCH 
 END
 
@@ -323,16 +321,16 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error: La factura del estudio con id', @id_estudio, ' no se puede insertar');
+		SELECT CONCAT('Error al insertar la factura: ', ERROR_MESSAGE());
     END CATCH 
 END
-
+GO 
 --------------------------------------------------------------------------------
 -- Fin Inserción de Paciente
 --------------------------------------------------------------------------------
 
 --
-GO -- Actualización
+-- Actualización
 --
 
 --------------------------------------------------------------------------------
@@ -340,7 +338,7 @@ GO -- Actualización
 --------------------------------------------------------------------------------
 
 CREATE OR ALTER PROCEDURE Paciente.ActualizarPaciente
-    @id_cobertura INT,
+	@id_historia_clinica INT,
     @nombre VARCHAR(50),
     @apellido VARCHAR(50),
     @apellido_materno VARCHAR(50),
@@ -358,14 +356,14 @@ CREATE OR ALTER PROCEDURE Paciente.ActualizarPaciente
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Paciente.Paciente WHERE nro_de_documento = @nro_de_documento)
+        IF EXISTS (SELECT 1 FROM Paciente.Paciente WHERE id_historia_clinica = @id_historia_clinica)
         BEGIN
             UPDATE Paciente.Paciente
-            SET id_cobertura = @id_cobertura,
-                nombre = @nombre, 
+            SET nombre = @nombre, 
                 apellido = @apellido,
                 apellido_materno = @apellido_materno,
                 fecha_de_nacimiento = @fecha_de_nacimiento,
+                nro_de_ocumento = @nro_de_documento,
                 tipo_documento = @tipo_documento,
                 sexo_biologico = @sexo_biologico, 
                 genero = @genero,
@@ -381,43 +379,43 @@ BEGIN
         END
         ELSE
         BEGIN
-            RAISERROR ('El paciente con el documento especificado no existe.', 16, 1);
+            RAISERROR ('El paciente especificado no existe.', 16, 1);
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error: El paciente con con dni', @nro_de_documento, ' no se puede actualizar');
+		SELECT CONCAT('Error al actualizar el paciente: ', ERROR_MESSAGE());
     END CATCH
 END
 GO
 
 CREATE OR ALTER PROCEDURE Paciente.ActualizarUsuario
-    @nro_de_documento INT,
+    @id_usuario INT,
     @nombre_usuario VARCHAR(50),
     @contrasenia VARCHAR(255)
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Paciente.Usuario WHERE nro_de_documento = @nro_de_documento)
+        IF EXISTS (SELECT 1 FROM Paciente.Usuario WHERE id_usuario = @id_usuario)
         BEGIN
             UPDATE Paciente.Usuario
             SET nombre_usuario = @nombre_usuario,
                 contrasenia = @contrasenia
-            WHERE nro_de_documento = @nro_de_documento 
+            WHERE id_usuario = @id_usuario 
         END
         ELSE
         BEGIN
-            RAISERROR ('El usuario con el documento especificado no existe.', 16, 1);
+            RAISERROR ('El usuario con el id especificado no existe.', 16, 1);
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error: El usuario con dni', @nro_de_documento, ' no se puede actualizar');
+		SELECT CONCAT('Error al actualizar el usuario: ', ERROR_MESSAGE());
     END CATCH
 END
 GO
 
 CREATE OR ALTER PROCEDURE Paciente.ActualizarDomicilio
     @id_domicilio INT,
-    @nro_de_documento INT,
+    @id_historia_clinica INT,
     @calle VARCHAR(50),
     @numero INT,
     @piso INT,
@@ -429,7 +427,7 @@ CREATE OR ALTER PROCEDURE Paciente.ActualizarDomicilio
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Paciente.Domicilio WHERE id_domicilio = @id_domicilio AND nro_de_documento = @nro_de_documento)
+        IF EXISTS (SELECT 1 FROM Paciente.Domicilio WHERE id_domicilio = @id_domicilio AND id_historia_clinica = @id_historia_clinica)
         BEGIN
             UPDATE Paciente.Domicilio
             SET calle = @calle,
@@ -440,15 +438,15 @@ BEGIN
                 pais = @pais,
                 provincia = @provincia,
                 localidad = @localidad
-            WHERE id_domicilio = @id_domicilio AND nro_de_documento = @nro_de_documento
+            WHERE id_domicilio = @id_domicilio AND id_historia_clinica = @id_historia_clinica
         END
         ELSE
         BEGIN
-            RAISERROR ('El domicilio con el documento especificado no existe.', 16, 1);
+            RAISERROR ('El domicilio con el id especificado no existe.', 16, 1);
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error: El domicilio con id', @id_domicilio,' del paciente con dni', @nro_de_documento,' no se puede actualizar'); 
+		SELECT CONCAT('Error al actualizar el domicilio: ', ERROR_MESSAGE());
     END CATCH 
 END
 GO
