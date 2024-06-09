@@ -1,0 +1,47 @@
+GO
+USE com2900g09
+GO
+DROP PROCEDURE IF EXISTS Hospital.importarMedicosDesdeCSV
+GO
+CREATE PROCEDURE Hospital.importarMedicosDesdeCSV
+    @RutaArchivo VARCHAR(255)
+AS
+BEGIN
+		CREATE TABLE #MedicoTemp (
+			apellido VARCHAR(50),
+			nombre VARCHAR(50),
+			especialidad VARCHAR(50),
+			nroMatricula int
+		);
+	
+    -- Construye la sentencia BULK INSERT dinámicamente
+    DECLARE @SqlQuery NVARCHAR(MAX);
+    SET @SqlQuery = '
+        BULK INSERT #MedicoTemp
+        FROM ''' + @RutaArchivo + '''
+        WITH (
+            FIELDTERMINATOR = '';'',  -- Delimitador de campos
+            ROWTERMINATOR = ''\n'',   -- Delimitador de filas
+			CODEPAGE = 65001,         -- Codificación UTF-8
+            FIRSTROW = 2            -- Fila a partir de la cual se deben leer los datos (si la primera fila contiene encabezados)
+        );
+    ';
+
+    -- Ejecuta la sentencia dinámica
+    EXEC sp_executesql @SqlQuery;
+
+	INSERT INTO Hospital.Medico (apellido,nombre,ID_especialidad,nroMatricula)
+	SELECT MT.apellido,
+			MT.nombre,
+			E.ID_especialidad ,
+			MT.nroMatricula
+	FROM #MedicoTemp MT INNER JOIN Hospital.especialidad E ON MT.especialidad=E.nombreespecialidad;
+
+    PRINT 'La importación se ha completado exitosamente.';
+	DROP TABLE #MedicoTemp;
+END;
+go
+---------------------------------------
+EXEC Hospital.importarMedicosDesdeCSV 'C:\Database\Medicos.csv';
+go
+SELECT * From Hospital.Medico

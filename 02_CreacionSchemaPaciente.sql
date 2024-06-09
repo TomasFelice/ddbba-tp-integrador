@@ -31,7 +31,7 @@ CREATE TABLE Paciente.Paciente (
     tipo_documento VARCHAR(25) NOT NULL,
     nro_de_documento INT NOT NULL,
     sexo_biologico CHAR(1) NOT NULL,
-    genero CHAR(1) NOT NULL,
+    genero CHAR(10) NOT NULL,
     nacionalidad VARCHAR(18) NOT NULL,
     foto_de_perfil VARCHAR(255), --Aquí se insertarán URLS generadas desde otro sistema
     mail VARCHAR(100) NOT NULL, -- Lo hacemos not null ya que al paciente le avisamos que está autorizado su estudio por correo
