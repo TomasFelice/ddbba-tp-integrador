@@ -8,8 +8,8 @@ CREATE PROCEDURE Hospital.importarMedicosDesdeCSV
 AS
 BEGIN
 		CREATE TABLE #MedicoTemp (
-			apellido VARCHAR(50),
 			nombre VARCHAR(50),
+            apellido VARCHAR(50),
 			especialidad VARCHAR(50),
 			nroMatricula int
 		);
@@ -30,18 +30,18 @@ BEGIN
     -- Ejecuta la sentencia dinámica
     EXEC sp_executesql @SqlQuery;
 
-	INSERT INTO Hospital.Medico (apellido,nombre,ID_especialidad,nroMatricula)
-	SELECT MT.apellido,
-			MT.nombre,
-			E.ID_especialidad ,
-			MT.nroMatricula
-	FROM #MedicoTemp MT INNER JOIN Hospital.especialidad E ON MT.especialidad=E.nombreespecialidad;
+	INSERT INTO Hospital.Medico (id_especialidad,nombre,apellido,nroMatricula)
+	SELECT  esp.id_especialidad,
+			mt.nombre,
+            mt.apellido,
+			mt.nroMatricula
+	FROM #MedicoTemp mt INNER JOIN Hospital.Especialidad esp ON mt.especialidad = esp.nombre_especialidad
 
     PRINT 'La importación se ha completado exitosamente.';
 	DROP TABLE #MedicoTemp;
 END;
 go
----------------------------------------
+
 EXEC Hospital.importarMedicosDesdeCSV 'C:\Database\Medicos.csv';
 go
 SELECT * From Hospital.Medico

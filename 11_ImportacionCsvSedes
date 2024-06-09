@@ -30,8 +30,8 @@ BEGIN
     -- Ejecuta la sentencia dinámica
     EXEC sp_executesql @SqlQuery;
 
-	INSERT INTO Hospital.SedeDeAtencion(nombreSede,direccionSede,localidad,provincia)
-	SELECT nombreSede,direccionSede,localidad,provincia
+	INSERT INTO Hospital.SedeDeAtencion(nombre_sede,direccion_sede)
+	SELECT nombreSede, CONCAT(direccionSede,', ',localidad,', ',provincia) AS direccion_concat -- Nacho: deberíamos dividir los atributos y ponerlo con dirección? o lo dejamos concat así?
 	FROM #SedeTemp
 
     PRINT 'La importación se ha completado exitosamente.';
