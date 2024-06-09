@@ -25,11 +25,13 @@ CREATE OR ALTER PROCEDURE Paciente.InsertarPaciente
     @mail VARCHAR(100),
     @telefono_fijo CHAR(15),
     @telefono_de_contacto_alternativo CHAR(15),
-    @telefono_laboral CHAR(15)
+    @telefono_laboral CHAR(15),
+    @fecha_de_registro DATE, -- Pasamos como parámetro esto ya que puede que se necesite migrar la información fiel a la db desde otro sistema.
+    @fecha_de_actualizacion DATE -- Pasamos como parámetro esto ya que puede que se necesite migrar la información fiel a la db desde otro sistema.
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Paciente.Paciente WHERE nro_de_documento = @nro_de_documento) -- Si existe, actualizo los datos
+        IF EXISTS (SELECT 1 FROM Paciente.Paciente WHERE nro_de_documento = @nro_de_documento) -- Si existe, actualizo los datos -- Nacho: @Tomi f acá sí le dejamos nro de documento? porque la historia clinica se va a autoincrementar 1 en 1 y no va a coincidir nunca
         BEGIN
             UPDATE Paciente.Paciente
             SET nombre = @nombre, 
@@ -45,8 +47,9 @@ BEGIN
                 telefono_fijo = @telefono_fijo,
                 telefono_de_contacto_alternativo = @telefono_de_contacto_alternativo,
                 telefono_laboral = @telefono_laboral,
-                fecha_de_actualizacion = GETDATE(),
-                usuario_actualizacion = SUSER_ID() -- obtengo el id del usuario que está ejecutando en la sesión, el sp de inserción -- Tomi: Creo que hay que validar si se manda algo x input aca. Si no se manda nada, ahi si ponemos el de la sesion
+                fecha_de_registro = @fecha_de_registro,
+                fecha_de_actualizacion = ISNULL(@fecha_de_actualizacion,GETDATE()),
+                usuario_actualizacion = SUSER_ID() -- Tomi: Creo que hay que validar si se manda algo x input aca. Si no se manda nada, ahi si ponemos el de la sesion -- Nacho: en la inserción para mi no tiene mucho sentido, porque el id si viene de otro sistema no va a ser el mismo del propio sistema.
             WHERE nro_de_documento = @nro_de_documento 
         END
         ELSE -- sino lo creo de 0
@@ -502,7 +505,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error: El pago con id', @id_pago,' no se puede actualizar'); 
+		SELECT CONCAT('Error al actualizar el pago: ', ERROR_MESSAGE());
     END CATCH 
 END
 GO
@@ -537,7 +540,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error: La factura con id', @id_factura,' no se puede actualizar'); 
+		SELECT CONCAT('Error al actualizar la factura: ', ERROR_MESSAGE());
     END CATCH 
 END
 
@@ -686,11 +689,11 @@ BEGIN
     BEGIN TRY
         UPDATE Paciente.Usuario
         SET fecha_borrado = GETDATE()
-        WHERE nro_de_documento = @nro_de_documento;
+        WHERE nro_de_documento = @nro_de_documento; -- Nacho: @Tomi f, vos lo moviste acá arriba? no debería ir en el ELSE? lo dejo así por las dudas
 
         IF @@ROWCOUNT = 0
         BEGIN
-            SELECT CONCAT('Error: El usuario con nro de documento: ', @nro_de_documento, ' no existe');
+		    SELECT CONCAT('Error al eliminar el paciente: ', ERROR_MESSAGE());
         END
         ELSE
         BEGIN

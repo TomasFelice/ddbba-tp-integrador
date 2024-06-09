@@ -19,6 +19,9 @@ GO
 CREATE SCHEMA Paciente
 GO
 
+-- Nacho: amigo, lo de la historia clínica no me suena muy bien todavía. Porque si obtenés el id de eso podés traer info de más del paciente. Con el dni es más fácil identificarlo.
+-- Nacho: lo dejo igualmente así hasta que decidamos.
+
 CREATE TABLE Paciente.Paciente (
     id_historia_clinica INT IDENTITY(1,1),
     nombre VARCHAR(50) NOT NULL,
