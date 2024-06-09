@@ -13,7 +13,7 @@ BEGIN
     BEGIN TRY
         IF EXISTS(SELECT 1 FROM Hospital.Especialidad WHERE nombre_especialidad = @nombre_especialidad)
         BEGIN
-		SELECT CONCAT('Error la especialidad ya fue insertada previamente', ERROR_MESSAGE());
+		    SELECT CONCAT('Error: La especialidad ya fue insertada previamente', ERROR_MESSAGE());
         END
         ELSE
         BEGIN
@@ -36,18 +36,11 @@ BEGIN
     BEGIN TRY
         IF EXISTS(SELECT 1 FROM Hospital.Medico WHERE nro_matricula = @nro_matricula)
         BEGIN
-            
-            /*UPDATE Hospital.Medico
-            SET id_especialidad = @id_especialidad,
-                nombre = @nombre,
-                apellido = @apellido
-            WHERE nro_matricula = @nro_matricula; -- Nacho: en caso de resolver línea 19 de archivo 04_CreacionSchemaHospital.sql actualizarlo por id_medico
-
             UPDATE Hospital.Medico
             SET id_especialidad = @id_especialidad,
                 nombre = @nombre,
                 apellido = @apellido
-            WHERE nro_matricula = @nro_matricula; -- Nacho: deberíamos tener en cuenta que acá le deberíamos pegar a la tabla de medico_especialidad, no? */
+            WHERE nro_matricula = @nro_matricula
         END
         ELSE
         BEGIN

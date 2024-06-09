@@ -31,9 +31,9 @@ CREATE TABLE Hospital.Medico (
     id_especialidad INT NOT NULL,
     nombre VARCHAR(50),
     apellido VARCHAR(50),
-    nro_matricula CHAR(10), -- Nacho: @tomi f no debería ser esta la pk? Tomi: na, no es 100% necesario
-	CONSTRAINT pk_medico PRIMARY KEY CLUSTERED (id_medico),
-    CONSTRAINT fk_medico_especialidad FOREIGN KEY (id_especialidad) REFERENCES Hospital.Especialidad(id_especialidad) ON DELETE CASCADE ON UPDATE CASCADE
+    nro_matricula CHAR(10), -- Nacho: @tomi f no debería ser esta la pk? Tomi: na, no es 100% necesario -- Nacho: mmm acá pasa lo mismo que con Paciente
+	CONSTRAINT pk_medico PRIMARY KEY CLUSTERED (id_medico)
+   -- REVISAR: CONSTRAINT fk_medico_especialidad FOREIGN KEY (id_especialidad) REFERENCES Hospital.Especialidad(id_especialidad) ON DELETE CASCADE ON UPDATE CASCADE -- Nacho: está fk está bien? Ahí puse la entidad en el diagrama para que veas cómo para mí es la unión
 )
 GO
 
@@ -42,7 +42,7 @@ GO
     Debido a que un medico puede tener varias especialidades
     y una especialidad puede ser ejercida por varios medicos
 */
-CREATE TABLE Hospital.Medico_Especialidad (
+CREATE TABLE Hospital.MedicoEspecialidad (
     id_medico_especialidad INT IDENTITY(1,1),
     id_medico INT,
     id_especialidad INT,
