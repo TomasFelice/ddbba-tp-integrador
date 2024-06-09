@@ -21,6 +21,7 @@ GO
 
 -- Nacho: amigo, lo de la historia clínica no me suena muy bien todavía. Porque si obtenés el id de eso podés traer info de más del paciente. Con el dni es más fácil identificarlo.
 -- Nacho: lo dejo igualmente así hasta que decidamos.
+-- Tomi: En el contexto de un hospital, la manera de identifiar una persona es por la historia clinica para mí. Si bien los dos datos sabemos que van a ser únicos, yo prefiero usar la historia clínica. (le agregué la constraint de unique al nro doc)
 
 CREATE TABLE Paciente.Paciente (
     id_historia_clinica INT IDENTITY(1,1),
@@ -29,7 +30,7 @@ CREATE TABLE Paciente.Paciente (
     apellido_materno VARCHAR(50),
     fecha_de_nacimiento DATE NOT NULL,
     tipo_documento VARCHAR(25) NOT NULL,
-    nro_de_documento INT NOT NULL,
+    nro_de_documento INT NOT NULL UNIQUE,
     sexo_biologico CHAR(1) NOT NULL,
     genero CHAR(10) NOT NULL,
     nacionalidad VARCHAR(18) NOT NULL,

@@ -31,7 +31,7 @@ CREATE OR ALTER PROCEDURE Paciente.InsertarPaciente
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Paciente.Paciente WHERE nro_de_documento = @nro_de_documento) -- Si existe, actualizo los datos -- Nacho: @Tomi f acá sí le dejamos nro de documento? porque la historia clinica se va a autoincrementar 1 en 1 y no va a coincidir nunca
+        IF EXISTS (SELECT 1 FROM Paciente.Paciente WHERE nro_de_documento = @nro_de_documento) -- Si existe, actualizo los datos -- Nacho: @Tomi f acá sí le dejamos nro de documento? porque la historia clinica se va a autoincrementar 1 en 1 y no va a coincidir nunca. Tomi: Yo acá lo dejaría porque también sabemos que nro_de_documento es UNIQUE entonces no se puede repetir. (agregué la constraint en la creción de la tabla)
         BEGIN
             UPDATE Paciente.Paciente
             SET nombre = @nombre, 
@@ -50,7 +50,8 @@ BEGIN
                 fecha_de_registro = @fecha_de_registro,
                 fecha_de_actualizacion = ISNULL(@fecha_de_actualizacion,GETDATE()),
                 usuario_actualizacion = SUSER_ID() -- Tomi: Creo que hay que validar si se manda algo x input aca. Si no se manda nada, ahi si ponemos el de la sesion -- Nacho: en la inserción para mi no tiene mucho sentido, porque el id si viene de otro sistema no va a ser el mismo del propio sistema.
-            WHERE nro_de_documento = @nro_de_documento 
+            WHERE nro_de_documento = @nro_de_documento ;
+            SELECT 'Se actualizo el paciente con nro de documento: ', @nro_de_documento;
         END
         ELSE -- sino lo creo de 0
         BEGIN
@@ -647,7 +648,7 @@ BEGIN
             SELECT CONCAT('Error: La factura con nro de documento: ', @nro_de_documento, ' no existe');
     END TRY
     BEGIN CATCH
-        SELECT 'Error al eliminar la factura.', ERROR_MESSAGE
+        SELECT 'Error al eliminar la factura.', ERROR_MESSAGE();
 
 GO
 --------------------------------------------------------------------------------
@@ -689,7 +690,7 @@ BEGIN
     BEGIN TRY
         UPDATE Paciente.Usuario
         SET fecha_borrado = GETDATE()
-        WHERE nro_de_documento = @nro_de_documento; -- Nacho: @Tomi f, vos lo moviste acá arriba? no debería ir en el ELSE? lo dejo así por las dudas
+        WHERE nro_de_documento = @nro_de_documento; -- Nacho: @Tomi f, vos lo moviste acá arriba? no debería ir en el ELSE? lo dejo así por las dudas Tomi: Nope, no toqupe esto, tenemos que revisar los de nro_de_documento o id_historia_clinica acá
 
         IF @@ROWCOUNT = 0
         BEGIN

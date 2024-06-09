@@ -31,7 +31,7 @@ BEGIN
     EXEC sp_executesql @SqlQuery;
 
 	INSERT INTO Hospital.SedeDeAtencion(nombre_sede,direccion_sede)
-	SELECT nombreSede, CONCAT(direccionSede,', ',localidad,', ',provincia) AS direccion_concat -- Nacho: deberíamos dividir los atributos y ponerlo con dirección? o lo dejamos concat así?
+	SELECT nombreSede, CONCAT(direccionSede,', ',localidad,', ',provincia) AS direccion_concat -- Nacho: deberíamos dividir los atributos y ponerlo con dirección? o lo dejamos concat así?. Tomi: Tenemos que ver de que manera lo podemos encjar en la tabla xd
 	FROM #SedeTemp
 
     PRINT 'La importación se ha completado exitosamente.';
