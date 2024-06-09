@@ -98,7 +98,15 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE Hospital.InsertarDiasPorSede --------- revisar
+/******* 
+    ESCENARIO: se actualizan los siguientes datos:
+
+    - La sede puede cambiar la hora de inicio y la hora de fin de uno de los días: posible cancelación de turnos fuera de horario de rango.
+    - El médico no está más, se debe reasignar otro médico en caso de turno reservado.
+
+*******/
+
+CREATE OR ALTER PROCEDURE Hospital.InsertarDiasPorSede -- Nacho: necesito una mano acá porque me mareo, este SP está mal, deberíamos hacer condiciones de si se vuelve a insertar nuevamente que se actualice?
     @id_sede INT,
     @id_medico INT,
     @dia VARCHAR(9),
@@ -107,20 +115,20 @@ CREATE OR ALTER PROCEDURE Hospital.InsertarDiasPorSede --------- revisar
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Hospital.DiasPorSede WHERE id_sede = @id_sede AND id_medico = @id_medico)
+        IF EXISTS (SELECT 1 FROM Hospital.DiasPorSede WHERE id_sede = @id_sede AND id_medico = @id_medico AND dia = @dia) -- puedo actualizar la hora de inicio y la hora de fin
         BEGIN
             UPDATE Hospital.DiasPorSede 
-            SET hora_inicio = @hora_inicio, hora_fin = @hora_fin 
+            SET hora_inicio = @hora_inicio, hora_fin = @hora_fin -- Nacho: esto para mi está mal
             WHERE id_sede = @id_sede AND id_medico = @id_medico;
         END
-        ELSE IF EXISTS (SELECT 1 FROM Hospital.DiasPorSede WHERE id_sede = @id_sede AND id_medico = @id_medico AND dia = @dia)
+        ELSE
         BEGIN
             INSERT INTO Hospital.DiasPorSede (id_sede, id_medico, dia, hora_inicio, hora_fin)
             VALUES (@id_sede, @id_medico, @dia, @hora_inicio, @hora_fin);
         END
     END TRY
     BEGIN CATCH
-           SELECT CONCAT('Error: Error al insertar la relación dias por sede', ERROR_MESSAGE())
+           SELECT CONCAT('Error: Error al insertar dias por sede', ERROR_MESSAGE())
     END CATCH
 END
 GO
@@ -131,8 +139,8 @@ GO -- Actualización
 -- 
 
 CREATE OR ALTER PROCEDURE Hospital.ActualizarEspecialidad
-    @id_especialidad INT,
-    @nombre_especialidad VARCHAR(50)
+    @id_especialidad INT, -- no debo actualizar otra cosa que el nombre_especialidad
+    @nombre_especialidad VARCHAR(50) 
 AS
 BEGIN
     BEGIN TRY
@@ -181,29 +189,6 @@ BEGIN
     END CATCH
 END
 GO
-CREATE OR ALTER PROCEDURE Hospital.ActualizarMedico_Especialidad
-    @id_medico INT,
-    @id_especialidad INT
-AS
-BEGIN
-    BEGIN TRY
-        IF EXISTS(SELECT 1 FROM Hospital.Medico WHERE id_medico = @id_medico AND EXISTS(SELECT 1 FROM Hospital.Especialidad WHERE id_especialidad = @id_especialidad))
-        BEGIN
-            UPDATE Hospital.Medico_Especialidad
-            SET
-                id_especialidad = @id_especialidad
-            WHERE id_medico = @id_medico;
-        END
-        ELSE
-        BEGIN
-           SELECT CONCAT('Error: La relación medico-especialidad buscada a actualizar no existe', ERROR_MESSAGE())
-        END
-    END TRY
-    BEGIN CATCH
-           SELECT CONCAT('Error: Error al actualizar la relación medico-especialidad', ERROR_MESSAGE())
-    END CATCH
-END
-
 
 CREATE OR ALTER PROCEDURE Hospital.ActualizarSedeAtencion
     @nombre_sede VARCHAR(50),
@@ -242,7 +227,7 @@ BEGIN
         IF EXISTS(SELECT 1 FROM Hospital.Especialidad WHERE id_especialidad = @id_especialidad)
         BEGIN
             DELETE FROM Hospital.Especialidad
-            WHERE id_especialidad = @id_especialidad;
+            WHERE id_especialidad = @id_especialidad; -- Nacho: acá estaría bien dejar un null en medico_especialidad, no? Esto lo deberíamos poner en la estructura?            
         END
         ELSE
         BEGIN
@@ -274,27 +259,5 @@ BEGIN
     END CATCH
 END
 GO
-CREATE OR ALTER PROCEDURE Hospital.EliminarMedico_Especialidad
-    @id_medico INT,
-    @id_especialidad INT
-AS
-BEGIN
-    BEGIN TRY
-        IF EXISTS(SELECT 1 FROM Hospital.Medico WHERE id_medico = @id_medico AND EXISTS(SELECT 1 FROM Hospital.Especialidad WHERE id_especialidad = @id_especialidad))
-        BEGIN
-            DELETE FROM Hospital.Medico_Especialidad
-            WHERE id_medico = @id_medico AND id_especialidad = @id_especialidad;
-        END
-        ELSE
-        BEGIN
-           SELECT CONCAT('Error: La relación medico-especialidad buscada a eliminar no existe', ERROR_MESSAGE())
-        END
-    END TRY
-    BEGIN CATCH
-           SELECT CONCAT('Error: Error al eliminar la relación medico-especialidad', ERROR_MESSAGE())
-    END CATCH
-END
-GO
-CREATE OR ALTER PROCEDURE Hospital.EliminarMedico_Especialidad
 
 

@@ -42,7 +42,7 @@ GO
     Debido a que un medico puede tener varias especialidades
     y una especialidad puede ser ejercida por varios medicos
 */
-CREATE TABLE Hospital.MedicoEspecialidad (
+CREATE TABLE Hospital.MedicoEspecialidad ( -- Nacho: acá no tiene sentido hacer un sp de act y eliminación, no? 
     id_medico_especialidad INT IDENTITY(1,1),
     id_medico INT,
     id_especialidad INT,
