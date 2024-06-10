@@ -37,7 +37,7 @@ CREATE TABLE ObraSocial.Cobertura (
     imagen_de_la_credencial VARCHAR(255), --Aquí se insertarán URLS generadas desde otro sistema
     nro_de_socio INT NOT NULL,
     fecha_de_registro DATE DEFAULT GETDATE(),
-    borrado_en DATETIME DEFAULT NULL,
+    fecha_borrado DATETIME DEFAULT NULL,
 	CONSTRAINT pk_cobertura PRIMARY KEY CLUSTERED (id_cobertura),
     CONSTRAINT fk_cobertura_prestador FOREIGN KEY (id_prestador) REFERENCES Obrasocial.Prestador(id_prestador) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_cobertura_historia_clinica FOREIGN KEY (id_historia_clinica) REFERENCES Paciente.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE,

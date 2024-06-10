@@ -51,7 +51,7 @@ BEGIN
                 fecha_de_actualizacion = ISNULL(@fecha_de_actualizacion,GETDATE()),
                 usuario_actualizacion = SUSER_ID() -- Tomi: Creo que hay que validar si se manda algo x input aca. Si no se manda nada, ahi si ponemos el de la sesion -- Nacho: en la inserción para mi no tiene mucho sentido, porque el id si viene de otro sistema no va a ser el mismo del propio sistema.
             WHERE nro_de_documento = @nro_de_documento ;
-            SELECT 'Se actualizo el paciente con nro de documento: ', @nro_de_documento;
+            SELECT 'Se actualizo correctamente al paciente ';
         END
         ELSE -- sino lo creo de 0
         BEGIN
@@ -91,7 +91,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error al insertar el paciente: ', ERROR_MESSAGE());
+		SELECT 'Error al insertar el paciente: ', ERROR_MESSAGE();
     END CATCH
 END
 
@@ -127,7 +127,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error al insertar el usuario: ', ERROR_MESSAGE());
+		SELECT 'Error al insertar el usuario: ', ERROR_MESSAGE();
     END CATCH
 END
 
@@ -188,7 +188,7 @@ BEGIN
        END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error al insertar el domicilio: ', ERROR_MESSAGE());
+		SELECT 'Error al insertar el domicilio: ', ERROR_MESSAGE();
     END CATCH 
 END
 
@@ -236,7 +236,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error al insertar el estudio: ', ERROR_MESSAGE());
+		SELECT 'Error al insertar el estudio: ', ERROR_MESSAGE();
     END CATCH 
 END
 
@@ -272,7 +272,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error al insertar el pago: ', ERROR_MESSAGE());
+		SELECT 'Error al insertar el pago: ', ERROR_MESSAGE();
     END CATCH 
 END
 
@@ -291,7 +291,7 @@ BEGIN
     -- Validaciones de campos obligatorios 
     IF @porcentaje_pagado > 100.00
     BEGIN
-        RAISERROR ('El campo porcentaje_pagado no puede ser mayor que 100%', 16, 1);
+        SELECT 'El campo porcentaje_pagado no puede ser mayor que 100%', ERROR_MESSAGE();
         RETURN;
     END
 
@@ -325,7 +325,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error al insertar la factura: ', ERROR_MESSAGE());
+		SELECT 'Error al insertar la factura: ', ERROR_MESSAGE();
     END CATCH 
 END
 GO 
@@ -383,11 +383,11 @@ BEGIN
         END
         ELSE
         BEGIN
-            RAISERROR ('El paciente especificado no existe.', 16, 1);
+            SELECT 'El paciente con el id especificado no existe.', ERROR_MESSAGE();
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error al actualizar el paciente: ', ERROR_MESSAGE());
+		SELECT 'Error al actualizar el paciente: ', ERROR_MESSAGE();
     END CATCH
 END
 GO
@@ -408,11 +408,11 @@ BEGIN
         END
         ELSE
         BEGIN
-            RAISERROR ('El usuario con el id especificado no existe.', 16, 1);
+            SELECT 'El usuario con el id especificado no existe.', ERROR_MESSAGE();
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error al actualizar el usuario: ', ERROR_MESSAGE());
+		SELECT 'Error al actualizar el usuario: ', ERROR_MESSAGE();
     END CATCH
 END
 GO
@@ -446,11 +446,11 @@ BEGIN
         END
         ELSE
         BEGIN
-            RAISERROR ('El domicilio con el id especificado no existe.', 16, 1);
+           SELECT 'El domicilio con el id especificado no existe.', ERROR_MESSAGE();
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error al actualizar el domicilio: ', ERROR_MESSAGE());
+		SELECT 'Error al actualizar el domicilio: ', ERROR_MESSAGE();
     END CATCH 
 END
 GO
@@ -477,11 +477,11 @@ BEGIN
         END
         ELSE
         BEGIN
-            RAISERROR ('El estudio con el documento especificado no existe.', 16, 1);
+            SELECT 'El estudio con el id especificado no existe.', ERROR_MESSAGE();
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error: El estudio con id', @id_estudio,' no se puede actualizar'); 
+		SELECT 'Error al actualizar el estudio: ', ERROR_MESSAGE();
     END CATCH 
 END
 GO
@@ -502,11 +502,11 @@ BEGIN
         END
         ELSE 
         BEGIN
-            RAISERROR ('El pago con el documento especificado no existe.', 16, 1);
+            SELECT 'El pago con el id especificado no existe.', ERROR_MESSAGE();
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error al actualizar el pago: ', ERROR_MESSAGE());
+		SELECT 'Error al actualizar el pago: ', ERROR_MESSAGE();
     END CATCH 
 END
 GO
@@ -522,7 +522,7 @@ AS
 BEGIN
     IF @porcentaje_pagado > 100.00
     BEGIN
-        RAISERROR ('El campo porcentaje_pagado no puede ser mayor que 100%', 16, 1);
+        SELECT 'El campo porcentaje_pagado no puede ser mayor que 100%', ERROR_MESSAGE();
         RETURN;
     END
 
@@ -537,11 +537,11 @@ BEGIN
         END
         ELSE
         BEGIN
-            RAISERROR ('La factura con los datos especificados no existe.', 16, 1);
+            SELECT 'La factura con el id especificado no existe.', ERROR_MESSAGE();
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error al actualizar la factura: ', ERROR_MESSAGE());
+		SELECT 'Error al actualizar la factura: ', ERROR_MESSAGE();
     END CATCH 
 END
 
@@ -558,18 +558,22 @@ GO -- Eliminación
 
 --- Nacho: si eliminamos paciente deberíamos borrar absolutamente todo lo que está relacionado a él? :s alto quilombito. ¿Qué opinan?
 --- Nacho: otra cosa, me dio pajita porque me quiero concentrar en otra cosa, pero los mensajes de error en los catch no lo puse con select concat como los otros. PENDIENTE
+
+
 CREATE OR ALTER PROCEDURE Paciente.EliminarUsuario
-    @nro_de_documento INT
+    @id_historia_clinica INT
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS(SELECT 1 FROM Paciente.Usuario WHERE nro_de_documento = @nro_de_documento)
+        IF EXISTS(SELECT 1 FROM Paciente.Usuario WHERE id_historia_clinica = @id_historia_clinica)
         BEGIN
-            DELETE FROM Paciente.Usuario WHERE nro_de_documento = @nro_de_documento;
+            DELETE FROM Paciente.Usuario WHERE id_historia_clinica = @id_historia_clinica;
             SELECT 'Usuario eliminado exitosamente.';
         END
         ELSE
-            SELECT CONCAT('Error: El usuario con nro de documento: ', @nro_de_documento, ' no existe');
+        BEGIN
+            SELECT 'Error al eliminar el usuario ya que no existe', ERROR_MESSAGE();
+        END
     END TRY
     BEGIN CATCH
         SELECT 'Error al eliminar el usuario.', ERROR_MESSAGE();
@@ -587,8 +591,10 @@ BEGIN
             DELETE FROM Paciente.Domicilio WHERE id_domicilio = @id_domicilio;
             SELECT 'Domicilio eliminado exitosamente.';
         END
-        ELSE
-            SELECT CONCAT('Error: El domicilio con nro de documento: ', @nro_de_documento, ' no existe');
+        ELSE 
+        BEGIN 
+            SELECT 'Error al eliminar el domicilio ya que no existe', ERROR_MESSAGE(); 
+        END
     END TRY
     BEGIN CATCH
         SELECT 'Error al eliminar el domicilio.', ERROR_MESSAGE();
@@ -607,7 +613,9 @@ BEGIN
             SELECT 'Estudio eliminado exitosamente.';
         END
         ELSE
-            SELECT CONCAT('Error: El estudio con nro de documento: ', @nro_de_documento, ' no existe');
+        BEGIN
+		    SELECT 'Error al eliminar el estudio ya que no existe', ERROR_MESSAGE();
+        END
     END TRY
     BEGIN CATCH
         SELECT 'Error al eliminar el estudio.', ERROR_MESSAGE();
@@ -616,17 +624,19 @@ END
 GO
 
 CREATE OR ALTER PROCEDURE Paciente.EliminarPago
-    @nro_de_documento INT
+    @id_pago INT
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS(SELECT 1 FROM Paciente.Pago WHERE nro_de_documento = @nro_de_documento)
+        IF EXISTS(SELECT 1 FROM Paciente.Pago WHERE id_pago = @id_pago)
         BEGIN
-            DELETE FROM Paciente.Pago WHERE nro_de_documento = @nro_de_documento;
+            DELETE FROM Paciente.Pago WHERE id_pago = @id_pago;
             SELECT 'Pago eliminado exitosamente.';
         END
         ELSE
-            SELECT CONCAT('Error: El pago con nro de documento: ', @nro_de_documento, ' no existe');
+        BEGIN
+		    SELECT 'Error al eliminar el pago ya que no existe', ERROR_MESSAGE();
+        END
     END TRY
     BEGIN CATCH
         SELECT 'Error al eliminar el pago.', ERROR_MESSAGE();
@@ -635,20 +645,28 @@ END
 GO
 
 CREATE OR ALTER PROCEDURE Paciente.EliminarFactura
-    @nro_de_documento INT
+    @id_factura INT
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS(SELECT 1 FROM Paciente.Factura WHERE nro_de_documento = @nro_de_documento)
+        IF EXISTS(SELECT 1 FROM Paciente.Factura WHERE id_factura = @id_factura)
         BEGIN
-            DELETE FROM Paciente.Factura WHERE nro_de_documento = @nro_de_documento;
+            DELETE FROM Paciente.Factura WHERE id_factura = @id_factura;
             SELECT 'Factura eliminada exitosamente.';
+
+            DELETE FROM Paciente.Pago WHERE id_pago 
+            IN (SELECT id_pago FROM Paciente.Factura WHERE id_factura = @id_factura); -- Si elimino la factura, elimino también los pagos relacionados
+
         END
         ELSE
-            SELECT CONCAT('Error: La factura con nro de documento: ', @nro_de_documento, ' no existe');
+        BEGIN
+		    SELECT 'Error al eliminar el domicilio ya que no existe', ERROR_MESSAGE();
+        END
     END TRY
     BEGIN CATCH
         SELECT 'Error al eliminar la factura.', ERROR_MESSAGE();
+    END CATCH
+END
 
 GO
 --------------------------------------------------------------------------------
@@ -660,41 +678,62 @@ GO
 --------------------------------------------------------------------------------
 
 CREATE OR ALTER PROCEDURE Paciente.EliminarPacienteLogicamente
-    @nro_de_documento INT
+    @id_historia_clinica INT
 AS
 BEGIN
     BEGIN TRY
         UPDATE Paciente.Paciente
         SET fecha_borrado = GETDATE()
-        WHERE nro_de_documento = @nro_de_documento;
+        WHERE id_historia_clinica = @id_historia_clinica;
 
-        IF @@ROWCOUNT = 0
+        UPDATE Paciente.Usuario
+        SET fecha_borrado = GETDATE()
+        WHERE id_historia_clinica = @id_historia_clinica;
+
+        UPDATE Paciente.Domicilio
+        SET fecha_borrado = GETDATE()
+        WHERE id_historia_clinica = @id_historia_clinica;
+
+        UPDATE Paciente.Estudio
+        SET fecha_borrado = GETDATE()
+        WHERE id_historia_clinica = @id_historia_clinica;
+
+        UPDATE ObraSocial.Cobertura
+        SET fecha_borrado = GETDATE()
+        WHERE id_historia_clinica = @id_historia_clinica;
+
+        UPDATE Turno.ReservaTurnoMedico
+        SET id_estado = (SELECT id_estado FROM Turno.EstadoTurno WHERE estado = 'Cancelado')
+        WHERE id_historia_clinica = @id_historia_clinica;
+
+        IF @@ROWCOUNT = 0 -- se utiliza para verificar si alguna de las actualizaciones realizadas en las tablas afectó alguna fila. Contiene el número de filas afectadas por la última instrucción UPDATE o DELETE.
         BEGIN
-            SELECT CONCAT('Error: El paciente con nro de documento: ', @nro_de_documento, ' no existe');
+            SELECT 'Error: El paciente a eliminar lógicamente no existe';
         END
         ELSE
         BEGIN
-            SELECT 'Paciente eliminado lógicamente.';
+		    SELECT 'Error al eliminar el paciente lógicamente ya que no existe', ERROR_MESSAGE();
         END
     END TRY
     BEGIN CATCH
         SELECT 'Error al eliminar el paciente lógicamente.', ERROR_MESSAGE();
     END CATCH
 END
+
 GO
 
-CREATE OR ALTER PROCEDURE Paciente.EliminarUsuarioLogicamente
-    @nro_de_documento INT
+CREATE OR ALTER PROCEDURE Paciente.EliminarUsuarioLogicamente 
+    @id_usuario INT
 AS
 BEGIN
     BEGIN TRY
         UPDATE Paciente.Usuario
         SET fecha_borrado = GETDATE()
-        WHERE nro_de_documento = @nro_de_documento; -- Nacho: @Tomi f, vos lo moviste acá arriba? no debería ir en el ELSE? lo dejo así por las dudas Tomi: Nope, no toqupe esto, tenemos que revisar los de nro_de_documento o id_historia_clinica acá
+        WHERE id_usuario = @id_usuario
 
-        IF @@ROWCOUNT = 0
+        IF @@ROWCOUNT = 0 -- se utiliza para verificar si alguna de las actualizaciones realizadas en las tablas afectó alguna fila. Contiene el número de filas afectadas por la última instrucción UPDATE o DELETE.
         BEGIN
-		    SELECT CONCAT('Error al eliminar el paciente: ', ERROR_MESSAGE());
+		    SELECT 'Error: El usuario a eliminar lógicamente no existe', ERROR_MESSAGE();
         END
         ELSE
         BEGIN
@@ -705,59 +744,58 @@ BEGIN
         SELECT 'Error al eliminar el usuario lógicamente.', ERROR_MESSAGE();
     END CATCH
 END
+
 GO
 
---------------------------------------------------------------------------------
--- Inicio Eliminar lógicamente: (Esto es lo que buscabas @Tomas F?)
---------------------------------------------------------------------------------
-CREATE OR ALTER PROCEDURE Paciente.EliminarPacienteLogicamente
-    @nro_de_documento INT
+CREATE OR ALTER PROCEDURE Paciente.EliminarDomicilioLogicamente
+    @id_domicilio INT
 AS
 BEGIN
     BEGIN TRY
-        UPDATE Paciente.Paciente
+        UPDATE Paciente.Domicilio
         SET fecha_borrado = GETDATE()
-        WHERE nro_de_documento = @nro_de_documento;
+        WHERE id_domicilio = @id_domicilio;
 
-        IF @@ROWCOUNT = 0
+        IF @@ROWCOUNT = 0 -- se utiliza para verificar si alguna de las actualizaciones realizadas en las tablas afectó alguna fila. Contiene el número de filas afectadas por la última instrucción UPDATE o DELETE.
         BEGIN
-            SELECT CONCAT('Error: El paciente con nro de documento: ', @nro_de_documento, ' no existe');
+		    SELECT 'Error: El domicilio a eliminar lógicamente no existe', ERROR_MESSAGE();
         END
         ELSE
         BEGIN
-            SELECT 'Paciente eliminado lógicamente.';
+            SELECT 'Domicilio eliminado lógicamente.';
         END
     END TRY
     BEGIN CATCH
-        SELECT 'Error al eliminar el paciente lógicamente.', ERROR_MESSAGE();
+        SELECT 'Error al eliminar el domicilio lógicamente.', ERROR_MESSAGE();
     END CATCH
 END
 GO
+    
 
-CREATE OR ALTER PROCEDURE Paciente.EliminarUsuarioLogicamente
-    @nro_de_documento INT
+CREATE OR ALTER PROCEDURE Paciente.EliminarEstudioLogicamente
+    @id_estudio INT
 AS
 BEGIN
     BEGIN TRY
-        UPDATE Paciente.Usuario
+        UPDATE Paciente.Estudio
         SET fecha_borrado = GETDATE()
-        WHERE nro_de_documento = @nro_de_documento;
+        WHERE id_estudio = @id_estudio;
 
-        IF @@ROWCOUNT = 0
+        IF @@ROWCOUNT = 0 -- se utiliza para verificar si alguna de las actualizaciones realizadas en las tablas afectó alguna fila. Contiene el número de filas afectadas por la última instrucción UPDATE o DELETE.
         BEGIN
-            SELECT CONCAT('Error: El usuario con nro de documento: ', @nro_de_documento, ' no existe');
+		    SELECT 'Error: El estudio a eliminar lógicamente no existe', ERROR_MESSAGE();
         END
         ELSE
         BEGIN
-            SELECT 'Usuario eliminado lógicamente.';
+            SELECT 'Eomicilio eliminado lógicamente.';
         END
     END TRY
     BEGIN CATCH
-        SELECT 'Error al eliminar el usuario lógicamente.', ERROR_MESSAGE();
+        SELECT 'Error al eliminar el estudio lógicamente.', ERROR_MESSAGE();
     END CATCH
 END
-GO
 
+GO
 --------------------------------------------------------------------------------
 -- Fin Eliminar lógicamente:
 --------------------------------------------------------------------------------
@@ -766,49 +804,34 @@ GO
 -- Inicio SP Funcionalidades:
 --------------------------------------------------------------------------------
 
-CREATE PROCEDURE ddbba.actualizarAutorizacionEstudios(@id_estudio INT, @nro_de_documento_paciente INT) --Nacho: saqué el @monto de acá, no le veo sentido
+CREATE PROCEDURE ddbba.actualizarAutorizacionEstudios(@_id NVARCHAR(40), @Area NVARCHAR(50), @Estudio NVARCHAR(100), @Prestador NVARCHAR(50), @Plan NVARCHAR(50), @Porcentaje_Cobertura INT, @Costo INT, @Requiere_Autorizacion BIT)
 AS
 BEGIN
-    -- Declarar variables para los costos
-    DECLARE @CostoFactura DECIMAL(10, 2);
-    DECLARE @CostoAbonadoPago DECIMAL(10, 2);
+    -- Obtener el id de estudio correspondiente a los datos proporcionados
+    DECLARE @id_estudio INT;
+    SELECT @id_estudio = id_estudio
+    FROM Paciente.Estudio
+    WHERE Area = @Area
+    AND nombre_estudio = @Estudio
+    AND prestador = @Prestador
+    AND plan = @Plan;
 
-    -- Obtener el costo de la factura del estudio para el paciente
-    SELECT @CostoFactura = costo_factura_inicial 
-    FROM Paciente.Factura 
-    WHERE nro_de_documento = @nro_de_documento_paciente 
-    AND id_estudio = @id_estudio;
-
-    -- Obtener el monto abonado por el paciente
-    SELECT @CostoAbonadoPago = SUM(p.monto)
-    FROM Paciente.Pago p
-    JOIN Paciente.Factura f ON p.id_pago = f.id_pago 
-    WHERE f.nro_de_documento = @nro_de_documento_paciente 
-    AND f.id_estudio = @id_estudio;
-
-    -- Verificar si el monto abonado es mayor o igual al costo de la factura
-    IF(@CostoAbonadoPago >= @CostoFactura)
+    -- Si el estudio existe, actualizar la autorización y el costo
+    IF @id_estudio IS NOT NULL
     BEGIN
-        -- Actualizar el estudio como autorizado
         UPDATE Paciente.Estudio
-        SET autorizado = 1
+        SET autorizado = @Requiere_Autorizacion,
+            costo_factura_inicial = @Costo
         WHERE id_estudio = @id_estudio;
 
-        -- Registrar que el costo ha sido cubierto completamente
+        -- Actualizar el porcentaje de cobertura en la factura
         UPDATE Paciente.Factura
-        SET porcentaje_pagado = 100
-        WHERE nro_de_documento = @nro_de_documento_paciente 
-        AND id_estudio = @id_estudio;
+        SET porcentaje_pagado = @Porcentaje_Cobertura
+        WHERE id_estudio = @id_estudio;
     END
     ELSE
     BEGIN
-        -- Calcular el porcentaje pagado y actualizar la factura
-        UPDATE Paciente.Factura
-        SET porcentaje_pagado = (@CostoAbonadoPago / @CostoFactura) * 100
-        WHERE nro_de_documento = @nro_de_documento_paciente 
-        AND id_estudio = @id_estudio;
-
-        -- Nacho: Deberíamos poner un atributo monto adeudado?
+        SELECT 'El estudio no existe en la base de datos.';
     END
 END
 GO

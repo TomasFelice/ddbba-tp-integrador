@@ -68,6 +68,7 @@ CREATE TABLE Paciente.Domicilio (
     pais VARCHAR(40),
     provincia VARCHAR(50),
     localidad VARCHAR(50),
+    fecha_borrado DATETIME DEFAULT NULL, -- Se deja este atributo ya que si se elimina lógicamente el paciente, se deben eliminar todo lo relacionado a él
 	CONSTRAINT pk_domicilio PRIMARY KEY CLUSTERED (id_domicilio),
     CONSTRAINT fk_historia_clinica FOREIGN KEY (id_historia_clinica) REFERENCES Paciente.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE
 )
@@ -80,7 +81,8 @@ CREATE TABLE Paciente.Estudio (
     autorizado BIT DEFAULT 0,
     documento_resultado VARCHAR(255) DEFAULT NULL, -- Se intepreta con la URL al documento. En nuestro sistema delimitamos el ingreso de urls a máx 255 caracteres. Hay otro sistema que acorta las urls para tener ese máx
     imagen_resultado VARCHAR(255) DEFAULT NULL, -- Aquí se insertarán URLS generadas desde otro sistema. En nuestro sistema delimitamos el ingreso de urls a máx 255 caracteres. Hay otro sistema que acorta las urls para tener ese máx
-	CONSTRAINT pk_estudio PRIMARY KEY CLUSTERED (id_estudio),
+	fecha_borrado DATETIME DEFAULT NULL, -- Se deja este atributo ya que si se elimina lógicamente el paciente, se deben eliminar todo lo relacionado a él
+    CONSTRAINT pk_estudio PRIMARY KEY CLUSTERED (id_estudio),
     CONSTRAINT fk_estudio_historia_clinica FOREIGN KEY (id_historia_clinica) REFERENCES Paciente.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
@@ -98,8 +100,7 @@ CREATE TABLE Paciente.Factura (
     id_pago INT NOT NULL,
     id_estudio INT NOT NULL,
     id_historia_clinica INT,
-    costo_factura_inicial DECIMAL(10, 2) NOT NULL,
-    costo_adeudado DECIMAL(10,2) NOT NULL,
+    costo_factura DECIMAL(10, 2) NOT NULL,
     porcentaje_pagado DECIMAL(3,2) DEFAULT 0.0, -- Sirve para poder dejar asentado si pagó el porcentaje de la factura o no, se insertar con el SP actualizarAutorizacionEstudios
 	CONSTRAINT pk_factura PRIMARY KEY CLUSTERED (id_factura),
     CONSTRAINT fk_factura_historia_clinica FOREIGN KEY (id_historia_clinica) REFERENCES Paciente.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE,
