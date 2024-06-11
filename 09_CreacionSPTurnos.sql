@@ -9,6 +9,7 @@ CREATE OR ALTER PROCEDURE Turnos.CrearReservaTurnoMedico
     @idHistoriaClinica INT, 
     @idmedico INT,
     @idMedicoEspecialidad INT,
+    @id_prestador INT,
     @idSede INT,
     @idEstadoTurno INT, 
     @idTipoTurno INT
@@ -20,6 +21,7 @@ BEGIN
             AND EXISTS (SELECT 1 FROM Hospital.Medico WHERE id_medico = @idMedico)
             AND EXISTS (SELECT 1 FROM Hospital.MedicoEspecialidad WHERE id_medico_especialidad = @idMedicoEspecialidad)
             AND EXISTS (SELECT 1 FROM Hospital.SedeDeAtencion WHERE id_sede = @idSede)
+            AND EXISTS (SELECT 1 FROM ObraSocial.id_prestador WHERE id_prestador = @id_prestador)
             AND EXISTS (SELECT 1 FROM Turnos.EstadoTurno WHERE id_estado_turno = @idEstadoTurno)
             AND EXISTS (SELECT 1 FROM Turnos.TipoTurno WHERE id_tipo_turno = @idTipoTurno)
         BEGIN
@@ -30,8 +32,8 @@ BEGIN
                     @hora = GETDATE();
 
             -- Insertar el registro
-            INSERT INTO Turnos.ReservaTurnoMedico (id_historia_clinica, fecha, hora, id_medico, id_medico_especialidad, id_sede, id_estado_turno, id_tipo_turno)
-            VALUES (@idHistoriaClinica, @fecha, @hora, @idMedico, @idMedicoEspecialidad, @idSede, @idEstadoTurno, @idTipoTurno);
+            INSERT INTO Turnos.ReservaTurnoMedico (id_historia_clinica, fecha, hora, id_medico, id_medico_especialidad, id_prestador,id_sede, id_estado_turno, id_tipo_turno)
+            VALUES (@idHistoriaClinica, @fecha, @hora, @idMedico, @idMedicoEspecialidad,@id_prestador, @idSede, @idEstadoTurno, @idTipoTurno);
             
             SELECT 'Reserva de turno creada exitosamente.';
         END
@@ -49,6 +51,7 @@ CREATE OR ALTER PROCEDURE Turnos.ActualizarReservaTurnoMedico
     @idHistoriaClinica INT, 
     @idMedico INT,
     @idMedicoEspecialidad INT, 
+    @idPrestador INT,
     @idSede INT,
     @idEstadoTurno INT, 
     @idTipoTurno INT
@@ -77,6 +80,11 @@ BEGIN
         IF NOT EXISTS (SELECT 1 FROM Hospital.MedicoEspecialidad WHERE id_medico_especialidad = @idMedicoEspecialidad)
         BEGIN
             SELECT 'Error: La especialidad no existe.';
+            RETURN;
+        END
+             IF NOT EXISTS (SELECT 1 FROM ObraSocial.Prestador WHERE id_prestador = @idPrestador)
+        BEGIN
+            SELECT 'Error: El prestador  no existe.';
             RETURN;
         END
 
@@ -119,6 +127,11 @@ BEGIN
             SET @consulta = @consulta + N'id_medico_especialidad = @idMedicoEspecialidad, ';
         END
 
+        IF @idPrestador IS NOT NULL
+        BEGIN
+            SET @consulta = @consulta + N'id_prestador = @id_prestador, ';
+        END
+
         IF @idSede IS NOT NULL
         BEGIN
             SET @consulta = @consulta + N'id_sede = @idSede, ';
@@ -146,8 +159,8 @@ BEGIN
         -- Se ejecuta la consulta SQL dinámica
         EXEC sp_executesql @consulta,
                             N'@idHistoriaClinica INT, @idMedico INT,
-                            @idMedicoEspecialidad INT, @idSede INT, @idEstadoTurno INT, @idTipoTurno INT, @idTurno INT',
-                            @idHistoriaClinica, @idMedicoEspecialidad, @idSede, @idEstadoTurno, @idTipoTurno, @idTurno;
+                            @idMedicoEspecialidad INT, @idPrestador INT, @idSede INT, @idEstadoTurno INT, @idTipoTurno INT, @idTurno INT',
+                            @idHistoriaClinica, @idMedico, @idMedicoEspecialidad, @idPrestador, @idSede, @idEstadoTurno, @idTipoTurno, @idTurno;
 
         SELECT 'Reserva de turno actualizada exitosamente.';
     END TRY
