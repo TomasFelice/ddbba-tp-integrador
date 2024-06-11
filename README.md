@@ -6,5 +6,6 @@
 * Revisar si de casualidad hay que poner algún borrado lógico más en otra tabla (Ejemplo: lo estaba pensando para médico)
 * Ver tu opinion con el tema de los sp de hospital
 * Cerrar los sp que importa los jsons (creo que es lo más jodido)
+* ver el tema de los xml
 * hacer scripts de prueba
 * ver el tema de los roles
