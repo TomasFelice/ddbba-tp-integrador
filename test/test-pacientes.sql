@@ -9,8 +9,8 @@ EXEC Paciente.InsertarPaciente
     @fecha_de_nacimiento = '1980-01-01',
     @tipo_documento = 'DNI',
     @nro_de_documento = 43211234,
-    @sexo_biologico = 'M',
-    @genero = 'M',
+    @sexo_biologico = 'Masculino',
+    @genero = 'Masculino',
     @nacionalidad = 'Argentino',
     @foto_de_perfil = 'path/to/foto.jpg',
     @mail = 'juan.perez@example.com',
@@ -19,26 +19,7 @@ EXEC Paciente.InsertarPaciente
     @telefono_laboral = '2345678',
     @fecha_de_registro = '2024-06-01',
     @fecha_de_actualizacion = '2024-06-11';
---Respuesta: Se insert� correctamente el paciente
-
-EXEC Paciente.InsertarPaciente
-    @nombre = 'Tomás',
-    @apellido = 'Felice',
-    @apellido_materno = 'Muscatiello',
-    @fecha_de_nacimiento = '2003-03-30',
-    @tipo_documento = 'DNI',
-    @nro_de_documento = 44789809,
-    @sexo_biologico = 'M',
-    @genero = 'M',
-    @nacionalidad = 'Argentino',
-    @foto_de_perfil = 'path/to/foto.jpg',
-    @mail = 'tomas.felice@example.com',
-    @telefono_fijo = '1234567',
-    @telefono_de_contacto_alternativo = '7654321',
-    @telefono_laboral = '2345678',
-    @fecha_de_registro = GETDATE(),
-    @fecha_de_actualizacion = GETDATE();
---Respuesta: Se insert� correctamente el paciente
+--Respuesta: Se insertó correctamente el paciente
 
 --Actualizo el paciente
 EXEC Paciente.InsertarPaciente
@@ -48,8 +29,8 @@ EXEC Paciente.InsertarPaciente
     @fecha_de_nacimiento = '1980-01-01',
     @tipo_documento = 'DNI',
     @nro_de_documento = 12345678,
-    @sexo_biologico = 'M',
-    @genero = 'M',
+    @sexo_biologico = 'Masculino',
+    @genero = 'Masculino',
     @nacionalidad = 'Argentino',
     @foto_de_perfil = 'path/to/foto.jpg',
     @mail = 'juan.perez@outlook.com',
@@ -62,13 +43,13 @@ EXEC Paciente.InsertarPaciente
 
 --Inserto un usuario
 exec Paciente.InsertarUsuario @id_historia_clinica = 3, @nombre_usuario = 'Boca', @contrasenia = 'Juniors'
---Respuesta: Inserci�n correcta
+--Respuesta: Inserción correcta
 
 --Intento insertar un usuario con el mismo nombre de usuario
 exec Paciente.InsertarUsuario @id_historia_clinica = 4, @nombre_usuario = 'Boca', @contrasenia = 'Campeon'
 --Respuesta: Error al insertar el usuario: Violation of UNIQUE KEY constraint 'UQ__UsuarioB__D4D22D74295CB686'. Cannot insert duplicate key in object 'Paciente.Usuario'.
 
---Intento insertar un usuario que con un id_historia_clinica inv�lido
+--Intento insertar un usuario que con un id_historia_clinica inválido
 exec Paciente.InsertarUsuario @id_historia_clinica = 9, @nombre_usuario = 'JuanRoman', @contrasenia = 'Riquelme'
 --Respuesta: Error al insertar el usuario: The INSERT statement conflicted with the FOREIGN KEY constraint "fk_usuario_historia_clinica". The conflict occurred in database "com2900g09", table "Paciente.Paciente", column 'id_historia_clinica'.
 
@@ -84,11 +65,11 @@ exec Paciente.InsertarDomicilio
     @pais = 'Argentina',
     @provincia ='Capital Federal',
     @localidad = 'La Boca'
---Respuesta: Inserci�n correcta
+--Respuesta: Inserción correcta
 
 select * from DomicilioBDA
 
---Inserto un domicilio con un id_historia_clinica inv�lido
+--Inserto un domicilio con un id_historia_clinica inválido
 exec Paciente.InsertarDomicilio
 	@id_historia_clinica = 9,
     @calle ='La Boca',
@@ -105,7 +86,7 @@ exec Paciente.InsertarDomicilio
 exec Paciente.InsertarPago
 @fecha = '2024-06-01',
     @monto = 1000.00
---Respuesta: Inserci�n correcta
+--Respuesta: Inserción correcta
 
 --Insertar una factura
 exec Paciente.InsertarFactura
@@ -114,9 +95,9 @@ exec Paciente.InsertarFactura
 	@id_historia_clinica = 3,
     @costo_factura = 302,
     @porcentaje_pagado = 0
---Respuesta: Inserci�n correcta
+--Respuesta: Inserción correcta
 
---Intento insertar una factura con un id_pago inv�lido
+--Intento insertar una factura con un id_pago inválido
 exec Paciente.InsertarFactura
     @id_pago = 10,
     @id_estudio = 'A1234',
@@ -125,7 +106,7 @@ exec Paciente.InsertarFactura
     @porcentaje_pagado = 0
 --Respuesta: Error al insertar la factura: The UPDATE statement conflicted with the FOREIGN KEY constraint "fk_factura_pago". The conflict occurred in database "com2900g09", table "Paciente.Pago", column 'id_pago'.
 
---Intento insertar una factura con un @id_estudio inv�lido
+--Intento insertar una factura con un @id_estudio inválido
 exec Paciente.InsertarFactura
     @id_pago = 1,
     @id_estudio = 'ARE1234',
@@ -134,7 +115,7 @@ exec Paciente.InsertarFactura
     @porcentaje_pagado = 0
 --Respuesta: Error al insertar la factura: The UPDATE statement conflicted with the FOREIGN KEY constraint "fk_factura_estudio". The conflict occurred in database "com2900g09", table "Paciente.Estudio", column 'id_estudio'.
 
---Intento insertar una factura con un @id_historia_clinica inv�lido
+--Intento insertar una factura con un @id_historia_clinica inválido
 exec Paciente.InsertarFactura
     @id_pago = 1,
     @id_estudio = 'A1234',
@@ -153,8 +134,8 @@ exec Paciente.ActualizarPaciente
     @fecha_de_nacimiento = '1981-01-01',
     @tipo_documento = 'DNI',
     @nro_de_documento = 12345678,
-    @sexo_biologico = 'M',
-    @genero = 'M',
+    @sexo_biologico = 'Masculino',
+    @genero = 'Masculino',
     @nacionalidad = 'Argentino',
     @foto_de_perfil = 'path/to/foto.jpg',
     @mail = 'juan.perez@example.com',
@@ -172,8 +153,8 @@ exec Paciente.ActualizarPaciente
     @fecha_de_nacimiento = '1981-01-01',
     @tipo_documento = 'DNI',
     @nro_de_documento = 12345678,
-    @sexo_biologico = 'M',
-    @genero = 'M',
+    @sexo_biologico = 'Masculino',
+    @genero = 'Masculino',
     @nacionalidad = 'Argentino',
     @foto_de_perfil = 'path/to/foto.jpg',
     @mail = 'juan.perez@example.com',
@@ -197,7 +178,7 @@ exec Paciente.ActualizarUsuario
 --Respuesta: El usuario con el id especificado no existe.
 
 --BORRADO
---Borrado de un paciente (f�sico)
+--Borrado de un paciente (físico)
 exec Paciente.EliminarPaciente
    @id_historia_clinica = 3
 --Respuesta: Usuario eliminado exitosamente.
@@ -207,13 +188,13 @@ exec Paciente.EliminarPaciente
    @id_historia_clinica = 9
 --Respuesta: Error al eliminar el usuario ya que no existe
 
---Borrar paciente (l�gicamente)
+--Borrar paciente (lógicamente)
 exec Paciente.EliminarPacienteLogicamente
     @id_historia_clinica = 4
---Respuesta: Borrado l�gico exitoso
+--Respuesta: Borrado lógico exitoso
 --No funciona correctamente este SP
 
 --Intentar borrar paciente que no existe
 exec Paciente.EliminarPacienteLogicamente
     @id_historia_clinica = 9
---Respuesta: Error: El paciente a eliminar l�gicamente no existe
+--Respuesta: Error: El paciente a eliminar lógicamente no existe
