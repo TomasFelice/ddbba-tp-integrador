@@ -137,8 +137,7 @@ GO
 
 CREATE OR ALTER PROCEDURE Paciente.InsertarDomicilio
     @id_historia_clinica INT,
-    @calle VARCHAR(50),
-    @numero INT,
+    @direccion VARCHAR(100),
     @piso INT,
     @departamento CHAR(10),
     @codigo_postal CHAR(10),
@@ -152,8 +151,7 @@ BEGIN
         IF EXISTS (SELECT 1 FROM Paciente.Domicilio WHERE id_historia_clinica = @id_historia_clinica) -- Si existe, actualizo los datos
        BEGIN
             UPDATE Paciente.Domicilio
-            SET calle = @calle,
-                numero = @numero,
+            SET direccion = @direccion,
                 piso = @piso,
                 departamento = @departamento,
                 codigo_postal = @codigo_postal,
@@ -166,8 +164,7 @@ BEGIN
        BEGIN
             INSERT INTO Paciente.Domicilio (
                 id_historia_clinica,
-                calle,
-                numero,
+                direccion,
                 piso,
                 departamento,
                 codigo_postal,
@@ -176,8 +173,7 @@ BEGIN
                 localidad
             ) VALUES (
                 @id_historia_clinica,
-                @calle,
-                @numero,
+                @direccion,
                 @piso,
                 @departamento,
                 @codigo_postal,
@@ -406,7 +402,7 @@ GO
 CREATE OR ALTER PROCEDURE Paciente.ActualizarDomicilio
     @id_domicilio INT,
     @id_historia_clinica INT,
-    @calle VARCHAR(50),
+    @direccion VARCHAR(100),
     @numero INT,
     @piso INT,
     @departamento CHAR(10),
@@ -420,8 +416,7 @@ BEGIN
         IF EXISTS (SELECT 1 FROM Paciente.Domicilio WHERE id_domicilio = @id_domicilio AND id_historia_clinica = @id_historia_clinica)
         BEGIN
             UPDATE Paciente.Domicilio
-            SET calle = @calle,
-                numero = @numero,
+            SET direccion = @direccion,
                 piso = @piso,
                 departamento = @departamento,
                 codigo_postal = @codigo_postal,
