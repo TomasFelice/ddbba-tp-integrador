@@ -3,8 +3,6 @@ GO
 
 DROP TABLE IF EXISTS Paciente.Usuario
 GO
-DROP TABLE IF EXISTS Paciente.Domicilio
-GO
 DROP TABLE IF EXISTS Paciente.Estudio
 GO
 DROP TABLE IF EXISTS Paciente.Pago
@@ -12,6 +10,8 @@ GO
 DROP TABLE IF EXISTS Paciente.Factura
 GO
 DROP TABLE IF EXISTS Paciente.Paciente
+GO
+DROP TABLE IF EXISTS Paciente.Domicilio
 GO
 DROP SCHEMA IF EXISTS Paciente
 GO
@@ -23,8 +23,22 @@ GO
 -- Nacho: lo dejo igualmente así hasta que decidamos.
 -- Tomi: En el contexto de un hospital, la manera de identifiar una persona es por la historia clinica para mí. Si bien los dos datos sabemos que van a ser únicos, yo prefiero usar la historia clínica. (le agregué la constraint de unique al nro doc)
 
+CREATE TABLE Paciente.Domicilio (
+    id_domicilio INT IDENTITY(1,1),
+    direccion VARCHAR(50),
+    piso INT DEFAULT NULL, -- Puede que el paciente no viva en un departamento
+    departamento CHAR(10) DEFAULT NULL,
+    codigo_postal CHAR(10),
+    pais VARCHAR(40),
+    provincia VARCHAR(50),
+    localidad VARCHAR(50),
+    fecha_borrado DATETIME DEFAULT NULL, -- Se deja este atributo ya que si se elimina lógicamente el paciente, se deben eliminar todo lo relacionado a él
+	CONSTRAINT pk_domicilio PRIMARY KEY CLUSTERED (id_domicilio)
+)
+GO
 CREATE TABLE Paciente.Paciente (
     id_historia_clinica INT IDENTITY(1,1),
+    id_domicilio INT DEFAULT NULL,
     nombre VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL ,
     apellido VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
     apellido_materno VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS,
@@ -43,12 +57,10 @@ CREATE TABLE Paciente.Paciente (
     fecha_de_actualizacion DATE DEFAULT GETDATE(),
     usuario_actualizacion INT NOT NULL,
     fecha_borrado DATETIME DEFAULT NULL,
-	CONSTRAINT pk_historia_clinica PRIMARY KEY CLUSTERED (id_historia_clinica)
+	CONSTRAINT pk_historia_clinica PRIMARY KEY CLUSTERED (id_historia_clinica),
+    CONSTRAINT fk_paciente_domicilio FOREIGN KEY (id_domicilio) REFERENCES Paciente.Domicilio(id_domicilio) ON DELETE NO ACTION ON UPDATE NO ACTION
 )
 GO
-
-INSERT INTO Paciente.Paciente (nombre, apellido, apellido_materno, fecha_de_nacimiento, tipo_documento, nro_de_documento, sexo_biologico, genero, nacionalidad, mail, telefono_fijo, telefono_de_contacto_alternativo, telefono_laboral, fecha_de_registro, fecha_de_actualizacion, usuario_actualizacion)
-VALUES ('Juan', 'Perez', 'Gonzalez', '1990-01-01', 'DNI', 12345678, 'M', 'Masculino', 'Argentino', 'juanperez@gmail.com', '011-12345678', '011-12345678', '011-12345678', GETDATE(), GETDATE(), 1)
 
 CREATE TABLE Paciente.Usuario (
     id_usuario INT IDENTITY(1,1),
@@ -59,21 +71,6 @@ CREATE TABLE Paciente.Usuario (
     fecha_borrado DATETIME DEFAULT NULL,
 	CONSTRAINT pk_usuario PRIMARY KEY CLUSTERED (id_usuario),
     CONSTRAINT fk_usuario_historia_clinica FOREIGN KEY (id_historia_clinica) REFERENCES Paciente.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE
-)
-GO
-CREATE TABLE Paciente.Domicilio (
-    id_domicilio INT IDENTITY(1,1),
-    id_historia_clinica INT NOT NULL,
-    direccion VARCHAR(50),
-    piso INT DEFAULT NULL, -- Puede que el paciente no viva en un departamento
-    departamento CHAR(10) DEFAULT NULL,
-    codigo_postal CHAR(10),
-    pais VARCHAR(40),
-    provincia VARCHAR(50),
-    localidad VARCHAR(50),
-    fecha_borrado DATETIME DEFAULT NULL, -- Se deja este atributo ya que si se elimina lógicamente el paciente, se deben eliminar todo lo relacionado a él
-	CONSTRAINT pk_domicilio PRIMARY KEY CLUSTERED (id_domicilio),
-    CONSTRAINT fk_historia_clinica FOREIGN KEY (id_historia_clinica) REFERENCES Paciente.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 CREATE TABLE Paciente.Estudio (

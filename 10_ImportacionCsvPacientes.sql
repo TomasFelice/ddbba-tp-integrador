@@ -46,10 +46,9 @@ BEGIN
 	WHERE nro_documento not in (select nro_de_documento from Paciente.Paciente);
 
     -- Insertar datos en la tabla Domicilio
-    INSERT INTO Paciente.Domicilio(calle, numero, provincia, localidad)
+    INSERT INTO Paciente.Domicilio(direccion, provincia, localidad)
     SELECT
-    SUBSTRING(calle_nro, 1, CHARINDEX(' ', calle_nro) - 1) AS calle, -- Extraer la calle del atributo calle_nro
-    SUBSTRING(calle_nro, CHARINDEX(' ', calle_nro) + 1, LEN(calle_nro)) AS numero, -- Extraer el número de la calle del atributo calle_nro
+    calle_nro,
     provincia,
     localidad
     FROM #PacienteTemp;
