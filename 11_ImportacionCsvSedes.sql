@@ -38,6 +38,6 @@ BEGIN
 	DROP TABLE #SedeTemp;
 END
 go
-EXEC Hospital.importarSedeDesdeCSV 'C:\Dataset\Sedes.csv';
+EXEC Hospital.importarSedeDesdeCSV 'D:\Dev\ddbba-tp-integrador\Dataset\Sedes.csv';
 go
 SELECT * From Hospital.SedeDeAtencion

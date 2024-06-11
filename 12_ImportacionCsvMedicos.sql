@@ -30,18 +30,30 @@ BEGIN
     -- Ejecuta la sentencia dinámica
     EXEC sp_executesql @SqlQuery;
 
-	INSERT INTO Hospital.Medico (id_especialidad,nombre,apellido,nroMatricula)
-	SELECT  esp.id_especialidad,
-			mt.nombre,
+	INSERT INTO Hospital.Medico (nombre,apellido,nro_matricula)
+	SELECT  mt.nombre,
             mt.apellido,
 			mt.nroMatricula
-	FROM #MedicoTemp mt INNER JOIN Hospital.Especialidad esp ON mt.especialidad = esp.nombre_especialidad
+	FROM #MedicoTemp mt
+
+	INSERT INTO Hospital.Especialidad(nombre_especialidad)
+	SELECT  mt.especialidad
+	FROM #MedicoTemp mt
+
+	INSERT INTO Hospital.MedicoEspecialidad(id_medico, id_especialidad)
+	SELECT	hm.id_medico,
+			he.id_especialidad
+	FROM #MedicoTemp mt
+	INNER JOIN Hospital.Medico hm ON hm.nro_matricula = mt.nroMatricula
+	INNER JOIN Hospital.Especialidad he ON he.nombre_especialidad = mt.especialidad
 
     PRINT 'La importación se ha completado exitosamente.';
 	DROP TABLE #MedicoTemp;
 END;
 go
 
-EXEC Hospital.importarMedicosDesdeCSV 'C:\Database\Medicos.csv';
+EXEC Hospital.importarMedicosDesdeCSV 'D:\Dev\ddbba-tp-integrador\Dataset\Medicos.csv';
 go
 SELECT * From Hospital.Medico
+SELECT * From Hospital.Especialidad
+SELECT * From Hospital.MedicoEspecialidad
