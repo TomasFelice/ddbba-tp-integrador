@@ -41,7 +41,7 @@ CREATE TABLE Turno.ReservaTurnoMedico (
     CONSTRAINT fk_turno_estado_turno FOREIGN KEY (id_estado_turno) REFERENCES Turno.EstadoTurno(id_estado) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_turno_tipo_turno FOREIGN KEY (id_tipo_turno) REFERENCES Turno.TipoTurno(id_tipo_turno) ON DELETE CASCADE ON UPDATE CASCADE,
 	CONSTRAINT fk_turno_historia_clinica FOREIGN KEY (id_historia_clinica) REFERENCES Paciente.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE,
-	CONSTRAINT fk_turno_medico_especialidad FOREIGN KEY (id_medico_especialidad) REFERENCES Hospital.Medico_Especialidad(id_medico_especialidad) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT fk_turno_medico_especialidad FOREIGN KEY (id_medico_especialidad) REFERENCES Hospital.MedicoEspecialidad(id_medico_especialidad) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_turno_sede FOREIGN KEY (id_sede) REFERENCES Hospital.SedeDeAtencion(id_sede) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
@@ -49,8 +49,8 @@ GO
 --------------------------------------------------
 ------  INSERCION VALORES DEFINIDOS
 --------------------------------------------------
-INSERT INTO Turno.EstadoTurno (id_turno, nombre_estado)
-VALUES (1, 'Disponible'), (2, 'Reservado'), (3, 'Cancelado'), (4, 'Atendido'), (5, 'Ausente')
+INSERT INTO Turno.EstadoTurno (nombre_estado)
+VALUES ('Disponible'), ('Reservado'), ('Cancelado'), ('Atendido'), ('Ausente')
 GO
 
 INSERT INTO Turno.TipoTurno (nombre_tipo_turno)

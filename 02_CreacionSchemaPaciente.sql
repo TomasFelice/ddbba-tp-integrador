@@ -25,20 +25,20 @@ GO
 
 CREATE TABLE Paciente.Paciente (
     id_historia_clinica INT IDENTITY(1,1),
-    nombre VARCHAR(50) NOT NULL,
-    apellido VARCHAR(50) NOT NULL,
-    apellido_materno VARCHAR(50),
+    nombre VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL ,
+    apellido VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+    apellido_materno VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS,
     fecha_de_nacimiento DATE NOT NULL,
-    tipo_documento VARCHAR(25) NOT NULL,
+    tipo_documento VARCHAR(25) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL ,
     nro_de_documento INT NOT NULL UNIQUE,
     sexo_biologico CHAR(1) NOT NULL,
     genero CHAR(10) NOT NULL,
-    nacionalidad VARCHAR(18) NOT NULL,
-    foto_de_perfil VARCHAR(255), --Aquí se insertarán URLS generadas desde otro sistema
-    mail VARCHAR(100) NOT NULL, -- Lo hacemos not null ya que al paciente le avisamos que está autorizado su estudio por correo
-    telefono_fijo CHAR(15) DEFAULT NULL, -- Los dejamoss nulos  ya que en nuestro sistema no nos interesa saber sí o sí el nro de teléfono del paciente
-    telefono_de_contacto_alternativo CHAR(15) DEFAULT NULL,
-    telefono_laboral CHAR(15) DEFAULT NULL,
+    nacionalidad VARCHAR(18) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL ,
+    foto_de_perfil VARCHAR(255) COLLATE SQL_Latin1_General_CP1_CI_AS, --Aquí se insertarán URLS generadas desde otro sistema
+    mail VARCHAR(100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL, -- Lo hacemos not null ya que al paciente le avisamos que está autorizado su estudio por correo
+    telefono_fijo CHAR(15) COLLATE SQL_Latin1_General_CP1_CI_AS DEFAULT NULL, -- Los dejamoss nulos  ya que en nuestro sistema no nos interesa saber sí o sí el nro de teléfono del paciente
+    telefono_de_contacto_alternativo CHAR(15) COLLATE SQL_Latin1_General_CP1_CI_AS DEFAULT NULL,
+    telefono_laboral CHAR(15) COLLATE SQL_Latin1_General_CP1_CI_AS DEFAULT NULL,
     fecha_de_registro DATE DEFAULT GETDATE(),
     fecha_de_actualizacion DATE DEFAULT GETDATE(),
     usuario_actualizacion INT NOT NULL,
@@ -46,6 +46,10 @@ CREATE TABLE Paciente.Paciente (
 	CONSTRAINT pk_historia_clinica PRIMARY KEY CLUSTERED (id_historia_clinica)
 )
 GO
+
+INSERT INTO Paciente.Paciente (nombre, apellido, apellido_materno, fecha_de_nacimiento, tipo_documento, nro_de_documento, sexo_biologico, genero, nacionalidad, mail, telefono_fijo, telefono_de_contacto_alternativo, telefono_laboral, fecha_de_registro, fecha_de_actualizacion, usuario_actualizacion)
+VALUES ('Juan', 'Perez', 'Gonzalez', '1990-01-01', 'DNI', 12345678, 'M', 'Masculino', 'Argentino', 'juanperez@gmail.com', '011-12345678', '011-12345678', '011-12345678', GETDATE(), GETDATE(), 1)
+
 CREATE TABLE Paciente.Usuario (
     id_usuario INT IDENTITY(1,1),
     id_historia_clinica INT NOT NULL,
@@ -74,15 +78,15 @@ CREATE TABLE Paciente.Domicilio (
 )
 GO
 CREATE TABLE Paciente.Estudio (
-    id_estudio VARCHAR(25) NOT NULL,
+    id_estudio VARCHAR(25) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
     id_historia_clinica INT NOT NULL,
     fecha DATE NOT NULL,
-    nombre_estudio VARCHAR(100) NOT NULL,
+    nombre_estudio VARCHAR(100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
     autorizado BIT DEFAULT 0,
-    documento_resultado VARCHAR(255) DEFAULT NULL, -- Se intepreta con la URL al documento. En nuestro sistema delimitamos el ingreso de urls a máx 255 caracteres. Hay otro sistema que acorta las urls para tener ese máx
-    imagen_resultado VARCHAR(255) DEFAULT NULL, -- Aquí se insertarán URLS generadas desde otro sistema. En nuestro sistema delimitamos el ingreso de urls a máx 255 caracteres. Hay otro sistema que acorta las urls para tener ese máx
+    documento_resultado VARCHAR(255) COLLATE SQL_Latin1_General_CP1_CI_AS DEFAULT NULL, -- Se intepreta con la URL al documento. En nuestro sistema delimitamos el ingreso de urls a máx 255 caracteres. Hay otro sistema que acorta las urls para tener ese máx
+    imagen_resultado VARCHAR(255) COLLATE SQL_Latin1_General_CP1_CI_AS DEFAULT NULL, -- Aquí se insertarán URLS generadas desde otro sistema. En nuestro sistema delimitamos el ingreso de urls a máx 255 caracteres. Hay otro sistema que acorta las urls para tener ese máx
 	fecha_borrado DATETIME DEFAULT NULL, -- Se deja este atributo ya que si se elimina lógicamente el paciente, se deben eliminar todo lo relacionado a él
-	area VARCHAR(50),
+	area VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS,
     CONSTRAINT pk_estudio PRIMARY KEY CLUSTERED (id_estudio),
     CONSTRAINT fk_estudio_historia_clinica FOREIGN KEY (id_historia_clinica) REFERENCES Paciente.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE
 )

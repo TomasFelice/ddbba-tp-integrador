@@ -213,7 +213,7 @@ BEGIN
                 nombre_estudio = @nombre_estudio,
                 autorizado = @autorizado,
                 documento_resultado = @documento_resultado,
-                imagen_resultado = @imagen_resultado,
+                imagen_resultado = @imagen_resultado
             WHERE id_historia_clinica = @id_historia_clinica
         END
         ELSE
@@ -245,31 +245,18 @@ GO
 --
 
 CREATE OR ALTER PROCEDURE Paciente.InsertarPago
-    @id_historia_clinica INT,
     @fecha DATE,
     @monto DECIMAL(10, 2)
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Paciente.Pago WHERE id_historia_clinica = @id_historia_clinica) -- Si existe, actualizo los datos
-        BEGIN
-            UPDATE Paciente.Pago
-            SET fecha = @fecha,
-                monto = @monto,
-            WHERE id_historia_clinica = @id_historia_clinica
-        END
-        ELSE 
-        BEGIN
-            INSERT INTO Paciente.Pago (
-                id_historia_clinica,
-                fecha,
-                monto
-            ) VALUES (
-                @id_historia_clinica,
-                @fecha,
-                @monto
-            )
-        END
+        INSERT INTO Paciente.Pago (
+            fecha,
+            monto
+        ) VALUES (
+            @fecha,
+            @monto
+        )
     END TRY
     BEGIN CATCH
 		SELECT 'Error al insertar el pago: ', ERROR_MESSAGE();
@@ -283,8 +270,8 @@ GO
 CREATE OR ALTER PROCEDURE Paciente.InsertarFactura
     @id_pago INT,
     @id_estudio INT,
-    @costo_factura_inicial DECIMAL(10, 2),
-    @costo_adeudado DECIMAL(10, 2),
+	@id_historia_clinica INT,
+    @costo_factura DECIMAL(10, 2),
     @porcentaje_pagado DECIMAL(3, 2)
 AS
 BEGIN
@@ -296,15 +283,14 @@ BEGIN
     END
 
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Paciente.Factura WHERE nro_de_documento = @nro_de_documento) -- Si existe, actualizo los datos
+        IF EXISTS (SELECT 1 FROM Paciente.Factura WHERE id_historia_clinica = @id_historia_clinica) -- Si existe, actualizo los datos
         BEGIN
             UPDATE Paciente.Factura
             SET id_pago = @id_pago,
                 id_estudio = @id_estudio,
-                costo_factura_inicial = @costo_factura_inicial,
-                costo_adeudado = @costo_adeudado,
-                porcentaje_pagado = @porcentaje_pagado,
-            WHERE nro_de_documento = @nro_de_documento
+                costo_factura = @costo_factura,
+                porcentaje_pagado = @porcentaje_pagado
+            WHERE id_historia_clinica = @id_historia_clinica
         END
         ELSE
         BEGIN
@@ -312,14 +298,14 @@ BEGIN
             INSERT INTO Paciente.Factura (
                 id_pago,
                 id_estudio,
-                costo_factura_inicial,
-                costo_adeudado,
+				id_historia_clinica,
+                costo_factura,
                 porcentaje_pagado
             ) VALUES (
                 @id_pago,
                 @id_estudio,
-                @costo_factura_inicial,
-                @costo_adeudado,
+				@id_historia_clinica,
+                @costo_factura,
                 @porcentaje_pagado
             )
         END
@@ -367,7 +353,7 @@ BEGIN
                 apellido = @apellido,
                 apellido_materno = @apellido_materno,
                 fecha_de_nacimiento = @fecha_de_nacimiento,
-                nro_de_ocumento = @nro_de_documento,
+                nro_de_documento = @nro_de_documento,
                 tipo_documento = @tipo_documento,
                 sexo_biologico = @sexo_biologico, 
                 genero = @genero,
@@ -515,8 +501,8 @@ CREATE OR ALTER PROCEDURE Paciente.ActualizarFactura
     @id_factura INT,
     @id_pago INT,
     @id_estudio INT,
-    @costo_factura_inicial DECIMAL(10, 2),
-    @costo_adeudado DECIMAL(10, 2),
+	@id_historia_clinica INT,
+    @costo_factura DECIMAL(10, 2),
     @porcentaje_pagado DECIMAL(3, 2)
 AS
 BEGIN
@@ -530,10 +516,12 @@ BEGIN
         IF EXISTS (SELECT 1 FROM Paciente.Factura WHERE id_factura = @id_factura)
         BEGIN
             UPDATE Paciente.Factura
-            SET costo_factura_inicial = @costo_factura_inicial,
-                costo_adeudado = @costo_adeudado,
+            SET id_pago = @id_pago,
+				id_estudio = @id_estudio,
+				id_historia_clinica = @id_historia_clinica,
+				costo_factura = @costo_factura,
                 porcentaje_pagado = @porcentaje_pagado
-            WHERE id_pago = @id_pago AND id_estudio = @id_estudio
+            WHERE id_factura = @id_factura
         END
         ELSE
         BEGIN
@@ -559,15 +547,35 @@ GO -- Eliminación
 --- Nacho: si eliminamos paciente deberíamos borrar absolutamente todo lo que está relacionado a él? :s alto quilombito. ¿Qué opinan?
 --- Nacho: otra cosa, me dio pajita porque me quiero concentrar en otra cosa, pero los mensajes de error en los catch no lo puse con select concat como los otros. PENDIENTE
 
-
-CREATE OR ALTER PROCEDURE Paciente.EliminarUsuario
+CREATE OR ALTER PROCEDURE Paciente.EliminarPaciente
     @id_historia_clinica INT
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS(SELECT 1 FROM Paciente.Usuario WHERE id_historia_clinica = @id_historia_clinica)
+        IF EXISTS(SELECT 1 FROM Paciente.Paciente WHERE id_historia_clinica = @id_historia_clinica)
         BEGIN
-            DELETE FROM Paciente.Usuario WHERE id_historia_clinica = @id_historia_clinica;
+            DELETE FROM Paciente.Paciente WHERE id_historia_clinica = @id_historia_clinica;
+            SELECT 'Usuario eliminado exitosamente.';
+        END
+        ELSE
+        BEGIN
+            SELECT 'Error al eliminar el usuario ya que no existe', ERROR_MESSAGE();
+        END
+    END TRY
+    BEGIN CATCH
+        SELECT 'Error al eliminar el usuario.', ERROR_MESSAGE();
+    END CATCH
+END
+GO
+
+CREATE OR ALTER PROCEDURE Paciente.EliminarUsuario
+    @id_usuario INT
+AS
+BEGIN
+    BEGIN TRY
+        IF EXISTS(SELECT 1 FROM Paciente.Usuario WHERE id_usuario = @id_usuario)
+        BEGIN
+            DELETE FROM Paciente.Usuario WHERE id_usuario = @id_usuario;
             SELECT 'Usuario eliminado exitosamente.';
         END
         ELSE
@@ -703,7 +711,7 @@ BEGIN
         WHERE id_historia_clinica = @id_historia_clinica;
 
         UPDATE Turno.ReservaTurnoMedico
-        SET id_estado = (SELECT id_estado FROM Turno.EstadoTurno WHERE estado = 'Cancelado')
+        SET id_estado_turno = (SELECT id_estado FROM Turno.EstadoTurno WHERE nombre_estado = 'Cancelado')
         WHERE id_historia_clinica = @id_historia_clinica;
 
         IF @@ROWCOUNT = 0 -- se utiliza para verificar si alguna de las actualizaciones realizadas en las tablas afectó alguna fila. Contiene el número de filas afectadas por la última instrucción UPDATE o DELETE.
@@ -804,37 +812,37 @@ GO
 -- Inicio SP Funcionalidades:
 --------------------------------------------------------------------------------
 
-CREATE PROCEDURE Paciente.actualizarAutorizacionEstudios(@_id NVARCHAR(40), @Area NVARCHAR(50), @Estudio NVARCHAR(100), @Prestador NVARCHAR(50), @Plan NVARCHAR(50), @Porcentaje_Cobertura INT, @Costo INT, @Requiere_Autorizacion BIT)
-AS
-BEGIN
-    -- Obtener el id de estudio correspondiente a los datos proporcionados
-    DECLARE @id_estudio INT;
-    SELECT @id_estudio = id_estudio
-    FROM Paciente.Estudio
-    WHERE Area = @Area
-    AND nombre_estudio = @Estudio
-    AND prestador = @Prestador
-    AND plan = @Plan;
+--CREATE PROCEDURE Paciente.actualizarAutorizacionEstudios(@_id NVARCHAR(40), @Area NVARCHAR(50), @Estudio NVARCHAR(100), @Prestador NVARCHAR(50), @Plan NVARCHAR(50), @Porcentaje_Cobertura INT, @Costo INT, @Requiere_Autorizacion BIT)
+--AS
+--BEGIN
+--    -- Obtener el id de estudio correspondiente a los datos proporcionados
+--    DECLARE @id_estudio INT;
+--    SELECT @id_estudio = id_estudio
+--    FROM Paciente.Estudio
+--    WHERE Area = @Area
+--    AND nombre_estudio = @Estudio
+--    AND prestador = @Prestador
+--    AND plan = @Plan;
 
-    -- Si el estudio existe, actualizar la autorización y el costo
-    IF @id_estudio IS NOT NULL
-    BEGIN
-        UPDATE Paciente.Estudio
-        SET autorizado = @Requiere_Autorizacion,
-            costo_factura_inicial = @Costo
-        WHERE id_estudio = @id_estudio;
+--    -- Si el estudio existe, actualizar la autorización y el costo
+--    IF @id_estudio IS NOT NULL
+--    BEGIN
+--        UPDATE Paciente.Estudio
+--        SET autorizado = @Requiere_Autorizacion,
+--            costo_factura_inicial = @Costo
+--        WHERE id_estudio = @id_estudio;
 
-        -- Actualizar el porcentaje de cobertura en la factura
-        UPDATE Paciente.Factura
-        SET porcentaje_pagado = @Porcentaje_Cobertura
-        WHERE id_estudio = @id_estudio;
-    END
-    ELSE
-    BEGIN
-        SELECT 'El estudio no existe en la base de datos.';
-    END
-END
-GO
+--        -- Actualizar el porcentaje de cobertura en la factura
+--        UPDATE Paciente.Factura
+--        SET porcentaje_pagado = @Porcentaje_Cobertura
+--        WHERE id_estudio = @id_estudio;
+--    END
+--    ELSE
+--    BEGIN
+--        SELECT 'El estudio no existe en la base de datos.';
+--    END
+--END
+--GO
 
 --------------------------------------------------------------------------------
 -- Fin SP Funcionalidades:
