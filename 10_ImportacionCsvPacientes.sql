@@ -39,27 +39,11 @@ BEGIN
     -- Ejecuta la sentencia dinámica
     EXEC sp_executesql @SqlQuery;
 
-    -- Insertar datos en la tabla Paciente
-    nombre VARCHAR(50),
-        apellido VARCHAR(50),
-        fecha_nacimiento varchar(10),
-        tipo_documento VARCHAR(25),
-        nro_documento INT,
-        sexo VARCHAR(10),
-        genero VARCHAR(10),
-        telefono VARCHAR(15),
-        nacionalidad VARCHAR(50),
-        mail VARCHAR(100),
-        calle_nro VARCHAR(50),
-        localidad VARCHAR(50),
-        provincia VARCHAR(50)
-
-
-	INSERT INTO Paciente.Paciente(nombre, apellido, fecha_de_nacimiento, tipo_documento, nro_de_documento, sexo_biologico, genero, nacionalidad, mail,telefono_fijo)
+	INSERT INTO Paciente.Paciente(nombre, apellido, fecha_de_nacimiento, tipo_documento, nro_de_documento, sexo_biologico, genero, nacionalidad, mail,telefono_fijo, usuario_actualizacion)
     SELECT
-        nombre, apellido, CONVERT(DATE, fecha_nacimiento, 103), tipo_documento, nro_documento, sexo, genero, nacionalidad, mail, telefono
+        nombre, apellido, CONVERT(DATE, fecha_nacimiento, 103), tipo_documento, nro_documento, COALESCE(sexo, 'X'), genero, nacionalidad, mail, telefono, SUSER_ID()
     FROM #PacienteTemp
-	WHERE nro_documento not in (select nro_de_documento from Pacientes.Paciente);
+	WHERE nro_documento not in (select nro_de_documento from Paciente.Paciente);
 
     -- Insertar datos en la tabla Domicilio
     INSERT INTO Paciente.Domicilio(calle, numero, provincia, localidad)
@@ -76,8 +60,16 @@ END;
 go
 
 
-EXEC Pacientes.importarPacienteDesdeCSV 'C:\Dataset\Pacientes.csv';
+EXEC Paciente.importarPacienteDesdeCSV 'D:\Dev\ddbba-tp-integrador\Dataset\Pacientes.csv';
 go
-go
-SELECT * From Pacientes.Paciente
-SELECT * From Pacientes.Domicilio
+SELECT * From Paciente.Paciente
+SELECT * From Paciente.Domicilio
+
+ALTER TABLE Paciente.Domicilio
+DROP COLUMN calle
+GO
+ALTER TABLE Paciente.Domicilio
+DROP COLUMN numero
+GO
+ALTER TABLE Paciente.Domicilio
+ADD  direccion VARCHAR(100)

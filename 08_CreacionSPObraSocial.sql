@@ -11,7 +11,7 @@ AS
 BEGIN
     BEGIN TRY
         -- Insertar el registro
-        IF EXISTS (SELECT 1 FROM ObraSocial.Prestador WHERE nombrePrestador = @nombrePrestador) -- Si existe, actualizo los datos. En nuestra regla de negocio cada prestador debe llamarse distinto
+        IF EXISTS (SELECT 1 FROM ObraSocial.Prestador WHERE nombre_prestador = @nombrePrestador) -- Si existe, actualizo los datos. En nuestra regla de negocio cada prestador debe llamarse distinto
         BEGIN
             SELECT 'Prestador ya existente. No se realiza accion';
         END
@@ -219,13 +219,13 @@ BEGIN
             DECLARE @estadoDisponible INT = (SELECT id_estado FROM Turno.EstadoTurno WHERE nombre_estado = 'Disponible');
             DECLARE @estadoCancelado INT = (SELECT id_estado FROM Turno.EstadoTurno WHERE nombre_estado = 'Cancelado');
 
-            UPDATE Turno.ReservaTurnoMedico rtm
-            SET rtm.id_estado_turno = @estadoCancelado
+            UPDATE Turno.ReservaTurnoMedico
+            SET id_estado_turno = @estadoCancelado
             WHERE EXISTS (SELECT 1
                           FROM ObraSocial.Cobertura osc
                           WHERE osc.id_cobertura = @idCobertura
-                            AND osc.id_historia_clinica = rtm.id_historia_clinica
-                            AND rtm.id_estado_turno = @estadoReservado);
+                            AND osc.id_historia_clinica = id_historia_clinica
+                            AND id_estado_turno = @estadoReservado);
 
             INSERT INTO Turno.ReservaTurnoMedico (id_medico_especialidad, id_sede, id_estado_turno, id_tipo_turno, fecha, hora)
             SELECT id_medico_especialidad, id_sede, @estadoDisponible, id_tipo_turno, GETDATE(), GETDATE()
@@ -258,7 +258,7 @@ BEGIN
         IF EXISTS( SELECT 1 FROM ObraSocial.Cobertura WHERE id_cobertura = @idCobertura )
         BEGIN
             UPDATE ObraSocial.Cobertura
-                SET borrado_en = GETDATE()
+                SET fecha_borrado = GETDATE()
                 WHERE id_cobertura = @idCobertura;
             SELECT 'Cobertura eliminada lógicamente con éxito.';
         END
@@ -269,6 +269,7 @@ BEGIN
         SELECT 'Error al eliminar la cobertura.', ERROR_MESSAGE();
     END CATCH
 END
+GO
 /**
     FIN SPs de Cobertura
 */
@@ -276,7 +277,7 @@ END
 /**
     SPs de TipoCobertura
 */
-
+GO
 CREATE OR ALTER PROCEDURE ObraSocial.insertarTipoCobertura
     @nombreTipoCobertura VARCHAR(50)
 AS
@@ -343,6 +344,7 @@ BEGIN
         SELECT 'Error al actualizar el tipo de cobertura.', ERROR_MESSAGE();
     END CATCH
 END
+GO
 
 CREATE OR ALTER PROCEDURE ObraSocial.eliminarTipoCobertura
     @idTipoCobertura INT

@@ -31,7 +31,7 @@ CREATE TABLE Paciente.Paciente (
     fecha_de_nacimiento DATE NOT NULL,
     tipo_documento VARCHAR(25) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL ,
     nro_de_documento INT NOT NULL UNIQUE,
-    sexo_biologico CHAR(1) NOT NULL,
+    sexo_biologico CHAR(10) NOT NULL,
     genero CHAR(10) NOT NULL,
     nacionalidad VARCHAR(18) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL ,
     foto_de_perfil VARCHAR(255) COLLATE SQL_Latin1_General_CP1_CI_AS, --Aquí se insertarán URLS generadas desde otro sistema
@@ -64,8 +64,7 @@ GO
 CREATE TABLE Paciente.Domicilio (
     id_domicilio INT IDENTITY(1,1),
     id_historia_clinica INT NOT NULL,
-    calle VARCHAR(50),
-    numero INT,
+    direccion VARCHAR(50),
     piso INT DEFAULT NULL, -- Puede que el paciente no viva en un departamento
     departamento CHAR(10) DEFAULT NULL,
     codigo_postal CHAR(10),

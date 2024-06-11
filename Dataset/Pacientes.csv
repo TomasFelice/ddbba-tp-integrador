@@ -1,4 +1,4 @@
-﻿Nombre ;Apellido;Fecha de nacimiento;tipo Documento;Nro documento;Femenino;genero;Telefono fijo;Nacionalidad;Mail;Calle y Nro;Localidad;Provincia
+﻿Nombre ;Apellido;Fecha de nacimiento;tipo Documento;Nro documento;Sexo;genero;Telefono fijo;Nacionalidad;Mail;Calle y Nro;Localidad;Provincia
 Jonatan ;del Guzman;1/1/1970;DNI;25111001;Masculino;Hombre;(960) 905-6170;argentina;amaranth@mac.com;Alvear 2446;Villa Ballester;BUENOS AIRES
 Juan José Giménez ;Calzada;2/1/1970;DNI;25111002;Masculino;Hombre;(705) 896-8293;argentina;tkrotchko@comcast.net;Yerbal 2701;Flores;CAPITAL FEDERAL
 Pepita ;del Gallart;4/1/1970;DNI;25111003;Femenino;Mujer;(455) 437-3253;argentina;dawnsong@icloud.com;AVENIDA OCAMPO 815;SAN FDO DEL VALLE DE CATAMARCA;CATAMARCA

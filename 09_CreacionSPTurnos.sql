@@ -94,7 +94,7 @@ BEGIN
             RETURN;
         END
 
-        IF NOT EXISTS (SELECT 1 FROM Turno.EstadoTurno WHERE id_estado_turno = @idEstadoTurno)
+        IF NOT EXISTS (SELECT 1 FROM Turno.EstadoTurno WHERE id_estado = @idEstadoTurno)
         BEGIN
             SELECT 'Error: El estado del turno no existe.';
             RETURN;
@@ -244,6 +244,7 @@ BEGIN
         SELECT 'Error al crear el estado de turno.', ERROR_MESSAGE();
     END CATCH
 END
+go
 
 CREATE OR ALTER PROCEDURE Turno.ActualizarEstadoTurno
     @idEstado INT,
@@ -287,6 +288,7 @@ BEGIN
         SELECT 'Error al actualizar el estado de turno.', ERROR_MESSAGE();
     END CATCH
 END
+GO
 
 CREATE OR ALTER PROCEDURE Turno.EliminarEstadoTurno
     @idEstado INT
@@ -317,7 +319,7 @@ BEGIN
         SELECT 'Error al eliminar el estado de turno.', ERROR_MESSAGE();
     END CATCH
 END
-
+GO
 /**
     FIN SPs de EstadoTurno
 **/
@@ -345,6 +347,7 @@ BEGIN
         SELECT 'Error al crear el tipo de turno.', ERROR_MESSAGE();
     END CATCH
 END
+GO
 
 CREATE OR ALTER PROCEDURE Turno.ActualizarTipoTurno
     @idTipoTurno INT,
@@ -381,6 +384,7 @@ BEGIN
         SELECT 'Error al actualizar el tipo de turno.', ERROR_MESSAGE();
     END CATCH
 END
+GO
 
 CREATE OR ALTER PROCEDURE Turno.EliminarTipoTurno
     @idTipoTurno INT
@@ -411,7 +415,7 @@ BEGIN
         SELECT 'Error al eliminar el tipo de turno.', ERROR_MESSAGE();
     END CATCH
 END
-
+GO
 /**
     FIN SPs de TipoTurno
 **/

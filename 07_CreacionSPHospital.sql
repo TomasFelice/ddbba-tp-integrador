@@ -27,7 +27,6 @@ BEGIN
 END
 GO
 CREATE OR ALTER PROCEDURE Hospital.InsertarMedico
-    @id_especialidad INT,
     @nombre VARCHAR(50),
     @apellido VARCHAR(50),
     @nro_matricula CHAR(10)
@@ -37,15 +36,14 @@ BEGIN
         IF EXISTS(SELECT 1 FROM Hospital.Medico WHERE nro_matricula = @nro_matricula)
         BEGIN
             UPDATE Hospital.Medico
-            SET id_especialidad = @id_especialidad,
-                nombre = @nombre,
+            SET nombre = @nombre,
                 apellido = @apellido
             WHERE nro_matricula = @nro_matricula
         END
         ELSE
         BEGIN
-            INSERT INTO Hospital.Medico (id_especialidad, nombre, apellido, nro_matricula)
-            VALUES (@id_especialidad, @nombre, @apellido, @nro_matricula);
+            INSERT INTO Hospital.Medico ( nombre, apellido, nro_matricula)
+            VALUES ( @nombre, @apellido, @nro_matricula);
         END
     END TRY
     BEGIN CATCH
@@ -73,6 +71,7 @@ BEGIN
            SELECT 'Error: Error al insertar la relación medico-especialidad', ERROR_MESSAGE();
     END CATCH
 END
+GO
 
 CREATE OR ALTER PROCEDURE Hospital.InsertarSedeAtencion
     @nombre_sede VARCHAR(50),
@@ -162,7 +161,6 @@ END
 GO
 CREATE OR ALTER PROCEDURE Hospital.ActualizarMedico
     @id_medico INT,
-    @id_especialidad INT,
     @nombre VARCHAR(50),
     @apellido VARCHAR(50),
     @nro_matricula CHAR(10)
@@ -172,9 +170,7 @@ BEGIN
         IF EXISTS(SELECT 1 FROM Hospital.Medico WHERE id_medico = @id_medico)
         BEGIN
             UPDATE Hospital.Medico
-            SET
-                id_especialidad = @id_especialidad,
-                nombre = @nombre,
+            SET nombre = @nombre,
                 apellido = @apellido,
                 nro_matricula = @nro_matricula
             WHERE id_medico = @id_medico; -- Nacho: en caso de resolver línea 19 de archivo 04_CreacionSchemaHospital.sql actualizarlo por nro_matricula
@@ -200,8 +196,7 @@ BEGIN
         IF EXISTS(SELECT 1 FROM Hospital.SedeDeAtencion WHERE id_sede = @id_sede)
         BEGIN
             UPDATE Hospital.SedeDeAtencion
-            SET
-                nombre_sede = @nombre_sede,
+            SET nombre_sede = @nombre_sede,
                 direccion_sede = @direccion_sede
             WHERE nombre_sede = @nombre_sede;
         END
