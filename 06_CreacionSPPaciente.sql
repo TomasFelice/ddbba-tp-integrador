@@ -19,8 +19,8 @@ CREATE OR ALTER PROCEDURE Paciente.InsertarPaciente
     @fecha_de_nacimiento DATE,
     @tipo_documento VARCHAR(25),
     @nro_de_documento INT,
-    @sexo_biologico CHAR(1),
-    @genero CHAR(1),
+    @sexo_biologico CHAR(10),
+    @genero CHAR(10),
     @nacionalidad VARCHAR(18),
     @foto_de_perfil VARCHAR(255),
     @mail VARCHAR(100),
@@ -140,7 +140,6 @@ GO
 --
 
 CREATE OR ALTER PROCEDURE Paciente.InsertarDomicilio
-    @id_historia_clinica INT,
     @direccion VARCHAR(100),
     @piso INT,
     @departamento CHAR(10),
@@ -150,24 +149,8 @@ CREATE OR ALTER PROCEDURE Paciente.InsertarDomicilio
     @localidad VARCHAR(50)
 AS
 BEGIN
-
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Paciente.Domicilio WHERE id_historia_clinica = @id_historia_clinica) -- Si existe, actualizo los datos
-       BEGIN
-            UPDATE Paciente.Domicilio
-            SET direccion = @direccion,
-                piso = @piso,
-                departamento = @departamento,
-                codigo_postal = @codigo_postal,
-                pais = @pais,
-                provincia = @provincia,
-                localidad = @localidad
-            WHERE id_historia_clinica = @id_historia_clinica
-       END
-       ELSE
-       BEGIN
             INSERT INTO Paciente.Domicilio (
-                id_historia_clinica,
                 direccion,
                 piso,
                 departamento,
@@ -176,7 +159,6 @@ BEGIN
                 provincia,
                 localidad
             ) VALUES (
-                @id_historia_clinica,
                 @direccion,
                 @piso,
                 @departamento,
@@ -185,7 +167,6 @@ BEGIN
                 @provincia,
                 @localidad
             )
-       END
     END TRY
     BEGIN CATCH
 		SELECT 'Error al insertar el domicilio: ', ERROR_MESSAGE();
@@ -336,8 +317,8 @@ CREATE OR ALTER PROCEDURE Paciente.ActualizarPaciente
     @fecha_de_nacimiento DATE,
     @tipo_documento VARCHAR(25),
     @nro_de_documento INT,
-    @sexo_biologico CHAR(1),
-    @genero CHAR(1),
+    @sexo_biologico CHAR(10),
+    @genero CHAR(10),
     @nacionalidad VARCHAR(18),
     @foto_de_perfil VARCHAR(255),
     @mail VARCHAR(100),
@@ -407,7 +388,6 @@ GO
 
 CREATE OR ALTER PROCEDURE Paciente.ActualizarDomicilio
     @id_domicilio INT,
-    @id_historia_clinica INT,
     @direccion VARCHAR(100),
     @piso INT,
     @departamento CHAR(10),
@@ -418,7 +398,7 @@ CREATE OR ALTER PROCEDURE Paciente.ActualizarDomicilio
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Paciente.Domicilio WHERE id_domicilio = @id_domicilio AND id_historia_clinica = @id_historia_clinica)
+        IF EXISTS (SELECT 1 FROM Paciente.Domicilio WHERE id_domicilio = @id_domicilio)
         BEGIN
             UPDATE Paciente.Domicilio
             SET direccion = @direccion,
