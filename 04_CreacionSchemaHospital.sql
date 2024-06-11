@@ -52,8 +52,8 @@ GO
 
 CREATE TABLE Hospital.SedeDeAtencion (
     id_sede INT IDENTITY(1,1),
-    nombre_sede VARCHAR(50),
-    direccion_sede VARCHAR(50),
+    nombre_sede VARCHAR(100),
+    direccion_sede VARCHAR(100),
 	CONSTRAINT pk_sede PRIMARY KEY CLUSTERED (id_sede)
 )
 GO
