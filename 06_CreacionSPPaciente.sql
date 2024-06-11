@@ -12,6 +12,7 @@ GO
 --------------------------------------------------------------------------------
 
 CREATE OR ALTER PROCEDURE Paciente.InsertarPaciente
+    @id_domicilio INT,
     @nombre VARCHAR(50),
     @apellido VARCHAR(50),
     @apellido_materno VARCHAR(50),
@@ -34,7 +35,8 @@ BEGIN
         IF EXISTS (SELECT 1 FROM Paciente.Paciente WHERE nro_de_documento = @nro_de_documento) -- Si existe, actualizo los datos -- Nacho: @Tomi f acá sí le dejamos nro de documento? porque la historia clinica se va a autoincrementar 1 en 1 y no va a coincidir nunca. Tomi: Yo acá lo dejaría porque también sabemos que nro_de_documento es UNIQUE entonces no se puede repetir. (agregué la constraint en la creción de la tabla)
         BEGIN
             UPDATE Paciente.Paciente
-            SET nombre = @nombre, 
+            SET id_domicilio = @id_domicilio,
+                nombre = @nombre, 
                 apellido = @apellido,
                 apellido_materno = @apellido_materno,
                 fecha_de_nacimiento = @fecha_de_nacimiento,
@@ -56,6 +58,7 @@ BEGIN
         ELSE -- sino lo creo de 0
         BEGIN
                 INSERT INTO Paciente.Paciente (
+                id_domicilio,
                 nombre,
                 apellido,
                 apellido_materno,
@@ -72,6 +75,7 @@ BEGIN
                 telefono_laboral,
                 usuario_actualizacion
             ) VALUES (
+                @id_domicilio,
                 @nombre,
                 @apellido,
                 @apellido_materno,
@@ -325,6 +329,7 @@ GO
 
 CREATE OR ALTER PROCEDURE Paciente.ActualizarPaciente
 	@id_historia_clinica INT,
+    @id_domicilio INT,
     @nombre VARCHAR(50),
     @apellido VARCHAR(50),
     @apellido_materno VARCHAR(50),
@@ -345,7 +350,8 @@ BEGIN
         IF EXISTS (SELECT 1 FROM Paciente.Paciente WHERE id_historia_clinica = @id_historia_clinica)
         BEGIN
             UPDATE Paciente.Paciente
-            SET nombre = @nombre, 
+            SET id_domicilio = @id_domicilio,
+                nombre = @nombre, 
                 apellido = @apellido,
                 apellido_materno = @apellido_materno,
                 fecha_de_nacimiento = @fecha_de_nacimiento,
@@ -403,7 +409,6 @@ CREATE OR ALTER PROCEDURE Paciente.ActualizarDomicilio
     @id_domicilio INT,
     @id_historia_clinica INT,
     @direccion VARCHAR(100),
-    @numero INT,
     @piso INT,
     @departamento CHAR(10),
     @codigo_postal CHAR(10),
