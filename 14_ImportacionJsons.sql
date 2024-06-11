@@ -82,7 +82,7 @@ BEGIN
 	-- 	AND ae.plan_prestador = #TempData.plan_prestador COLLATE SQL_Latin1_General_CP1_CI_AS
     -- );
 
-	-- me falla porque todavia no tenemos ningun paciente, seguir acá
+	-- me falla porque todavia no tenemos ningun paciente, seguir aca para poder probar
 
     INSERT INTO Paciente.Estudio (id_estudio, area, nombre_estudio, autorizado, id_historia_clinica, fecha)
     SELECT
