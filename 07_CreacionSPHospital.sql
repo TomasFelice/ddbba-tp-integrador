@@ -13,7 +13,7 @@ BEGIN
     BEGIN TRY
         IF EXISTS(SELECT 1 FROM Hospital.Especialidad WHERE nombre_especialidad = @nombre_especialidad)
         BEGIN
-		    SELECT CONCAT('Error: La especialidad ya fue insertada previamente', ERROR_MESSAGE());
+		    SELECT 'Error: La especialidad ya fue insertada previamente';
         END
         ELSE
         BEGIN
@@ -22,7 +22,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error al insertar el especialidad: ', ERROR_MESSAGE());
+		SELECT 'Error al insertar el especialidad: ', ERROR_MESSAGE();
     END CATCH
 END
 GO
@@ -49,7 +49,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-		SELECT CONCAT('Error al insertar médico: ', ERROR_MESSAGE())
+		SELECT 'Error al insertar médico: ', ERROR_MESSAGE();
     END CATCH
 END
 GO
@@ -61,7 +61,7 @@ BEGIN
     BEGIN TRY
         IF EXISTS(SELECT 1 FROM Hospital.Medico_Especialidad WHERE id_medico = @id_medico AND id_especialidad = @id_especialidad)
         BEGIN
-           SELECT CONCAT('Error: La relacion medico-especialidad ya existen', ERROR_MESSAGE())
+           SELECT 'Error: La relacion medico-especialidad ya existen', ERROR_MESSAGE();
         END
         ELSE
         BEGIN
@@ -70,7 +70,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-           SELECT CONCAT('Error: Error al insertar la relación medico-especialidad', ERROR_MESSAGE())
+           SELECT 'Error: Error al insertar la relación medico-especialidad', ERROR_MESSAGE();
     END CATCH
 END
 
@@ -118,7 +118,7 @@ BEGIN
         IF EXISTS (SELECT 1 FROM Hospital.DiasPorSede WHERE id_sede = @id_sede AND id_medico = @id_medico AND dia = @dia) -- puedo actualizar la hora de inicio y la hora de fin
         BEGIN
             UPDATE Hospital.DiasPorSede 
-            SET hora_inicio = @hora_inicio, hora_fin = @hora_fin -- Nacho: esto para mi está mal
+            SET hora_inicio = @hora_inicio, hora_fin = @hora_fin
             WHERE id_sede = @id_sede AND id_medico = @id_medico;
         END
         ELSE
@@ -128,7 +128,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-           SELECT CONCAT('Error: Error al insertar dias por sede', ERROR_MESSAGE())
+           SELECT 'Error: Error al insertar dias por sede', ERROR_MESSAGE();
     END CATCH
 END
 GO
@@ -152,11 +152,11 @@ BEGIN
         END
         ELSE
         BEGIN
-           SELECT CONCAT('Error: La especialidad buscada a actualizar no existe', ERROR_MESSAGE())
+           SELECT 'Error: La especialidad buscada a actualizar no existe', ERROR_MESSAGE();
         END
     END TRY
     BEGIN CATCH
-           SELECT CONCAT('Error: Error al actualizar la especialidad', ERROR_MESSAGE())
+           SELECT 'Error: Error al actualizar la especialidad', ERROR_MESSAGE();
     END CATCH
 END
 GO
@@ -181,22 +181,23 @@ BEGIN
         END
         ELSE
         BEGIN
-           SELECT CONCAT('Error: El médico buscado a actualizar no existe', ERROR_MESSAGE())
+           SELECT 'Error: El médico buscado a actualizar no existe', ERROR_MESSAGE();
         END
     END TRY
     BEGIN CATCH
-           SELECT CONCAT('Error: Error al actualizar medico', ERROR_MESSAGE())
+           SELECT 'Error: Error al actualizar medico', ERROR_MESSAGE();
     END CATCH
 END
 GO
 
 CREATE OR ALTER PROCEDURE Hospital.ActualizarSedeAtencion
+    @id_sede INT,
     @nombre_sede VARCHAR(50),
     @direccion_sede VARCHAR(50)
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS(SELECT 1 FROM Hospital.SedeDeAtencion WHERE nombre_sede = @nombre_sede)
+        IF EXISTS(SELECT 1 FROM Hospital.SedeDeAtencion WHERE id_sede = @id_sede)
         BEGIN
             UPDATE Hospital.SedeDeAtencion
             SET
@@ -206,11 +207,11 @@ BEGIN
         END
         ELSE
         BEGIN
-           SELECT CONCAT('Error: La sede de atención buscada a actualizar no existe', ERROR_MESSAGE())
+           SELECT 'Error: La sede de atención buscada a actualizar no existe', ERROR_MESSAGE()
         END
     END TRY
     BEGIN CATCH
-           SELECT CONCAT('Error: Error al actualizar la sede de atencion', ERROR_MESSAGE())
+           SELECT 'Error: Error al actualizar la sede de atencion', ERROR_MESSAGE()
     END CATCH
 END
 
@@ -227,15 +228,15 @@ BEGIN
         IF EXISTS(SELECT 1 FROM Hospital.Especialidad WHERE id_especialidad = @id_especialidad)
         BEGIN
             DELETE FROM Hospital.Especialidad
-            WHERE id_especialidad = @id_especialidad; -- Nacho: acá estaría bien dejar un null en medico_especialidad, no? Esto lo deberíamos poner en la estructura?            
+            WHERE id_especialidad = @id_especialidad;    
         END
         ELSE
         BEGIN
-           SELECT CONCAT('Error: La especialidad buscada a eliminar no existe', ERROR_MESSAGE())
+           SELECT 'Error: La especialidad buscada a eliminar no existe', ERROR_MESSAGE()
         END
     END TRY
     BEGIN CATCH
-           SELECT CONCAT('Error: Error al eliminar la especialidad', ERROR_MESSAGE())
+           SELECT 'Error: Error al eliminar la especialidad', ERROR_MESSAGE()
     END CATCH
 END
 GO
@@ -251,11 +252,11 @@ BEGIN
         END
         ELSE
         BEGIN
-           SELECT CONCAT('Error: El médico buscado a eliminar no existe', ERROR_MESSAGE())
+           SELECT 'Error: El médico buscado a eliminar no existe', ERROR_MESSAGE()
         END
     END TRY
     BEGIN CATCH
-           SELECT CONCAT('Error: Error al eliminar el médico', ERROR_MESSAGE())
+           SELECT 'Error: Error al eliminar el médico', ERROR_MESSAGE()
     END CATCH
 END
 GO

@@ -88,7 +88,7 @@ CREATE PROCEDURE Paciente.InsertarDatosIniciales
 AS
 BEGIN
 IF NOT EXISTS (SELECT
-            P.nro_de_documento AS 'Paciente/DNI' --Nacho: me falta terminar de reemplazar los atributos con los valores reales y hacer algun join
+            P.nro_de_documento AS 'Paciente/DNI'
             FROM Turno.ReservaTurnoMedico AS T
             INNER JOIN Paciente.Paciente AS P ON T.id_historia_clinica = P.id_historia_clinica
             INNER JOIN Hospital.Medico AS PR ON T.id_medico = PR.id_medico
@@ -98,8 +98,8 @@ IF NOT EXISTS (SELECT
             INNER JOIN ObraSocial.Prestador AS OS ON T.id_prestador = OS.id_prestador)
 	begin
 	begin
-                                        --idPrestador idHistoriaClinica idCobertura imagenDeLaCredencial nroDeSocio
-    exec Pacientes.InsertarCobertura 1,Null,NULL --Inserto cobertura con id prestador 1
+
+        exec Pacientes.InsertarCobertura 1,Null,NULL --Inserto cobertura con id prestador 1
 		update Pacientes.Paciente set paciente.ID_Cobertura=1 where Paciente.ID_HistoriaClinica=1  --actualizo paciente seteando cobertura=1
 		exec TurnosMedicos.InsertarReservaTurnoMedico 1,1,1,1,1,1,'2005-01-17',NULL --agrego un registro que cumpla con las condiciones del XML	
 	end
