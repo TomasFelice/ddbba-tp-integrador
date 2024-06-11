@@ -100,3 +100,56 @@ exec Turno.EliminarReservaTurnoMedicoLogico
 exec Turno.CrearEstadoTurno
     @nombreEstado = 'Reprogramado'
 --Respuesta: Estado de turno creado exitosamente.
+
+--Intentamos crear un estado de turno que ya existe
+exec Turno.CrearEstadoTurno
+    @nombreEstado = 'Reprogramado'
+--Respuesta: Error: El estado de turno ya existe.
+
+--Actualizo un estado de turno
+exec Turno.ActualizarEstadoTurno
+    @idEstado = 6,
+    @nombreEstado = 'En espera'
+--Respuesta: Estado de turno actualizado exitosamente.
+
+--Intento actualizar un estado de turno que no existe
+exec Turno.ActualizarEstadoTurno
+    @idEstado = 8,
+    @nombreEstado = 'En espera'
+--Respuesta: Error: El estado de turno a actualizar no existe.
+
+--Intento actualizar un estado de turno con nombre vacio
+exec Turno.ActualizarEstadoTurno
+    @idEstado = 6,
+    @nombreEstado = ''
+--Respuesta: Error: El nombre del estado de turno no puede ser nulo o vacío.
+
+--Elimino un estado de turno
+exec Turno.EliminarEstadoTurno
+    @idEstado = 6
+--Respuesta: Estado de turno eliminado exitosamente.
+
+--Intento eliminar un estado de turno que no existe
+exec Turno.EliminarEstadoTurno
+    @idEstado = 6
+--Respuesta: Error: El estado de turno a eliminar no existe.
+
+--Creamos un nuevo tipo de turno
+exec Turno.CrearTipoTurno
+    @nombreTipoTurno = 'Remoto'
+--Respuesta: Tipo de turno creado exitosamente.
+
+--Intentamos crear un nuevo tipo de turno que ya existe.
+exec Turno.CrearTipoTurno
+    @nombreTipoTurno = 'Remoto'
+--Respuesta: Error: El tipo de turno ya existe.
+
+--Eliminamos un tipo de turno
+exec Turno.EliminarTipoTurno
+    @idTipoTurno = 3
+--Respuesta: Tipo de turno eliminado exitosamente.
+
+--Intentamos eliminar un tipo de turno
+exec Turno.EliminarTipoTurno
+    @idTipoTurno = 3
+--Respuesta: Error: El tipo de turno a eliminar no existe.
