@@ -4,6 +4,9 @@ USE com2900g09
 GO -- Inserción:
 --
 
+-- Creo que esto de verificar si ya esta en la db y para ver si acer un update o un insert
+-- no aplucaria en estos SP, capaz lo haria solo en los de carga de archivos
+
 --------------------------------------------------------------------------------
 -- Inicio Inserción de Paciente
 --------------------------------------------------------------------------------
@@ -45,7 +48,7 @@ BEGIN
                 telefono_de_contacto_alternativo = @telefono_de_contacto_alternativo,
                 telefono_laboral = @telefono_laboral,
                 fecha_de_actualizacion = GETDATE(),
-                usuario_actualizacion = SUSER_ID() -- obtengo el id del usuario que está ejecutando en la sesión, el sp de inserción
+                usuario_actualizacion = SUSER_ID() -- obtengo el id del usuario que está ejecutando en la sesión, el sp de inserción -- Tomi: Creo que hay que validar si se manda algo x input aca. Si no se manda nada, ahi si ponemos el de la sesion
             WHERE nro_de_documento = @nro_de_documento 
         END
         ELSE -- sino lo creo de 0

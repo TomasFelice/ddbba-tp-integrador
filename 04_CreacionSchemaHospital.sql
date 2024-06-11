@@ -9,6 +9,7 @@ CREATE TABLE Hospital.Especialidad (
     nombre_especialidad VARCHAR(50),
 	CONSTRAINT pk_especialidad PRIMARY KEY CLUSTERED (id_especialidad),
 )
+GO
 
 
 CREATE TABLE Hospital.Medico (
@@ -16,7 +17,7 @@ CREATE TABLE Hospital.Medico (
     id_especialidad INT NOT NULL,
     nombre VARCHAR(50),
     apellido VARCHAR(50),
-    nro_matricula CHAR(10), -- Nacho: @tomi f no debería ser esta la pk?
+    nro_matricula CHAR(10), -- Nacho: @tomi f no debería ser esta la pk? Tomi: na, no es 100% necesario
 	CONSTRAINT pk_medico PRIMARY KEY CLUSTERED (id_medico),
     CONSTRAINT fk_especialidad FOREIGN KEY (id_especialidad) REFERENCES Hospital.Especialidad(id_especialidad) ON DELETE CASCADE ON UPDATE CASCADE
 )

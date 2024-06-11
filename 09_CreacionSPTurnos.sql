@@ -199,3 +199,164 @@ GO
 /**
     FIN SPs de ReservaTurnoMedico
 **/ 
+
+/**
+    SPs de EstadoTurno
+*/ 
+
+CREATE OR ALTER PROCEDURE Turnos.CrearEstadoTurno
+    @nombreEstado VARCHAR(10)
+AS
+BEGIN
+    BEGIN TRY
+        -- Validación de existencia de referenciados
+        IF NOT EXISTS (SELECT 1 FROM Turnos.EstadoTurno WHERE nombre_estado LIKE @nombreEstado)
+        BEGIN
+            INSERT INTO Turnos.EstadoTurno (nombre_estado)
+            VALUES (@nombreEstado);
+            SELECT 'Estado de turno creado exitosamente.';
+        END
+        ELSE
+            SELECT 'Error: El estado de turno ya existe.';
+    END TRY
+    BEGIN CATCH
+        SELECT 'Error al crear el estado de turno.', ERROR_MESSAGE();
+    END CATCH
+END
+
+CREATE OR ALTER PROCEDURE Turnos.ActualizarEstadoTurno
+    @idEstado INT,
+    @nombreEstado VARCHAR(10)
+AS
+BEGIN
+    BEGIN TRY
+        -- Validación de existencia de referenciados
+        IF NOT EXISTS (SELECT 1 FROM Turnos.EstadoTurno WHERE id_estado = @idEstado)
+        BEGIN
+            SELECT 'Error: El estado de turno a actualizar no existe.';
+            RETURN;
+        END
+
+        IF EXISTS (SELECT 1 FROM Turnos.EstadoTurno WHERE nombre_estado LIKE @nombreEstado)
+        BEGIN
+            SELECT CONCAT('Error: El estado de turno con nombre ', @nombreEstado,' ya existe.');
+            RETURN;
+        END
+
+        IF (@nombreEstado IS NULL OR @nombreEstado = '')
+        BEGIN
+            SELECT 'Error: El nombre del estado de turno no puede ser nulo o vacío.';
+            RETURN;
+        END
+
+        -- Se arma la consulta SQL dinámica
+        DECLARE @consulta NVARCHAR(MAX);
+        SET @consulta = N'UPDATE Turnos.EstadoTurno
+                            SET nombre_estado = @nombreEstado
+                            WHERE id_estado = @idEstado;';
+
+        -- Se ejecuta la consulta SQL dinámica
+        EXEC sp_executesql @consulta,
+                            N'@nombreEstado VARCHAR(10), @idEstado INT',
+                            @nombreEstado, @idEstado;
+
+        SELECT 'Estado de turno actualizado exitosamente.';
+    END TRY
+    BEGIN CATCH
+        SELECT 'Error al actualizar el estado de turno.', ERROR_MESSAGE();
+    END CATCH
+END
+
+CREATE OR ALTER PROCEDURE Turnos.EliminarEstadoTurno
+    @idEstado INT
+AS
+BEGIN
+    BEGIN TRY
+        -- Validación de existencia de referenciados
+        IF NOT EXISTS (SELECT 1 FROM Turnos.EstadoTurno WHERE id_estado = @idEstado)
+        BEGIN
+            SELECT 'Error: El estado de turno a eliminar no existe.';
+            RETURN;
+        END
+
+        -- La foreign key esta creada con ON DELETE CASCADE, por lo que no es necesario validar la existencia de referenciados, solo lanzaremos un mensaje si existen
+
+        IF EXISTS (SELECT 1 FROM Turnos.ReservaTurnoMedico WHERE id_estado_turno = @idEstado)
+        BEGIN
+            SELECT 'Advertencia: Existen reservas de turno que hacen referencia a este estado de turno. Se eliminaran junto con el estado de turno.';
+            RETURN;
+        END
+
+        DELETE FROM Turnos.EstadoTurno
+            WHERE id_estado = @idEstado;
+
+        SELECT 'Estado de turno eliminado exitosamente.';
+    END TRY
+    BEGIN CATCH
+        SELECT 'Error al eliminar el estado de turno.', ERROR_MESSAGE();
+    END CATCH
+END
+
+/**
+    FIN SPs de EstadoTurno
+**/
+
+/**
+    SPs de TipoTurno
+*/
+
+CREATE OR ALTER PROCEDURE Turnos.CrearTipoTurno
+    @nombreTipoTurno VARCHAR(10)
+AS
+BEGIN
+    BEGIN TRY
+        -- Validación de existencia de referenciados
+        IF NOT EXISTS (SELECT 1 FROM Turnos.TipoTurno WHERE nombre_tipo_turno LIKE @nombreTipoTurno)
+        BEGIN
+            INSERT INTO Turnos.TipoTurno (nombre_tipo_turno)
+            VALUES (@nombreTipoTurno);
+            SELECT 'Tipo de turno creado exitosamente.';
+        END
+        ELSE
+            SELECT 'Error: El tipo de turno ya existe.';
+    END TRY
+    BEGIN CATCH
+        SELECT 'Error al crear el tipo de turno.', ERROR_MESSAGE();
+    END CATCH
+END
+
+CREATE OR ALTER PROCEDURE Turnos.ActualizarTipoTurno
+    @idTipoTurno INT,
+    @nombreTipoTurno VARCHAR(10)
+AS
+BEGIN
+    BEGIN TRY
+        -- Validación de existencia de referenciados
+        IF NOT EXISTS (SELECT 1 FROM Turnos.TipoTurno WHERE id_tipo_turno = @idTipoTurno)
+        BEGIN
+            SELECT 'Error: El tipo de turno a actualizar no existe.';
+            RETURN;
+        END
+
+        IF EXISTS (SELECT 1 FROM Turnos.TipoTurno WHERE nombre_tipo_turno LIKE @nombreTipoTurno)
+        BEGIN
+            SELECT CONCAT('Error: El tipo de turno con nombre ', @nombreTipoTurno,' ya existe.');
+            RETURN;
+        END
+
+        IF (@nombreTipoTurno IS NULL OR @nombreTipoTurno = '')
+        BEGIN
+            SELECT 'Error: El nombre del tipo de turno no puede ser nulo o vacío.';
+            RETURN;
+        END
+
+        UPDATE Turnos.TipoTurno
+            SET nombre_tipo_turno = @nombreTipoTurno
+            WHERE id_tipo_turno = @idTipoTurno;
+
+        SELECT 'Tipo de turno actualizado exitosamente.';
+    END TRY
+    BEGIN CATCH
+        SELECT 'Error al actualizar el tipo de turno.', ERROR_MESSAGE();
+    END CATCH
+END
