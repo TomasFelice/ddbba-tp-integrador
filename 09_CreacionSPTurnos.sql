@@ -21,8 +21,8 @@ BEGIN
             AND EXISTS (SELECT 1 FROM Hospital.Medico WHERE id_medico = @idMedico)
             AND EXISTS (SELECT 1 FROM Hospital.MedicoEspecialidad WHERE id_medico_especialidad = @idMedicoEspecialidad)
             AND EXISTS (SELECT 1 FROM Hospital.SedeDeAtencion WHERE id_sede = @idSede)
-            AND EXISTS (SELECT 1 FROM ObraSocial.id_prestador WHERE id_prestador = @id_prestador)
-            AND EXISTS (SELECT 1 FROM Turno.EstadoTurno WHERE id_estado_turno = @idEstadoTurno)
+            AND EXISTS (SELECT 1 FROM ObraSocial.Prestador WHERE id_prestador = @id_prestador)
+            AND EXISTS (SELECT 1 FROM Turno.EstadoTurno WHERE id_estado = @idEstadoTurno)
             AND EXISTS (SELECT 1 FROM Turno.TipoTurno WHERE id_tipo_turno = @idTipoTurno)
         BEGIN
             DECLARE @fecha DATE,
@@ -129,7 +129,7 @@ BEGIN
 
         IF @idPrestador IS NOT NULL
         BEGIN
-            SET @consulta = @consulta + N'id_prestador = @id_prestador, ';
+            SET @consulta = @consulta + N'id_prestador = @idPrestador, ';
         END
 
         IF @idSede IS NOT NULL

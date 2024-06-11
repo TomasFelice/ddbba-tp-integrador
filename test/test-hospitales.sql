@@ -4,12 +4,12 @@
 
 --Inserto una nueva especialidad
 EXEC Hospital.InsertarEspecialidad
-	@nombre_especialidad = 'Neurología'
---Respuesta: Se insertó correctamente la especialidad
+	@nombre_especialidad = 'NeurologÃ­a'
+--Respuesta: Se insertÃ³ correctamente la especialidad
 
 --Inserto una especialidad que ya existe
 EXEC Hospital.InsertarEspecialidad
-	@nombre_especialidad = 'Neurología'
+	@nombre_especialidad = 'NeurologÃ­a'
 --Respuesta: La especialidad ya fue insertada previamente
 
 --Inserto un nuevo Medico
@@ -17,25 +17,27 @@ EXEC Hospital.InsertarMedico
     @nombre = 'Jorge Ezquiel',
     @apellido = 'Polito',
     @nro_matricula = 9341
---Respuesta: Se insertó correctamente el medico
+--Respuesta: Se insertÃ³ correctamente el medico
+ 
+ select * from Hospital.Medico
 
 --Inserto una especialidad a Medico
 EXEC Hospital.InsertarMedico_Especialidad
 	@id_medico = 1,
     @id_especialidad = 1
---Respuesta: Se insertó correctamente la especialidad al medico
+--Respuesta: Se insertÃ³ correctamente la especialidad al medico
 
 --Inserto una especialidad a Medico que no existe
 EXEC Hospital.InsertarMedico_Especialidad
 	@id_medico = 39,
     @id_especialidad = 1
---Respuesta: No se puede añadir una especialidad al medico porque no existe
+--Respuesta: No se puede aÃ±adir una especialidad al medico porque no existe
 
 --Insertar Sede de Atencion
 EXEC Hospital.InsertarSedeAtencion
 	@nombre_sede = 'Trinidad',
-    @direccion_sede 'Rivadavia 1400'
---Respuesta: Se insertó correctamente la sede de atencion
+    @direccion_sede = 'Rivadavia 1400'
+--Respuesta: Se insertÃ³ correctamente la sede de atencion
 
 --Insertar dias por sede
 EXEC Hospital.InsertarDiasPorSede
@@ -44,18 +46,18 @@ EXEC Hospital.InsertarDiasPorSede
     @dia = '2024-06-01',
     @hora_inicio = '08:30:00',
     @hora_fin = '18:00:00'
---Respuesta: Se insertó correctamente los dias por sede
+--Respuesta: Se insertÃ³ correctamente los dias por sede
 
 --Se actualiza una Especialidad
 EXEC Hospital.ActualizarEspecialidad
 	@id_especialidad = 1,
-    @nombre_especialidad = 'Neurocirugía' 
+    @nombre_especialidad = 'NeurocirugÃ­a' 
 --Respuesta: La especialidad se actualizo correctamente
 
 --Se actualiza una Especialidad que no existe
 EXEC Hospital.ActualizarEspecialidad
 	@id_especialidad = 32,
-    @nombre_especialidad = 'Neurocirugía' 
+    @nombre_especialidad = 'NeurocirugÃ­a' 
 --Respuesta: La especialidad que intenta actualizar no existe
 
 --Actualizar Medico
