@@ -7,6 +7,7 @@ GO
 
 CREATE OR ALTER PROCEDURE Turnos.CrearReservaTurnoMedico
     @idHistoriaClinica INT, 
+    @idmedico INT,
     @idMedicoEspecialidad INT,
     @idSede INT,
     @idEstadoTurno INT, 
@@ -16,6 +17,7 @@ BEGIN
     BEGIN TRY
         -- Validación de existencia de referenciados
         IF EXISTS (SELECT 1 FROM Paciente.Paciente WHERE id_historia_clinica = @idHistoriaClinica)
+            AND EXISTS (SELECT 1 FROM Hospital.Medico WHERE id_medico = @idMedico)
             AND EXISTS (SELECT 1 FROM Hospital.MedicoEspecialidad WHERE id_medico_especialidad = @idMedicoEspecialidad)
             AND EXISTS (SELECT 1 FROM Hospital.SedeDeAtencion WHERE id_sede = @idSede)
             AND EXISTS (SELECT 1 FROM Turnos.EstadoTurno WHERE id_estado_turno = @idEstadoTurno)
@@ -28,8 +30,8 @@ BEGIN
                     @hora = GETDATE();
 
             -- Insertar el registro
-            INSERT INTO Turnos.ReservaTurnoMedico (id_historia_clinica, fecha, hora, id_medico_especialidad, id_sede, id_estado_turno, id_tipo_turno)
-            VALUES (@idHistoriaClinica, @fecha, @hora, @idMedicoEspecialidad, @idSede, @idEstadoTurno, @idTipoTurno);
+            INSERT INTO Turnos.ReservaTurnoMedico (id_historia_clinica, fecha, hora, id_medico, id_medico_especialidad, id_sede, id_estado_turno, id_tipo_turno)
+            VALUES (@idHistoriaClinica, @fecha, @hora, @idMedico, @idMedicoEspecialidad, @idSede, @idEstadoTurno, @idTipoTurno);
             
             SELECT 'Reserva de turno creada exitosamente.';
         END
@@ -45,6 +47,7 @@ GO
 CREATE OR ALTER PROCEDURE Turnos.ActualizarReservaTurnoMedico
     @idTurno INT,
     @idHistoriaClinica INT, 
+    @idMedico INT,
     @idMedicoEspecialidad INT, 
     @idSede INT,
     @idEstadoTurno INT, 
@@ -65,9 +68,15 @@ BEGIN
             RETURN;
         END
 
-        IF NOT EXISTS (SELECT 1 FROM Hospital.MedicoEspecialidad WHERE id_medico_especialidad = @idMedicoEspecialidad)
+           IF NOT EXISTS (SELECT 1 FROM Hospital.Medico WHERE id_medico = @idMedico)
         BEGIN
             SELECT 'Error: El médico no existe.';
+            RETURN;
+        END
+
+        IF NOT EXISTS (SELECT 1 FROM Hospital.MedicoEspecialidad WHERE id_medico_especialidad = @idMedicoEspecialidad)
+        BEGIN
+            SELECT 'Error: La especialidad no existe.';
             RETURN;
         END
 
@@ -98,6 +107,11 @@ BEGIN
         IF @idHistoriaClinica IS NOT NULL
         BEGIN
             SET @consulta = @consulta + N'id_historia_clinica = @idHistoriaClinica, ';
+        END
+
+        IF @idMedico IS NOT NULL
+        BEGIN
+            SET @consulta = @consulta + N'id_medico = @idMedico, ';
         END
 
         IF @idMedicoEspecialidad IS NOT NULL
@@ -131,7 +145,8 @@ BEGIN
 
         -- Se ejecuta la consulta SQL dinámica
         EXEC sp_executesql @consulta,
-                            N'@idHistoriaClinica INT, @idMedicoEspecialidad INT, @idSede INT, @idEstadoTurno INT, @idTipoTurno INT, @idTurno INT',
+                            N'@idHistoriaClinica INT, @idMedico INT,
+                            @idMedicoEspecialidad INT, @idSede INT, @idEstadoTurno INT, @idTipoTurno INT, @idTurno INT',
                             @idHistoriaClinica, @idMedicoEspecialidad, @idSede, @idEstadoTurno, @idTipoTurno, @idTurno;
 
         SELECT 'Reserva de turno actualizada exitosamente.';
@@ -158,7 +173,7 @@ BEGIN
             SELECT 'Reserva de turno eliminada exitosamente.';
 		END
         ELSE
-			SELECT CONCAT('Error: El turno con id: ', @idTurno, ' no existe');
+			SELECT 'Error el turno no existe';
     END TRY
     BEGIN CATCH
         SELECT 'Error al eliminar la reserva de turno.', ERROR_MESSAGE();
@@ -181,7 +196,7 @@ BEGIN
             SELECT 'Reserva de turno eliminada exitosamente.';
 		END
         ELSE
-			SELECT CONCAT('Error: El turno con id: ', @idTurno, ' no existe');
+            SELECT 'El turno no existe'
     END TRY
     BEGIN CATCH
         SELECT 'Error al eliminar la reserva de turno.', ERROR_MESSAGE();
@@ -232,7 +247,7 @@ BEGIN
 
         IF EXISTS (SELECT 1 FROM Turnos.EstadoTurno WHERE nombre_estado LIKE @nombreEstado)
         BEGIN
-            SELECT CONCAT('Error: El estado de turno con nombre ', @nombreEstado,' ya existe.');
+            SELECT 'Error: El estado de turn ya existe.';
             RETURN;
         END
 
@@ -333,7 +348,7 @@ BEGIN
 
         IF EXISTS (SELECT 1 FROM Turnos.TipoTurno WHERE nombre_tipo_turno LIKE @nombreTipoTurno)
         BEGIN
-            SELECT CONCAT('Error: El tipo de turno con nombre ', @nombreTipoTurno,' ya existe.');
+            SELECT 'Error: El tipo de turno con nombre  ya existe.';
             RETURN;
         END
 

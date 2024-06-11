@@ -30,6 +30,7 @@ GO
 CREATE TABLE Turno.ReservaTurnoMedico (
     id_turno INT IDENTITY(1,1),
 	id_historia_clinica INT NOT NULL,
+    id_medico INT,
     id_medico_especialidad INT NOT NULL,
     id_sede INT NOT NULL,
     id_estado_turno INT DEFAULT 1,
@@ -41,7 +42,8 @@ CREATE TABLE Turno.ReservaTurnoMedico (
     CONSTRAINT fk_turno_estado_turno FOREIGN KEY (id_estado_turno) REFERENCES Turno.EstadoTurno(id_estado) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_turno_tipo_turno FOREIGN KEY (id_tipo_turno) REFERENCES Turno.TipoTurno(id_tipo_turno) ON DELETE CASCADE ON UPDATE CASCADE,
 	CONSTRAINT fk_turno_historia_clinica FOREIGN KEY (id_historia_clinica) REFERENCES Paciente.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE,
-	CONSTRAINT fk_turno_medico_especialidad FOREIGN KEY (id_medico_especialidad) REFERENCES Hospital.Medico_Especialidad(id_medico_especialidad) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT fk_turno_medico FOREIGN KEY (id_medico) REFERENCES Hospital.Medico(id_medico) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_turno_medico_especialidad FOREIGN KEY (id_medico_especialidad) REFERENCES Hospital.Medico_Especialidad(id_medico_especialidad) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_turno_sede FOREIGN KEY (id_sede) REFERENCES Hospital.SedeDeAtencion(id_sede) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO

@@ -30,7 +30,7 @@ CREATE TABLE Hospital.Medico (
     id_medico INT IDENTITY(1,1),
     nombre VARCHAR(50),
     apellido VARCHAR(50),
-    nro_matricula CHAR(10), -- Nacho: @tomi f no debería ser esta la pk? Tomi: na, no es 100% necesario -- Nacho: mmm acá pasa lo mismo que con Paciente
+    nro_matricula CHAR(10),
 	CONSTRAINT pk_medico PRIMARY KEY CLUSTERED (id_medico)
 )
 GO
@@ -40,7 +40,7 @@ GO
     Debido a que un medico puede tener varias especialidades
     y una especialidad puede ser ejercida por varios medicos
 */
-CREATE TABLE Hospital.MedicoEspecialidad ( -- Nacho: acá no tiene sentido hacer un sp de act y eliminación, no? Tomi: Para mi si deberia ir
+CREATE TABLE Hospital.MedicoEspecialidad (
     id_medico_especialidad INT IDENTITY(1,1),
     id_medico INT,
     id_especialidad INT,
