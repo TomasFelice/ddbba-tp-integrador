@@ -713,15 +713,6 @@ BEGIN
         UPDATE Turno.ReservaTurnoMedico
         SET id_estado_turno = (SELECT id_estado FROM Turno.EstadoTurno WHERE nombre_estado = 'Cancelado')
         WHERE id_historia_clinica = @id_historia_clinica;
-
-        IF @@ROWCOUNT = 0 -- se utiliza para verificar si alguna de las actualizaciones realizadas en las tablas afectó alguna fila. Contiene el número de filas afectadas por la última instrucción UPDATE o DELETE.
-        BEGIN
-            SELECT 'Error: El paciente a eliminar lógicamente no existe';
-        END
-        ELSE
-        BEGIN
-		    SELECT 'Error al eliminar el paciente lógicamente ya que no existe', ERROR_MESSAGE();
-        END
     END TRY
     BEGIN CATCH
         SELECT 'Error al eliminar el paciente lógicamente.', ERROR_MESSAGE();
@@ -738,15 +729,6 @@ BEGIN
         UPDATE Paciente.Usuario
         SET fecha_borrado = GETDATE()
         WHERE id_usuario = @id_usuario
-
-        IF @@ROWCOUNT = 0 -- se utiliza para verificar si alguna de las actualizaciones realizadas en las tablas afectó alguna fila. Contiene el número de filas afectadas por la última instrucción UPDATE o DELETE.
-        BEGIN
-		    SELECT 'Error: El usuario a eliminar lógicamente no existe', ERROR_MESSAGE();
-        END
-        ELSE
-        BEGIN
-            SELECT 'Usuario eliminado lógicamente.';
-        END
     END TRY
     BEGIN CATCH
         SELECT 'Error al eliminar el usuario lógicamente.', ERROR_MESSAGE();
@@ -763,15 +745,6 @@ BEGIN
         UPDATE Paciente.Domicilio
         SET fecha_borrado = GETDATE()
         WHERE id_domicilio = @id_domicilio;
-
-        IF @@ROWCOUNT = 0 -- se utiliza para verificar si alguna de las actualizaciones realizadas en las tablas afectó alguna fila. Contiene el número de filas afectadas por la última instrucción UPDATE o DELETE.
-        BEGIN
-		    SELECT 'Error: El domicilio a eliminar lógicamente no existe', ERROR_MESSAGE();
-        END
-        ELSE
-        BEGIN
-            SELECT 'Domicilio eliminado lógicamente.';
-        END
     END TRY
     BEGIN CATCH
         SELECT 'Error al eliminar el domicilio lógicamente.', ERROR_MESSAGE();
