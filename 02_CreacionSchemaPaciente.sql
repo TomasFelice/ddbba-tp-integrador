@@ -74,7 +74,7 @@ CREATE TABLE Paciente.Domicilio (
 )
 GO
 CREATE TABLE Paciente.Estudio (
-    id_estudio INT IDENTITY(1,1),
+    id_estudio VARCHAR(25) NOT NULL,
     id_historia_clinica INT NOT NULL,
     fecha DATE NOT NULL,
     nombre_estudio VARCHAR(100) NOT NULL,
@@ -91,16 +91,18 @@ CREATE TABLE Paciente.Pago (
     id_pago INT IDENTITY(1,1),
     fecha DATE DEFAULT GETDATE(),
     monto DECIMAL(10, 2) NOT NULL,
+    fecha_borrado DATETIME DEFAULT NULL, -- Se deja este atributo ya que si se elimina lógicamente el paciente, se deben eliminar todo lo relacionado a él
 	CONSTRAINT pk_pago PRIMARY KEY CLUSTERED (id_pago)
 )
 GO
 CREATE TABLE Paciente.Factura (
     id_factura INT IDENTITY(1,1),
     id_pago INT NOT NULL,
-    id_estudio INT NOT NULL,
+    id_estudio VARCHAR(25) NOT NULL,
     id_historia_clinica INT,
     costo_factura DECIMAL(10, 2) NOT NULL,
     porcentaje_pagado DECIMAL(3,2) DEFAULT 0.0, -- Sirve para poder dejar asentado si pagó el porcentaje de la factura o no, se insertar con el SP actualizarAutorizacionEstudios
+    fecha_borrado DATETIME DEFAULT NULL, -- Se deja este atributo ya que si se elimina lógicamente el paciente, se deben eliminar todo lo relacionado a él
 	CONSTRAINT pk_factura PRIMARY KEY CLUSTERED (id_factura),
     CONSTRAINT fk_factura_historia_clinica FOREIGN KEY (id_historia_clinica) REFERENCES Paciente.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_factura_pago FOREIGN KEY (id_pago) REFERENCES Paciente.Pago(id_pago) ON DELETE NO ACTION ON UPDATE NO ACTION,
