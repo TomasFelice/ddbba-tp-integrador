@@ -13,7 +13,7 @@ BEGIN
         -- Insertar el registro
         IF EXISTS (SELECT 1 FROM ObraSocial.Prestador WHERE nombrePrestador = @nombrePrestador) -- Si existe, actualizo los datos. En nuestra regla de negocio cada prestador debe llamarse distinto
         BEGIN
-            SELECT 'Prestador existía. Actualizado exitosamente.';
+            SELECT 'Prestador ya existente. No se realiza accion';
         END
         ELSE
         BEGIN
@@ -86,7 +86,7 @@ BEGIN
 	BEGIN TRY
         IF EXISTS( SELECT 1 FROM ObraSocial.Prestador WHERE id_prestador = @idPrestador )
 		BEGIN
-			DELETE Turnos.ReservaTurnoMedico
+			DELETE Turno.ReservaTurnoMedico
 				WHERE id_prestador = @idPrestador;
             SELECT 'Prestador eliminado exitosamente.';
 		END
@@ -127,6 +127,8 @@ BEGIN
             -- Insertar el registro
             INSERT INTO ObraSocial.Cobertura (id_tipo_cobertura, id_prestador, id_historia_clinica, imagen_de_la_credencial, nro_de_socio, fecha_de_registro)
             VALUES (@idTipoCobertura, @idPrestador, @idHistoriaClinica, @imagenDeLaCredencial, @nroDeSocio, @fechaRegistro);
+
+            SELECT 'Cobertura creada exitosamente.';
         END
         ELSE
             SELECT 'Error: Uno o más identificadores de referencia no existen.';
@@ -217,7 +219,7 @@ BEGIN
             DECLARE @estadoDisponible INT = (SELECT id_estado FROM Turno.EstadoTurno WHERE nombre_estado = 'Disponible');
             DECLARE @estadoCancelado INT = (SELECT id_estado FROM Turno.EstadoTurno WHERE nombre_estado = 'Cancelado');
 
-            UPDATE Turnos.ReservaTurnoMedico rtm
+            UPDATE Turno.ReservaTurnoMedico rtm
             SET rtm.id_estado_turno = @estadoCancelado
             WHERE EXISTS (SELECT 1
                           FROM ObraSocial.Cobertura osc
@@ -227,7 +229,7 @@ BEGIN
 
             INSERT INTO Turno.ReservaTurnoMedico (id_medico_especialidad, id_sede, id_estado_turno, id_tipo_turno, fecha, hora)
             SELECT id_medico_especialidad, id_sede, @estadoDisponible, id_tipo_turno, GETDATE(), GETDATE()
-            FROM Turnos.ReservaTurnoMedico rtm
+            FROM Turno.ReservaTurnoMedico rtm
             WHERE EXISTS (SELECT 1
                           FROM ObraSocial.Cobertura osc
                           WHERE osc.id_cobertura = @idCobertura

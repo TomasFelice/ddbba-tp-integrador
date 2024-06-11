@@ -5,7 +5,7 @@ GO
     SPs de ReservaTurnoMedico
 */ 
 
-CREATE OR ALTER PROCEDURE Turnos.CrearReservaTurnoMedico
+CREATE OR ALTER PROCEDURE Turno.CrearReservaTurnoMedico
     @idHistoriaClinica INT, 
     @idmedico INT,
     @idMedicoEspecialidad INT,
@@ -22,8 +22,8 @@ BEGIN
             AND EXISTS (SELECT 1 FROM Hospital.MedicoEspecialidad WHERE id_medico_especialidad = @idMedicoEspecialidad)
             AND EXISTS (SELECT 1 FROM Hospital.SedeDeAtencion WHERE id_sede = @idSede)
             AND EXISTS (SELECT 1 FROM ObraSocial.id_prestador WHERE id_prestador = @id_prestador)
-            AND EXISTS (SELECT 1 FROM Turnos.EstadoTurno WHERE id_estado_turno = @idEstadoTurno)
-            AND EXISTS (SELECT 1 FROM Turnos.TipoTurno WHERE id_tipo_turno = @idTipoTurno)
+            AND EXISTS (SELECT 1 FROM Turno.EstadoTurno WHERE id_estado_turno = @idEstadoTurno)
+            AND EXISTS (SELECT 1 FROM Turno.TipoTurno WHERE id_tipo_turno = @idTipoTurno)
         BEGIN
             DECLARE @fecha DATE,
                     @hora TIME;
@@ -32,7 +32,7 @@ BEGIN
                     @hora = GETDATE();
 
             -- Insertar el registro
-            INSERT INTO Turnos.ReservaTurnoMedico (id_historia_clinica, fecha, hora, id_medico, id_medico_especialidad, id_prestador,id_sede, id_estado_turno, id_tipo_turno)
+            INSERT INTO Turno.ReservaTurnoMedico (id_historia_clinica, fecha, hora, id_medico, id_medico_especialidad, id_prestador,id_sede, id_estado_turno, id_tipo_turno)
             VALUES (@idHistoriaClinica, @fecha, @hora, @idMedico, @idMedicoEspecialidad,@id_prestador, @idSede, @idEstadoTurno, @idTipoTurno);
             
             SELECT 'Reserva de turno creada exitosamente.';
@@ -46,7 +46,7 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE Turnos.ActualizarReservaTurnoMedico
+CREATE OR ALTER PROCEDURE Turno.ActualizarReservaTurnoMedico
     @idTurno INT,
     @idHistoriaClinica INT, 
     @idMedico INT,
@@ -59,7 +59,7 @@ AS
 BEGIN
     BEGIN TRY
         -- Validación de existencia de referenciados
-        IF NOT EXISTS (SELECT 1 FROM Turnos.ReservaTurnoMedico WHERE id_turno = @idTurno)
+        IF NOT EXISTS (SELECT 1 FROM Turno.ReservaTurnoMedico WHERE id_turno = @idTurno)
         BEGIN
             SELECT 'Error: El turno a actualizar no existe.';
             RETURN;
@@ -94,13 +94,13 @@ BEGIN
             RETURN;
         END
 
-        IF NOT EXISTS (SELECT 1 FROM Turnos.EstadoTurno WHERE id_estado_turno = @idEstadoTurno)
+        IF NOT EXISTS (SELECT 1 FROM Turno.EstadoTurno WHERE id_estado_turno = @idEstadoTurno)
         BEGIN
             SELECT 'Error: El estado del turno no existe.';
             RETURN;
         END
 
-        IF NOT EXISTS (SELECT 1 FROM Turnos.TipoTurno WHERE id_tipo_turno = @idTipoTurno)
+        IF NOT EXISTS (SELECT 1 FROM Turno.TipoTurno WHERE id_tipo_turno = @idTipoTurno)
         BEGIN
             SELECT 'Error: El tipo de turno no existe.';
             RETURN;
@@ -108,7 +108,7 @@ BEGIN
 
         -- Se arma la consulta SQL dinámica
         DECLARE @consulta NVARCHAR(MAX);
-        SET @consulta = N'UPDATE Turnos.ReservaTurnoMedico
+        SET @consulta = N'UPDATE Turno.ReservaTurnoMedico
                             SET ';
 
         -- Se agregan las asignaciones de campos a actualizar, solo si se envía un valor distinto de NULL
@@ -173,14 +173,14 @@ GO
 /**
 	Realiza un borrado lógico de la tabla
 */
-CREATE OR ALTER PROCEDURE Turnos.EliminarReservaTurnoMedicoLogico
+CREATE OR ALTER PROCEDURE Turno.EliminarReservaTurnoMedicoLogico
 	@idTurno INT
 AS
 BEGIN
 	BEGIN TRY
-        IF EXISTS( SELECT 1 FROM Turnos.ReservaTurnoMedico WHERE id_turno = @idTurno )
+        IF EXISTS( SELECT 1 FROM Turno.ReservaTurnoMedico WHERE id_turno = @idTurno )
 		BEGIN
-			UPDATE Turnos.ReservaTurnoMedico
+			UPDATE Turno.ReservaTurnoMedico
 				SET  fecha_borrado = GETDATE()
 				WHERE id_turno = @idTurno
             SELECT 'Reserva de turno eliminada exitosamente.';
@@ -197,14 +197,14 @@ GO
 /**
 	Realiza un borrado físico de la tabla
 */
-CREATE OR ALTER PROCEDURE Turnos.EliminarReservaTurnoMedico
+CREATE OR ALTER PROCEDURE Turno.EliminarReservaTurnoMedico
 	@idTurno INT
 AS
 BEGIN
 	BEGIN TRY
-        IF EXISTS( SELECT 1 FROM Turnos.ReservaTurnoMedico WHERE id_turno = @idTurno )
+        IF EXISTS( SELECT 1 FROM Turno.ReservaTurnoMedico WHERE id_turno = @idTurno )
 		BEGIN
-			DELETE FROM Turnos.ReservaTurnoMedico
+			DELETE FROM Turno.ReservaTurnoMedico
 				WHERE id_turno = @idTurno
             SELECT 'Reserva de turno eliminada exitosamente.';
 		END
@@ -225,15 +225,15 @@ GO
     SPs de EstadoTurno
 */ 
 
-CREATE OR ALTER PROCEDURE Turnos.CrearEstadoTurno
+CREATE OR ALTER PROCEDURE Turno.CrearEstadoTurno
     @nombreEstado VARCHAR(10)
 AS
 BEGIN
     BEGIN TRY
         -- Validación de existencia de referenciados
-        IF NOT EXISTS (SELECT 1 FROM Turnos.EstadoTurno WHERE nombre_estado LIKE @nombreEstado)
+        IF NOT EXISTS (SELECT 1 FROM Turno.EstadoTurno WHERE nombre_estado LIKE @nombreEstado)
         BEGIN
-            INSERT INTO Turnos.EstadoTurno (nombre_estado)
+            INSERT INTO Turno.EstadoTurno (nombre_estado)
             VALUES (@nombreEstado);
             SELECT 'Estado de turno creado exitosamente.';
         END
@@ -245,20 +245,20 @@ BEGIN
     END CATCH
 END
 
-CREATE OR ALTER PROCEDURE Turnos.ActualizarEstadoTurno
+CREATE OR ALTER PROCEDURE Turno.ActualizarEstadoTurno
     @idEstado INT,
     @nombreEstado VARCHAR(10)
 AS
 BEGIN
     BEGIN TRY
         -- Validación de existencia de referenciados
-        IF NOT EXISTS (SELECT 1 FROM Turnos.EstadoTurno WHERE id_estado = @idEstado)
+        IF NOT EXISTS (SELECT 1 FROM Turno.EstadoTurno WHERE id_estado = @idEstado)
         BEGIN
             SELECT 'Error: El estado de turno a actualizar no existe.';
             RETURN;
         END
 
-        IF EXISTS (SELECT 1 FROM Turnos.EstadoTurno WHERE nombre_estado LIKE @nombreEstado)
+        IF EXISTS (SELECT 1 FROM Turno.EstadoTurno WHERE nombre_estado LIKE @nombreEstado)
         BEGIN
             SELECT 'Error: El estado de turn ya existe.';
             RETURN;
@@ -272,7 +272,7 @@ BEGIN
 
         -- Se arma la consulta SQL dinámica
         DECLARE @consulta NVARCHAR(MAX);
-        SET @consulta = N'UPDATE Turnos.EstadoTurno
+        SET @consulta = N'UPDATE Turno.EstadoTurno
                             SET nombre_estado = @nombreEstado
                             WHERE id_estado = @idEstado;';
 
@@ -288,13 +288,13 @@ BEGIN
     END CATCH
 END
 
-CREATE OR ALTER PROCEDURE Turnos.EliminarEstadoTurno
+CREATE OR ALTER PROCEDURE Turno.EliminarEstadoTurno
     @idEstado INT
 AS
 BEGIN
     BEGIN TRY
         -- Validación de existencia de referenciados
-        IF NOT EXISTS (SELECT 1 FROM Turnos.EstadoTurno WHERE id_estado = @idEstado)
+        IF NOT EXISTS (SELECT 1 FROM Turno.EstadoTurno WHERE id_estado = @idEstado)
         BEGIN
             SELECT 'Error: El estado de turno a eliminar no existe.';
             RETURN;
@@ -302,13 +302,13 @@ BEGIN
 
         -- La foreign key esta creada con ON DELETE CASCADE, por lo que no es necesario validar la existencia de referenciados, solo lanzaremos un mensaje si existen
 
-        IF EXISTS (SELECT 1 FROM Turnos.ReservaTurnoMedico WHERE id_estado_turno = @idEstado)
+        IF EXISTS (SELECT 1 FROM Turno.ReservaTurnoMedico WHERE id_estado_turno = @idEstado)
         BEGIN
             SELECT 'Advertencia: Existen reservas de turno que hacen referencia a este estado de turno. Se eliminaran junto con el estado de turno.';
             RETURN;
         END
 
-        DELETE FROM Turnos.EstadoTurno
+        DELETE FROM Turno.EstadoTurno
             WHERE id_estado = @idEstado;
 
         SELECT 'Estado de turno eliminado exitosamente.';
@@ -326,15 +326,15 @@ END
     SPs de TipoTurno
 */
 
-CREATE OR ALTER PROCEDURE Turnos.CrearTipoTurno
+CREATE OR ALTER PROCEDURE Turno.CrearTipoTurno
     @nombreTipoTurno VARCHAR(10)
 AS
 BEGIN
     BEGIN TRY
         -- Validación de existencia de referenciados
-        IF NOT EXISTS (SELECT 1 FROM Turnos.TipoTurno WHERE nombre_tipo_turno LIKE @nombreTipoTurno)
+        IF NOT EXISTS (SELECT 1 FROM Turno.TipoTurno WHERE nombre_tipo_turno LIKE @nombreTipoTurno)
         BEGIN
-            INSERT INTO Turnos.TipoTurno (nombre_tipo_turno)
+            INSERT INTO Turno.TipoTurno (nombre_tipo_turno)
             VALUES (@nombreTipoTurno);
             SELECT 'Tipo de turno creado exitosamente.';
         END
@@ -346,20 +346,20 @@ BEGIN
     END CATCH
 END
 
-CREATE OR ALTER PROCEDURE Turnos.ActualizarTipoTurno
+CREATE OR ALTER PROCEDURE Turno.ActualizarTipoTurno
     @idTipoTurno INT,
     @nombreTipoTurno VARCHAR(10)
 AS
 BEGIN
     BEGIN TRY
         -- Validación de existencia de referenciados
-        IF NOT EXISTS (SELECT 1 FROM Turnos.TipoTurno WHERE id_tipo_turno = @idTipoTurno)
+        IF NOT EXISTS (SELECT 1 FROM Turno.TipoTurno WHERE id_tipo_turno = @idTipoTurno)
         BEGIN
             SELECT 'Error: El tipo de turno a actualizar no existe.';
             RETURN;
         END
 
-        IF EXISTS (SELECT 1 FROM Turnos.TipoTurno WHERE nombre_tipo_turno LIKE @nombreTipoTurno)
+        IF EXISTS (SELECT 1 FROM Turno.TipoTurno WHERE nombre_tipo_turno LIKE @nombreTipoTurno)
         BEGIN
             SELECT 'Error: El tipo de turno con nombre  ya existe.';
             RETURN;
@@ -371,7 +371,7 @@ BEGIN
             RETURN;
         END
 
-        UPDATE Turnos.TipoTurno
+        UPDATE Turno.TipoTurno
             SET nombre_tipo_turno = @nombreTipoTurno
             WHERE id_tipo_turno = @idTipoTurno;
 
@@ -382,13 +382,13 @@ BEGIN
     END CATCH
 END
 
-CREATE OR ALTER PROCEDURE Turnos.EliminarTipoTurno
+CREATE OR ALTER PROCEDURE Turno.EliminarTipoTurno
     @idTipoTurno INT
 AS
 BEGIN
     BEGIN TRY
         -- Validación de existencia de referenciados
-        IF NOT EXISTS (SELECT 1 FROM Turnos.TipoTurno WHERE id_tipo_turno = @idTipoTurno)
+        IF NOT EXISTS (SELECT 1 FROM Turno.TipoTurno WHERE id_tipo_turno = @idTipoTurno)
         BEGIN
             SELECT 'Error: El tipo de turno a eliminar no existe.';
             RETURN;
@@ -396,13 +396,13 @@ BEGIN
 
         -- La foreign key esta creada con ON DELETE CASCADE, por lo que no es necesario validar la existencia de referenciados, solo lanzaremos un mensaje si existen
 
-        IF EXISTS (SELECT 1 FROM Turnos.ReservaTurnoMedico WHERE id_tipo_turno = @idTipoTurno)
+        IF EXISTS (SELECT 1 FROM Turno.ReservaTurnoMedico WHERE id_tipo_turno = @idTipoTurno)
         BEGIN
             SELECT 'Advertencia: Existen reservas de turno que hacen referencia a este tipo de turno. Se eliminaran junto con el tipo de turno.';
             RETURN;
         END
 
-        DELETE FROM Turnos.TipoTurno
+        DELETE FROM Turno.TipoTurno
             WHERE id_tipo_turno = @idTipoTurno;
 
         SELECT 'Tipo de turno eliminado exitosamente.';
