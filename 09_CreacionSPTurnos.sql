@@ -7,9 +7,8 @@ GO
 
 CREATE OR ALTER PROCEDURE Turnos.CrearReservaTurnoMedico
     @idHistoriaClinica INT, 
-    @idMedico INT, 
-    @idEspecialidad INT, 
-    @idDireccionAtencion INT, 
+    @idMedicoEspecialidad INT,
+    @idSede INT,
     @idEstadoTurno INT, 
     @idTipoTurno INT
 AS
@@ -17,8 +16,8 @@ BEGIN
     BEGIN TRY
         -- Validación de existencia de referenciados
         IF EXISTS (SELECT 1 FROM Paciente.Paciente WHERE id_historia_clinica = @idHistoriaClinica)
-            AND EXISTS (SELECT 1 FROM Hospital.Medico WHERE id_medico = @idMedico)
-            AND EXISTS (SELECT 1 FROM Hospital.Especialidad WHERE id_especialidad = @idEspecialidad)
+            AND EXISTS (SELECT 1 FROM Hospital.MedicoEspecialidad WHERE id_medico_especialidad = @idMedicoEspecialidad)
+            AND EXISTS (SELECT 1 FROM Hospital.SedeDeAtencion WHERE id_sede = @idSede)
             AND EXISTS (SELECT 1 FROM Turnos.EstadoTurno WHERE id_estado_turno = @idEstadoTurno)
             AND EXISTS (SELECT 1 FROM Turnos.TipoTurno WHERE id_tipo_turno = @idTipoTurno)
         BEGIN
@@ -29,8 +28,8 @@ BEGIN
                     @hora = GETDATE();
 
             -- Insertar el registro
-            INSERT INTO Turnos.ReservaTurnoMedico (id_historia_clinica, fecha, hora, id_medico, id_especialidad, id_direccion_atencion, id_estado_turno, id_tipo_turno)
-            VALUES (@idHistoriaClinica, @fecha, @hora, @idMedico, @idEspecialidad, @id_direccion_atencion, @idEstadoTurno, @idTipoTurno);
+            INSERT INTO Turnos.ReservaTurnoMedico (id_historia_clinica, fecha, hora, id_medico_especialidad, id_sede, id_estado_turno, id_tipo_turno)
+            VALUES (@idHistoriaClinica, @fecha, @hora, @idMedicoEspecialidad, @idSede, @idEstadoTurno, @idTipoTurno);
             
             SELECT 'Reserva de turno creada exitosamente.';
         END
@@ -46,9 +45,8 @@ GO
 CREATE OR ALTER PROCEDURE Turnos.ActualizarReservaTurnoMedico
     @idTurno INT,
     @idHistoriaClinica INT, 
-    @idMedico INT, 
-    @idEspecialidad INT, 
-    @idDireccionAtencion INT, 
+    @idMedicoEspecialidad INT, 
+    @idSede INT,
     @idEstadoTurno INT, 
     @idTipoTurno INT
 AS
@@ -67,15 +65,15 @@ BEGIN
             RETURN;
         END
 
-        IF NOT EXISTS (SELECT 1 FROM Hospital.Medico WHERE id_medico = @idMedico)
+        IF NOT EXISTS (SELECT 1 FROM Hospital.MedicoEspecialidad WHERE id_medico_especialidad = @idMedicoEspecialidad)
         BEGIN
             SELECT 'Error: El médico no existe.';
             RETURN;
         END
 
-        IF NOT EXISTS (SELECT 1 FROM Hospital.Especialidad WHERE id_especialidad = @idEspecialidad)
+        IF NOT EXISTS (SELECT 1 FROM Hospital.SedeDeAtencion WHERE id_sede = @idSede)
         BEGIN
-            SELECT 'Error: La especialidad no existe.';
+            SELECT 'Error: La sede no existe.';
             RETURN;
         END
 
@@ -102,19 +100,14 @@ BEGIN
             SET @consulta = @consulta + N'id_historia_clinica = @idHistoriaClinica, ';
         END
 
-        IF @idMedico IS NOT NULL
+        IF @idMedicoEspecialidad IS NOT NULL
         BEGIN
-            SET @consulta = @consulta + N'id_medico = @idMedico, ';
+            SET @consulta = @consulta + N'id_medico_especialidad = @idMedicoEspecialidad, ';
         END
 
-        IF @idEspecialidad IS NOT NULL
+        IF @idSede IS NOT NULL
         BEGIN
-            SET @consulta = @consulta + N'id_especialidad = @idEspecialidad, ';
-        END
-
-        IF @idDireccionAtencion IS NOT NULL
-        BEGIN
-            SET @consulta = @consulta + N'id_direccion_atencion = @idDireccionAtencion, ';
+            SET @consulta = @consulta + N'id_sede = @idSede, ';
         END
 
         IF @idEstadoTurno IS NOT NULL
@@ -138,8 +131,8 @@ BEGIN
 
         -- Se ejecuta la consulta SQL dinámica
         EXEC sp_executesql @consulta,
-                            N'@idHistoriaClinica INT, @idMedico INT, @idEspecialidad INT, @idDireccionAtencion INT, @idEstadoTurno INT, @idTipoTurno INT, @idTurno INT',
-                            @idHistoriaClinica, @idMedico, @idEspecialidad, @idDireccionAtencion, @idEstadoTurno, @idTipoTurno, @idTurno;
+                            N'@idHistoriaClinica INT, @idMedicoEspecialidad INT, @idSede INT, @idEstadoTurno INT, @idTipoTurno INT, @idTurno INT',
+                            @idHistoriaClinica, @idMedicoEspecialidad, @idSede, @idEstadoTurno, @idTipoTurno, @idTurno;
 
         SELECT 'Reserva de turno actualizada exitosamente.';
     END TRY
