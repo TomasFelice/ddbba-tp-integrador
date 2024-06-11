@@ -211,10 +211,32 @@ CREATE OR ALTER PROCEDURE ObraSocial.eliminarCobertura
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS( SELECT 1 FROM ObraSocial.Cobertura WHERE id_cobertura = @idCobertura )
+        IF EXISTS(SELECT 1 FROM ObraSocial.Cobertura WHERE id_cobertura = @idCobertura)
         BEGIN
+            DECLARE @estadoReservado INT = (SELECT id_estado FROM Turno.EstadoTurno WHERE nombre_estado = 'Reservado');
+            DECLARE @estadoDisponible INT = (SELECT id_estado FROM Turno.EstadoTurno WHERE nombre_estado = 'Disponible');
+            DECLARE @estadoCancelado INT = (SELECT id_estado FROM Turno.EstadoTurno WHERE nombre_estado = 'Cancelado');
+
+            UPDATE Turnos.ReservaTurnoMedico rtm
+            SET rtm.id_estado_turno = @estadoCancelado
+            WHERE EXISTS (SELECT 1
+                          FROM ObraSocial.Cobertura osc
+                          WHERE osc.id_cobertura = @idCobertura
+                            AND osc.id_historia_clinica = rtm.id_historia_clinica
+                            AND rtm.id_estado_turno = @estadoReservado);
+
+            INSERT INTO Turno.ReservaTurnoMedico (id_medico_especialidad, id_sede, id_estado_turno, id_tipo_turno, fecha, hora)
+            SELECT id_medico_especialidad, id_sede, @estadoDisponible, id_tipo_turno, GETDATE(), GETDATE()
+            FROM Turnos.ReservaTurnoMedico rtm
+            WHERE EXISTS (SELECT 1
+                          FROM ObraSocial.Cobertura osc
+                          WHERE osc.id_cobertura = @idCobertura
+                            AND osc.id_historia_clinica = rtm.id_historia_clinica
+                            AND rtm.id_estado_turno = @estadoCancelado); --REVISAR
+
             DELETE ObraSocial.Cobertura
-                WHERE id_cobertura = @idCobertura;
+            WHERE id_cobertura = @idCobertura;
+
             SELECT 'Cobertura eliminada exitosamente.';
         END
         ELSE
@@ -338,8 +360,6 @@ BEGIN
         SELECT 'Error al eliminar el tipo de cobertura.', ERROR_MESSAGE();
     END CATCH
 END
-GO
-
 /**
     FIN SPs de TipoCobertura
 */
