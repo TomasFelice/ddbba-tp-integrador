@@ -101,7 +101,7 @@ CREATE TABLE Paciente.Pago (
 GO
 CREATE TABLE Paciente.Factura (
     id_factura INT IDENTITY(1,1),
-    id_pago INT NOT NULL,
+    id_pago INT,
     id_estudio VARCHAR(25) NOT NULL,
     id_historia_clinica INT,
     costo_factura DECIMAL(10, 2) NOT NULL,

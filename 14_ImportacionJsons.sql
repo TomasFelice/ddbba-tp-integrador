@@ -1,27 +1,6 @@
 USE com2900g09
 GO
 
-DROP TABLE IF EXISTS Centro_Autorizaciones.AutorizacionEstudio
-GO
-
-DROP SCHEMA IF EXISTS Centro_Autorizaciones
-GO
-
---CREATE SCHEMA Centro_Autorizaciones
---GO
-
---CREATE TABLE Centro_Autorizaciones.AutorizacionEstudio (
---	id VARCHAR(25) COLLATE SQL_Latin1_General_CP1_CI_AS,
---	area VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS,
---	estudio VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS,
---	prestador VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS,
---	plan_prestador VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS,
---	porcentaje_cobertura INT,
---	costo FLOAT,
---	requiere_autorizacion BIT,
---)
---GO 
-
 CREATE OR ALTER PROCEDURE Paciente.insertarEstudioDesdeJson
     @RutaArchivo VARCHAR(255)
 AS
@@ -66,34 +45,6 @@ BEGIN
 		RETURN;
 	END CATCH
 
-    -- UPDATE Centro_Autorizaciones.AutorizacionEstudio
-    -- SET
-	-- 	Centro_Autorizaciones.AutorizacionEstudio.id = #TempData.id,
-    --     Centro_Autorizaciones.AutorizacionEstudio.area = #TempData.area,
-    --     Centro_Autorizaciones.AutorizacionEstudio.estudio = #TempData.estudio,
-    --     Centro_Autorizaciones.AutorizacionEstudio.prestador = #TempData.prestador,
-    --     Centro_Autorizaciones.AutorizacionEstudio.plan_prestador = #TempData.plan_prestador,
-    --     Centro_Autorizaciones.AutorizacionEstudio.porcentaje_cobertura = #TempData.porcentaje_cobertura,
-    --     Centro_Autorizaciones.AutorizacionEstudio.costo = #TempData.costo,
-    --     Centro_Autorizaciones.AutorizacionEstudio.requiere_autorizacion = #TempData.requiere_autorizacion
-    -- FROM Centro_Autorizaciones.AutorizacionEstudio ae
-    -- INNER JOIN #TempData ON ae.id = #TempData.id AND ae.area = #TempData.area AND ae.prestador = #TempData.prestador AND ae.estudio = #TempData.estudio AND ae.plan_prestador = #TempData.plan_prestador;
-
-    -- -- Insertar nuevos registros si no existen
-    -- INSERT INTO Centro_Autorizaciones.AutorizacionEstudio (id, area, estudio, prestador, plan_prestador, porcentaje_cobertura, costo, requiere_autorizacion)
-    -- SELECT
-    --     id, area, estudio, prestador, plan_prestador, porcentaje_cobertura, costo, requiere_autorizacion
-    -- FROM #TempData
-    -- WHERE NOT EXISTS (
-    --     SELECT 1
-    --     FROM Centro_Autorizaciones.AutorizacionEstudio AS ae
-    --     WHERE ae.id = #TempData.id COLLATE SQL_Latin1_General_CP1_CI_AS 
-	-- 	AND ae.area = #TempData.Area COLLATE SQL_Latin1_General_CP1_CI_AS 
-	-- 	AND ae.prestador = #TempData.Prestador COLLATE SQL_Latin1_General_CP1_CI_AS 
-	-- 	AND ae.estudio = #TempData.estudio COLLATE SQL_Latin1_General_CP1_CI_AS 
-	-- 	AND ae.plan_prestador = #TempData.plan_prestador COLLATE SQL_Latin1_General_CP1_CI_AS
-    -- );
-
 	-- me falla porque todavia no tenemos ningun paciente, seguir aca para poder probar
 
 	BEGIN TRY
@@ -106,7 +57,7 @@ BEGIN
 			FROM Paciente.Estudio AS pe
 			WHERE pe.id_estudio = #TempData.id COLLATE SQL_Latin1_General_CP1_CI_AS 
 			AND #TempData.id IS NOT NULL
-		);
+		); -- esto creo que no va, nosotros vamos a recibir respuestas de estudios que ya deberiamos tener registrado
 
 		UPDATE Paciente.Estudio
 		SET
@@ -117,12 +68,22 @@ BEGIN
 		FROM Paciente.Estudio pe
 		INNER JOIN #TempData ON pe.id_estudio = #TempData.id AND pe.area = #TempData.area AND pe.nombre_estudio = #TempData.estudio;
 
+		INSERT INTO Paciente.Factura(id_estudio, id_historia_clinica, costo_factura)
+		SELECT
+			id, (SELECT pe.id_historia_clinica FROM Paciente.Estudio pe WHERE pe.id_estudio = id) id_historia_clinica, costo
+		FROM #TempData
+		WHERE EXISTS (
+			SELECT 1
+			FROM Paciente.Estudio AS pe
+			WHERE pe.id_estudio = #TempData.id COLLATE SQL_Latin1_General_CP1_CI_AS
+			AND #TempData.costo > 0
+		);
 
 		-- Eliminar la tabla temporal
 		DROP TABLE #TempData;
 	END TRY
 	BEGIN CATCH
-		SELECT CONCAT('Error al insertar la informacion en la tabla Estudio ', ERROR_MESSAGE());
+		SELECT CONCAT('Error al insertar la informacion en las tablas Estudio y Factura: ', ERROR_MESSAGE());
 	END CATCH
 END;
 GO
@@ -132,6 +93,7 @@ GO
 
 SELECT * FROM paciente.Estudio
 GO
-
+SELECT * FROM paciente.Factura
+GO
 -- SELECT * from Centro_Autorizaciones.AutorizacionEstudio
 -- GO
