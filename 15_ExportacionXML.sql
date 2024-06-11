@@ -44,13 +44,12 @@ BEGIN
         FOR XML PATH('Turno'), ROOT('TurnosAtendidos')
     );
 
-SELECT FROM A B 
     -- Escribir el XMLData en un archivo temporal
-    SET @FileName = 'C:\importar\archivo.xml';
+    SET @FileName = 'D:\Dev\ddbba-tp-integrador\exportar\archivo.xml';
     SET @Query = 'SELECT CAST(''' + REPLACE(CONVERT(NVARCHAR(MAX), @XMLData), '''', '''''') + ''' AS XML) AS XmlData';
 
     -- Crear el archivo de formato XML
-    SET @FormatFile = 'C:\importar\FormatFile.xml';
+    SET @FormatFile = 'D:\Dev\ddbba-tp-integrador\exportar\FormatFile.xml';
     SET @FormatFileContent = '<?xml version="1.0" encoding="utf-8" ?>  
 <BCPFORMAT xmlns="https://schemas.microsoft.com/sqlserver/2004/bulkload/format" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">  
    <RECORD>  
@@ -83,4 +82,18 @@ SELECT * FROM ObraSocial.Prestador
 GO
 EXEC Paciente.ExportarTurnosXML 'Union Personal', '2005-01-15', '2009-03-12';
 
+exec Turno.CrearReservaTurnoMedico
+    @idHistoriaClinica = 2, 
+    @idmedico = 1,
+    @idMedicoEspecialidad = 1,
+    @id_prestador =1,
+    @idSede = 1,
+    @idEstadoTurno = 1, 
+    @idTipoTurno =1
+
+	-- Habilitar xp_cmdshell
+EXEC sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXEC sp_configure 'xp_cmdshell', 1;
+RECONFIGURE;
 
