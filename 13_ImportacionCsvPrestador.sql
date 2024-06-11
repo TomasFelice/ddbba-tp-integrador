@@ -18,7 +18,7 @@ BEGIN
         FROM ''' + @RutaArchivo + '''
         WITH (
             FIELDTERMINATOR = '';'',  -- Delimitador de campos
-            ROWTERMINATOR = ''\n'',   -- Delimitador de filas
+            ROWTERMINATOR = '';;\n'',   -- Delimitador de filas
 			CODEPAGE = 65001,         -- Codificación UTF-8
             FIRSTROW = 2            -- Fila a partir de la cual se deben leer los datos (si la primera fila contiene encabezados)
         );
@@ -36,7 +36,7 @@ BEGIN
 END;
 go
 
-EXEC ObraSocial.insertarPrestadorDesdeCSV 'C:\importar\Prestador.csv';
+EXEC ObraSocial.insertarPrestadorDesdeCSV 'D:\Dev\ddbba-tp-integrador\Dataset\Prestador.csv';
 go
 SELECT * From ObraSocial.Prestador
 go

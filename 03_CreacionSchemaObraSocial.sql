@@ -16,9 +16,10 @@ GO
 
 CREATE TABLE ObraSocial.Prestador (
     id_prestador INT IDENTITY(1,1),
-    nombre_prestador VARCHAR(100) NOT NULL UNIQUE,
-    plan_prestador VARCHAR(50),
-	CONSTRAINT pk_prestador PRIMARY KEY CLUSTERED (id_prestador)
+    nombre_prestador VARCHAR(100) NOT NULL,
+    plan_prestador VARCHAR(50) NOT NULL,
+	CONSTRAINT pk_prestador PRIMARY KEY CLUSTERED (id_prestador),
+    CONSTRAINT uq_prestador_nombre_plan UNIQUE (nombre_prestador, plan_prestador)
 )
 GO
 
