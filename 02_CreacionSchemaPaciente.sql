@@ -82,17 +82,16 @@ CREATE TABLE Paciente.Estudio (
     documento_resultado VARCHAR(255) DEFAULT NULL, -- Se intepreta con la URL al documento. En nuestro sistema delimitamos el ingreso de urls a máx 255 caracteres. Hay otro sistema que acorta las urls para tener ese máx
     imagen_resultado VARCHAR(255) DEFAULT NULL, -- Aquí se insertarán URLS generadas desde otro sistema. En nuestro sistema delimitamos el ingreso de urls a máx 255 caracteres. Hay otro sistema que acorta las urls para tener ese máx
 	fecha_borrado DATETIME DEFAULT NULL, -- Se deja este atributo ya que si se elimina lógicamente el paciente, se deben eliminar todo lo relacionado a él
+	area VARCHAR(50),
     CONSTRAINT pk_estudio PRIMARY KEY CLUSTERED (id_estudio),
     CONSTRAINT fk_estudio_historia_clinica FOREIGN KEY (id_historia_clinica) REFERENCES Paciente.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
 CREATE TABLE Paciente.Pago (
     id_pago INT IDENTITY(1,1),
-    id_historia_clinica INT NOT NULL,
     fecha DATE DEFAULT GETDATE(),
     monto DECIMAL(10, 2) NOT NULL,
-	CONSTRAINT pk_pago PRIMARY KEY CLUSTERED (id_pago),
-    CONSTRAINT fk_pago_historia_clinica FOREIGN KEY (id_historia_clinica) REFERENCES Paciente.Paciente(id_historia_clinica) ON DELETE CASCADE ON UPDATE CASCADE
+	CONSTRAINT pk_pago PRIMARY KEY CLUSTERED (id_pago)
 )
 GO
 CREATE TABLE Paciente.Factura (

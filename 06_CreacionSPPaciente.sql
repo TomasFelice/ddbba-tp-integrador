@@ -804,7 +804,7 @@ GO
 -- Inicio SP Funcionalidades:
 --------------------------------------------------------------------------------
 
-CREATE PROCEDURE ddbba.actualizarAutorizacionEstudios(@_id NVARCHAR(40), @Area NVARCHAR(50), @Estudio NVARCHAR(100), @Prestador NVARCHAR(50), @Plan NVARCHAR(50), @Porcentaje_Cobertura INT, @Costo INT, @Requiere_Autorizacion BIT)
+CREATE PROCEDURE Paciente.actualizarAutorizacionEstudios(@_id NVARCHAR(40), @Area NVARCHAR(50), @Estudio NVARCHAR(100), @Prestador NVARCHAR(50), @Plan NVARCHAR(50), @Porcentaje_Cobertura INT, @Costo INT, @Requiere_Autorizacion BIT)
 AS
 BEGIN
     -- Obtener el id de estudio correspondiente a los datos proporcionados
