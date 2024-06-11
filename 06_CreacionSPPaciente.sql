@@ -408,7 +408,7 @@ BEGIN
                 pais = @pais,
                 provincia = @provincia,
                 localidad = @localidad
-            WHERE id_domicilio = @id_domicilio AND id_historia_clinica = @id_historia_clinica
+            WHERE id_domicilio = @id_domicilio
         END
         ELSE
         BEGIN
