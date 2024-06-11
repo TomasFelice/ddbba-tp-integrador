@@ -93,7 +93,7 @@ BEGIN
         END
     END TRY
     BEGIN CATCH
-           SELECT CONCAT('Error: Error al insertar la sede de atención', ERROR_MESSAGE())
+           SELECT 'Error: Error al insertar la sede de atención', ERROR_MESSAGE()
     END CATCH
 END
 GO
@@ -106,7 +106,7 @@ GO
 
 *******/
 
-CREATE OR ALTER PROCEDURE Hospital.InsertarDiasPorSede -- Nacho: necesito una mano acá porque me mareo, este SP está mal, deberíamos hacer condiciones de si se vuelve a insertar nuevamente que se actualice?
+CREATE OR ALTER PROCEDURE Hospital.InsertarDiasPorSede
     @id_sede INT,
     @id_medico INT,
     @dia VARCHAR(9),
