@@ -69,7 +69,7 @@ CREATE TABLE Hospital.DiasPorSede (
     dia VARCHAR(9) CHECK (dia IN ('Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo')),
     hora_inicio TIME,
     hora_fin TIME,
-    estado_turno_inicial VARCHAR(10),
+    estado_turno_inicial INT DEFAULT 1, -- Disponible
 	CONSTRAINT pk_dia_sede PRIMARY KEY CLUSTERED (id_dia_sede),
     CONSTRAINT fk_dia_sede_medico FOREIGN KEY (id_medico) REFERENCES Hospital.Medico(id_medico) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_dia_sede_sede FOREIGN KEY (id_sede) REFERENCES Hospital.SedeDeAtencion(id_sede) ON DELETE CASCADE ON UPDATE CASCADE

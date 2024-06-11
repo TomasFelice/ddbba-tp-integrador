@@ -32,7 +32,7 @@ CREATE TABLE Turno.ReservaTurnoMedico (
 	id_historia_clinica INT NOT NULL,
     id_medico_especialidad INT NOT NULL,
     id_sede INT NOT NULL,
-    id_estado_turno INT,
+    id_estado_turno INT DEFAULT 1,
     id_tipo_turno INT,
     fecha DATE,
     hora TIME,
@@ -49,8 +49,8 @@ GO
 --------------------------------------------------
 ------  INSERCION VALORES DEFINIDOS
 --------------------------------------------------
-INSERT INTO Turno.EstadoTurno (nombre_estado)
-VALUES ('Disponible'), ('Reservado'), ('Cancelado'), ('Atendido'), ('Ausente')
+INSERT INTO Turno.EstadoTurno (id_turno, nombre_estado)
+VALUES (1, 'Disponible'), (2, 'Reservado'), (3, 'Cancelado'), (4, 'Atendido'), (5, 'Ausente')
 GO
 
 INSERT INTO Turno.TipoTurno (nombre_tipo_turno)
