@@ -7,7 +7,7 @@ AS
 BEGIN
 	IF @RutaArchivo = '' OR @RutaArchivo IS NULL
 	BEGIN
-		SELECT 'No se ha esspecificado una ruta de archivo.';
+		SELECT 'No se ha especificado una ruta de archivo.';
 		RETURN;	
 	END
 
@@ -45,19 +45,7 @@ BEGIN
 		RETURN;
 	END CATCH
 
-	-- me falla porque todavia no tenemos ningun paciente, seguir aca para poder probar
-
 	BEGIN TRY
-		INSERT INTO Paciente.Estudio (id_estudio, area, nombre_estudio, autorizado, id_historia_clinica, fecha)
-		SELECT
-			id, COALESCE(area, '') COLLATE SQL_Latin1_General_CP1_CI_AS, COALESCE(estudio, '') COLLATE SQL_Latin1_General_CP1_CI_AS, CASE WHEN requiere_autorizacion = 1 THEN 0 ELSE 1 END, 1, GETDATE()
-		FROM #TempData
-		WHERE NOT EXISTS (
-			SELECT 1
-			FROM Paciente.Estudio AS pe
-			WHERE pe.id_estudio = #TempData.id COLLATE SQL_Latin1_General_CP1_CI_AS 
-			AND #TempData.id IS NOT NULL
-		); -- esto creo que no va, nosotros vamos a recibir respuestas de estudios que ya deberiamos tener registrado
 
 		UPDATE Paciente.Estudio
 		SET
@@ -95,5 +83,3 @@ SELECT * FROM paciente.Estudio
 GO
 SELECT * FROM paciente.Factura
 GO
--- SELECT * from Centro_Autorizaciones.AutorizacionEstudio
--- GO
