@@ -57,13 +57,13 @@ CREATE OR ALTER PROCEDURE Hospital.InsertarMedico_Especialidad
 AS
 BEGIN
     BEGIN TRY
-        IF EXISTS(SELECT 1 FROM Hospital.Medico_Especialidad WHERE id_medico = @id_medico AND id_especialidad = @id_especialidad)
+        IF EXISTS(SELECT 1 FROM Hospital.MedicoEspecialidad WHERE id_medico = @id_medico AND id_especialidad = @id_especialidad)
         BEGIN
            SELECT 'Error: La relacion medico-especialidad ya existen', ERROR_MESSAGE();
         END
         ELSE
         BEGIN
-            INSERT INTO Hospital.Medico_Especialidad (id_medico, id_especialidad)
+            INSERT INTO Hospital.MedicoEspecialidad (id_medico, id_especialidad)
             VALUES (@id_medico, @id_especialidad);
         END
     END TRY
