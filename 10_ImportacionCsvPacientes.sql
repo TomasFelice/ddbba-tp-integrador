@@ -65,11 +65,3 @@ go
 SELECT * From Paciente.Paciente
 SELECT * From Paciente.Domicilio
 
-ALTER TABLE Paciente.Domicilio
-DROP COLUMN calle
-GO
-ALTER TABLE Paciente.Domicilio
-DROP COLUMN numero
-GO
-ALTER TABLE Paciente.Domicilio
-ADD  direccion VARCHAR(100)
