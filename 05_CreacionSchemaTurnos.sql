@@ -51,8 +51,8 @@ GO
 --------------------------------------------------
 ------  INSERCION VALORES DEFINIDOS
 --------------------------------------------------
-INSERT INTO Turno.EstadoTurno (id_turno, nombre_estado)
-VALUES (1, 'Disponible'), (2, 'Reservado'), (3, 'Cancelado'), (4, 'Atendido'), (5, 'Ausente')
+INSERT INTO Turno.EstadoTurno (nombre_estado)
+VALUES ('Disponible'), ('Reservado'), ('Cancelado'), ('Atendido'), ('Ausente')
 GO
 
 INSERT INTO Turno.TipoTurno (nombre_tipo_turno)

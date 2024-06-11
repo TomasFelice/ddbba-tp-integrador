@@ -1,7 +1,7 @@
 USE com2900g09
 GO
 
-DROP TABLE IF EXISTS Hospital.Medico_Especialidad
+DROP TABLE IF EXISTS Hospital.MedicoEspecialidad
 GO
 DROP TABLE IF EXISTS Hospital.DiasPorSede
 GO
