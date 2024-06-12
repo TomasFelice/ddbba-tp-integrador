@@ -678,10 +678,6 @@ BEGIN
         SET fecha_borrado = GETDATE()
         WHERE id_historia_clinica = @id_historia_clinica;
 
-        UPDATE Paciente.Domicilio
-        SET fecha_borrado = GETDATE()
-        WHERE id_historia_clinica = @id_historia_clinica;
-
         UPDATE Paciente.Estudio
         SET fecha_borrado = GETDATE()
         WHERE id_historia_clinica = @id_historia_clinica;
