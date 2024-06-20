@@ -1,8 +1,7 @@
 --Fecha de entrega: 11/06
 --Número de grupo: 09
---Materia:BASES DE DATOS APLICADAS
+--Materia: BASES DE DATOS APLICADAS
 --Alumnos:
-
 
 --44789809 Felice Tomás Agustín tfelice@alumno.unlam.edu.ar 
 
@@ -15,7 +14,7 @@
 --Trabajo práctico Integrador
 
 --Se detalla a continuación el proceso de instalación y configuración aplicada para Microsoft SQL Server.
---Ubicación de los Medios: D:\SQL2022
+--Ubicación de los Medios: C:\SQL2022
 --Nombre de la instancia SQLEXPRESS
 
 --Se utilizara para administrar el motor de base de datos SQL Server Management Studio v19.1.

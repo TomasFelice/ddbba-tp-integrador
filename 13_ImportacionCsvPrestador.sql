@@ -36,7 +36,7 @@ BEGIN
 END;
 go
 
-EXEC ObraSocial.insertarPrestadorDesdeCSV 'D:\Dev\ddbba-tp-integrador\Dataset\Prestador.csv';
+EXEC ObraSocial.insertarPrestadorDesdeCSV 'C:\Users\Ignacio Nogueira\Desktop\Unlam\BDD Aplicadas\Tps\Integrador\ddbba-tp-integrador\Dataset\Prestador.csv';
 go
 SELECT * From ObraSocial.Prestador
 go

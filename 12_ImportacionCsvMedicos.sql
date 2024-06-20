@@ -46,13 +46,14 @@ BEGIN
 	FROM #MedicoTemp mt
 	INNER JOIN Hospital.Medico hm ON hm.nro_matricula = mt.nroMatricula
 	INNER JOIN Hospital.Especialidad he ON he.nombre_especialidad = mt.especialidad
+	COLLATE SQL_Latin1_General_CP1_CI_AS
 
     PRINT 'La importación se ha completado exitosamente.';
 	DROP TABLE #MedicoTemp;
 END;
 go
 
-EXEC Hospital.importarMedicosDesdeCSV 'D:\Dev\ddbba-tp-integrador\Dataset\Medicos.csv';
+EXEC Hospital.importarMedicosDesdeCSV 'C:\Users\Ignacio Nogueira\Desktop\Unlam\BDD Aplicadas\Tps\Integrador\ddbba-tp-integrador\Dataset\Medicos.csv';
 go
 SELECT * From Hospital.Medico
 SELECT * From Hospital.Especialidad

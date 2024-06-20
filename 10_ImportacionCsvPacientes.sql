@@ -59,7 +59,7 @@ END;
 go
 
 
-EXEC Paciente.importarPacienteDesdeCSV 'D:\Dev\ddbba-tp-integrador\Dataset\Pacientes.csv';
+EXEC Paciente.importarPacienteDesdeCSV 'C:\Users\Ignacio Nogueira\Desktop\Unlam\BDD Aplicadas\Tps\Integrador\ddbba-tp-integrador\Dataset\Pacientes.csv';
 go
 SELECT * From Paciente.Paciente
 SELECT * From Paciente.Domicilio

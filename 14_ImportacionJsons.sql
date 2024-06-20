@@ -47,6 +47,17 @@ BEGIN
 
 	BEGIN TRY
 
+		INSERT INTO Paciente.Estudio (id_estudio, area, nombre_estudio, autorizado, id_historia_clinica, fecha)
+        SELECT
+            id, COALESCE(area, '') COLLATE SQL_Latin1_General_CP1_CI_AS, COALESCE(estudio, '') COLLATE SQL_Latin1_General_CP1_CI_AS, CASE WHEN requiere_autorizacion = 1 THEN 0 ELSE 1 END, FLOOR(RAND()*(997-1)+1), GETDATE()
+        FROM #TempData
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM Paciente.Estudio AS pe
+            WHERE pe.id_estudio = #TempData.id COLLATE SQL_Latin1_General_CP1_CI_AS 
+            AND #TempData.id IS NOT NULL
+        );
+
 		UPDATE Paciente.Estudio
 		SET
 			Paciente.Estudio.id_estudio = #TempData.id,
@@ -76,10 +87,11 @@ BEGIN
 END;
 GO
 
-EXEC Paciente.insertarEstudioDesdeJson 'D:\Dev\ddbba-tp-integrador\Dataset\Centro_Autorizaciones.Estudios clinicos.json';
+EXEC Paciente.insertarEstudioDesdeJson 'C:\Users\Ignacio Nogueira\Desktop\Unlam\BDD Aplicadas\Tps\Integrador\ddbba-tp-integrador\Dataset\Centro_Autorizaciones.Estudios clinicos.json';
 GO
 
 SELECT * FROM paciente.Estudio
 GO
 SELECT * FROM paciente.Factura
 GO
+
