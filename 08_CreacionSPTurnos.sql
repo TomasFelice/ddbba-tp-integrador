@@ -5,7 +5,7 @@ GO
     SPs de ReservaTurnoMedico
 */ 
 
-CREATE OR ALTER PROCEDURE Turno.CrearReservaTurnoMedico
+CREATE OR ALTER PROCEDURE Turno.InsertarReservaTurnoMedico
     @idHistoriaClinica INT, 
     @idmedico INT,
     @idMedicoEspecialidad INT,
@@ -225,7 +225,7 @@ GO
     SPs de EstadoTurno
 */ 
 
-CREATE OR ALTER PROCEDURE Turno.CrearEstadoTurno
+CREATE OR ALTER PROCEDURE Turno.InsertarEstadoTurno
     @nombreEstado VARCHAR(10)
 AS
 BEGIN

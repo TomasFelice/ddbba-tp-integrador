@@ -45,3 +45,7 @@ CREATE TABLE ObraSocial.Cobertura (
     CONSTRAINT fk_cobertura_tipo_cobertura FOREIGN KEY (id_tipo_cobertura) REFERENCES ObraSocial.TipoCobertura(id_tipo_cobertura) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
+
+EXEC ObraSocial.InsertarPrestador 
+
+

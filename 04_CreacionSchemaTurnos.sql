@@ -53,10 +53,11 @@ GO
 --------------------------------------------------
 ------  INSERCION VALORES DEFINIDOS
 --------------------------------------------------
-INSERT INTO Turno.EstadoTurno (nombre_estado)
-VALUES ('Disponible'), ('Reservado'), ('Cancelado'), ('Atendido'), ('Ausente')
-GO
+exec Turno.InsertarEstadoTurno 'Disponible'
+exec Turno.InsertarEstadoTurno 'Reservado'
+exec Turno.InsertarEstadoTurno 'Cancelado'
+exec Turno.InsertarEstadoTurno 'Atendido'
+exec Turno.InsertarEstadoTurno 'Ausente'
 
-INSERT INTO Turno.TipoTurno (nombre_tipo_turno)
-VALUES ('Presencial'), ('Virtual')
-GO
+exec Turno.InsertarTipoTurno 'Presencial'
+exec Turno.InsertarTipoTurno 'Virtual'

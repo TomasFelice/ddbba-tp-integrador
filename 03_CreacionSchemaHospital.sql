@@ -79,24 +79,22 @@ GO
 --------------------------------------------------
 ------  INSERCION VALORES DEFINIDOS
 --------------------------------------------------
+EXEC Hospital.InsertarEspecialidad 'CLINICA MEDICA';
+EXEC Hospital.InsertarEspecialidad 'MEDICINA FAMILIAR';
+EXEC Hospital.InsertarEspecialidad 'ALERGIA';
+EXEC Hospital.InsertarEspecialidad 'CARDIOLOGIA';
+EXEC Hospital.InsertarEspecialidad 'DERMATOLOGIA';
+EXEC Hospital.InsertarEspecialidad 'ENDOCRINOLOGIA';
+EXEC Hospital.InsertarEspecialidad 'FONOAUDIOLOGIA';
+EXEC Hospital.InsertarEspecialidad 'GASTROENTEROLOGIA';
+EXEC Hospital.InsertarEspecialidad 'GINECOLOGIA';
+EXEC Hospital.InsertarEspecialidad 'HEPATOLOGÍA';
+EXEC Hospital.InsertarEspecialidad 'KINESIOLOGIA';
+EXEC Hospital.InsertarEspecialidad 'NEUROLOGIA';
+EXEC Hospital.InsertarEspecialidad 'NUTRICION';
+EXEC Hospital.InsertarEspecialidad 'OBSTETRICIA';
+EXEC Hospital.InsertarEspecialidad 'OFTALMOLOGIA';
+EXEC Hospital.InsertarEspecialidad 'TRAUMATOLOGIA';
+EXEC Hospital.InsertarEspecialidad 'UROLOGIA';
+EXEC Hospital.InsertarEspecialidad 'LABORATORIO';
 
-INSERT INTO Hospital.Especialidad (nombre_especialidad)
-VALUES
-('CLINICA MEDICA'),
-('MEDICINA FAMILIAR'),
-('ALERGIA'),
-('CARDIOLOGIA'),
-('DERMATOLOGIA'),
-('ENDOCRINOLOGIA'),
-('FONOAUDIOLOGIA'),
-('GASTROENTEROLOGIA'),
-('GINECOLOGIA'),
-('HEPATOLOGÍA'),
-('KINESIOLOGIA'),
-('NEUROLOGIA'),
-('NUTRICION'),
-('OBSTETRICIA'),
-('OFTALMOLOGIA'),
-('TRAUMATOLOGIA'),
-('UROLOGIA'),
-('LABORATORIO')

@@ -19,7 +19,7 @@ BEGIN
         BEGIN
             INSERT INTO Obrasocial.Prestador (nombre_prestador, plan_prestador)
             VALUES (@nombrePrestador, @planPrestador);
-            SELECT 'Prestador creado exitosamente.';
+            SELECT 'Prestador creado exitosamente.'; -- Nacho: hay que insertar en la tabla Cobertura intermedia tmb?
         END
     END TRY
     BEGIN CATCH
@@ -108,9 +108,9 @@ GO
 */
 
 CREATE OR ALTER PROCEDURE ObraSocial.insertarCobertura
+    @idTipoCobertura INT,
     @idPrestador INT,
     @idHistoriaClinica INT,
-    @idTipoCobertura INT,
     @imagenDeLaCredencial VARCHAR(255),
     @nroDeSocio INT
 AS
@@ -118,15 +118,12 @@ BEGIN
     BEGIN TRY
         IF EXISTS (SELECT 1 FROM Paciente.Paciente WHERE id_historia_clinica = @idHistoriaClinica)
             AND EXISTS (SELECT 1 FROM ObraSocial.Prestador WHERE id_prestador = @idPrestador)
-            AND EXISTS (SELECT 1 FROM ObraSocial.TipoCobertura WHERE id_tipo_cobertura = @idTipoCobertura)
+            AND EXISTS (SELECT 1 FROM ObraSocial.TipoCobertura WHERE id_tipo_cobertura = @idTipoCobertura) -- si existe un paciente con esa historia clinica, prestador y tipo de cobertura actualizo la tabla intermedia
         BEGIN
-            DECLARE @fechaRegistro DATE;
-
-            SELECT  @fechaRegistro = GETDATE();
 
             -- Insertar el registro
-            INSERT INTO ObraSocial.Cobertura (id_tipo_cobertura, id_prestador, id_historia_clinica, imagen_de_la_credencial, nro_de_socio, fecha_de_registro)
-            VALUES (@idTipoCobertura, @idPrestador, @idHistoriaClinica, @imagenDeLaCredencial, @nroDeSocio, @fechaRegistro);
+            INSERT INTO ObraSocial.Cobertura (id_tipo_cobertura, id_prestador, id_historia_clinica, imagen_de_la_credencial, nro_de_socio)
+            VALUES (@idTipoCobertura, @idPrestador, @idHistoriaClinica, @imagenDeLaCredencial, @nroDeSocio);
 
             SELECT 'Cobertura creada exitosamente.';
         END

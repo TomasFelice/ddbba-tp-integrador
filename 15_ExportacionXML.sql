@@ -2,7 +2,7 @@ USE com2900g09
 GO
 DROP PROCEDURE IF EXISTS Paciente.ExportarTurnosXML
 GO
-CREATE PROCEDURE Paciente.ExportarTurnosXML
+CREATE OR ALTER PROCEDURE Paciente.ExportarTurnosXML
 @ObraSocialNombre NVARCHAR(100),
 @FechaInicio DATETIME,
 @FechaFin DATETIME
@@ -49,7 +49,7 @@ BEGIN
     SET @Query = 'SELECT CAST(''' + REPLACE(CONVERT(NVARCHAR(MAX), @XMLData), '''', '''''') + ''' AS XML) AS XmlData';
 
     -- Crear el archivo de formato XML
-    SET @FormatFile = 'D:\Dev\ddbba-tp-integrador\exportar\FormatFile.xml';
+    SET @FormatFile = 'C:\Users\Ignacio Nogueira\Desktop\Unlam\BDD Aplicadas\Tps\Integrador\ddbba-tp-integrador';
     SET @FormatFileContent = '<?xml version="1.0" encoding="utf-8" ?>  
 <BCPFORMAT xmlns="https://schemas.microsoft.com/sqlserver/2004/bulkload/format" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">  
    <RECORD>  
@@ -76,13 +76,13 @@ END;
 
 go
 
---Comandos para la exportación
 
-SELECT * FROM ObraSocial.Prestador
-GO
-EXEC Paciente.ExportarTurnosXML 'Union Personal', '2005-01-15', '2009-03-12';
+-- Reviso los médicos que tengo con sus especialidades, en este caso para jugar y demostrar que funciona la exportación de XML, voy a crear una reserva de turno con los siguientes datos:
+-- * Estado turno: 'Atendido' | Tipo de turno: CLINICA MEDICA
 
-exec Turno.CrearReservaTurnoMedico
+-- Ingreso reservas históricas para que se corrobore que solo se exportan los turnos con estado: 'Atendido' 
+
+exec Turno.InsertarReservaTurnoMedico
     @idHistoriaClinica = 2, 
     @idmedico = 1,
     @idMedicoEspecialidad = 1,
@@ -90,6 +90,51 @@ exec Turno.CrearReservaTurnoMedico
     @idSede = 1,
     @idEstadoTurno = 1, 
     @idTipoTurno =1
+
+-- Ingreso reservas históricas con estado: 'Atendido' 
+
+exec Turno.InsertarReservaTurnoMedico
+    @idHistoriaClinica = 2, 
+    @idmedico = 1,
+    @idMedicoEspecialidad = 1,
+    @id_prestador =1,
+    @idSede = 1,
+    @idEstadoTurno = 4,  -- Estado: Atendido
+    @idTipoTurno =1
+
+-- * Paciente: Pepita del Gallart (id_historia_clinica = 1)	
+
+	select p.id_historia_clinica, p.nombre,p.apellido,oc.nro_de_socio,ot.nombre_tipo_cobertura
+	from Paciente.Paciente p 
+	JOIN ObraSocial.Cobertura oc ON p.id_historia_clinica = oc.id_historia_clinica
+	JOIN ObraSocial.TipoCobertura ot ON oc.id_tipo_cobertura = ot.id_tipo_cobertura
+	where p.id_historia_clinica = 1
+
+	SELECT * FROM ObraSocial.Cobertura
+	SELECT * FROM ObraSocial.TipoCobertura
+
+-- * Medico: Dra. ALONSO | Especialidad: CLINICA MEDICA
+	select * from Hospital.Medico m JOIN
+	Hospital.MedicoEspecialidad me ON m.id_medico=me.id_medico
+	JOIN Hospital.Especialidad e ON e.id_especialidad = me.id_especialidad
+	where m.id_medico = 1 
+
+-- * Prestador: 
+	SELECT * FROM ObraSocial.Prestador
+
+-- * Sede: 
+	
+
+GO
+
+
+
+
+
+SELECT * FROM Turno.ReservaTurnoMedico
+
+EXEC Paciente.ExportarTurnosXML 'Union Personal', '2005-01-15', '2009-03-12';
+
 
 	-- Habilitar xp_cmdshell
 EXEC sp_configure 'show advanced options', 1;
