@@ -3,7 +3,7 @@ USE com2900g09
 GO
 DROP PROCEDURE IF EXISTS Hospital.importarMedicosDesdeCSV
 GO
-CREATE PROCEDURE Hospital.importarMedicosDesdeCSV
+CREATE OR ALTER PROCEDURE Hospital.importarMedicosDesdeCSV
     @RutaArchivo VARCHAR(255)
 AS
 BEGIN
@@ -37,9 +37,14 @@ BEGIN
 	FROM #MedicoTemp mt
 
 	INSERT INTO Hospital.Especialidad(nombre_especialidad)
-	SELECT  mt.especialidad
-	FROM #MedicoTemp mt
-
+    SELECT DISTINCT mt.especialidad
+    FROM #MedicoTemp mt
+    WHERE NOT EXISTS (
+        SELECT 1 
+        FROM Hospital.Especialidad he 
+        WHERE he.nombre_especialidad = mt.especialidad COLLATE SQL_Latin1_General_CP1_CI_AS
+    )
+	
 	INSERT INTO Hospital.MedicoEspecialidad(id_medico, id_especialidad)
 	SELECT	hm.id_medico,
 			he.id_especialidad
@@ -47,7 +52,7 @@ BEGIN
 	INNER JOIN Hospital.Medico hm ON hm.nro_matricula = mt.nroMatricula
 	INNER JOIN Hospital.Especialidad he ON he.nombre_especialidad = mt.especialidad
 	COLLATE SQL_Latin1_General_CP1_CI_AS
-
+	
     PRINT 'La importación se ha completado exitosamente.';
 	DROP TABLE #MedicoTemp;
 END;
@@ -55,6 +60,9 @@ go
 
 EXEC Hospital.importarMedicosDesdeCSV 'C:\Users\Ignacio Nogueira\Desktop\Unlam\BDD Aplicadas\Tps\Integrador\ddbba-tp-integrador\Dataset\Medicos.csv';
 go
+
 SELECT * From Hospital.Medico
+
 SELECT * From Hospital.Especialidad
+
 SELECT * From Hospital.MedicoEspecialidad
