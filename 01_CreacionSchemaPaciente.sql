@@ -18,11 +18,6 @@ GO
 
 CREATE SCHEMA Paciente
 GO
-
--- Nacho: amigo, lo de la historia clínica no me suena muy bien todavía. Porque si obtenés el id de eso podés traer info de más del paciente. Con el dni es más fácil identificarlo.
--- Nacho: lo dejo igualmente así hasta que decidamos.
--- Tomi: En el contexto de un hospital, la manera de identifiar una persona es por la historia clinica para mí. Si bien los dos datos sabemos que van a ser únicos, yo prefiero usar la historia clínica. (le agregué la constraint de unique al nro doc)
-
 CREATE TABLE Paciente.Domicilio (
     id_domicilio INT IDENTITY(1,1),
     direccion VARCHAR(50),

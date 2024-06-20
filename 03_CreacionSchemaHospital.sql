@@ -75,26 +75,3 @@ CREATE TABLE Hospital.DiasPorSede (
     CONSTRAINT fk_dia_sede_sede FOREIGN KEY (id_sede) REFERENCES Hospital.SedeDeAtencion(id_sede) ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
-
---------------------------------------------------
-------  INSERCION VALORES DEFINIDOS
---------------------------------------------------
-EXEC Hospital.InsertarEspecialidad 'CLINICA MEDICA';
-EXEC Hospital.InsertarEspecialidad 'MEDICINA FAMILIAR';
-EXEC Hospital.InsertarEspecialidad 'ALERGIA';
-EXEC Hospital.InsertarEspecialidad 'CARDIOLOGIA';
-EXEC Hospital.InsertarEspecialidad 'DERMATOLOGIA';
-EXEC Hospital.InsertarEspecialidad 'ENDOCRINOLOGIA';
-EXEC Hospital.InsertarEspecialidad 'FONOAUDIOLOGIA';
-EXEC Hospital.InsertarEspecialidad 'GASTROENTEROLOGIA';
-EXEC Hospital.InsertarEspecialidad 'GINECOLOGIA';
-EXEC Hospital.InsertarEspecialidad 'HEPATOLOGÍA';
-EXEC Hospital.InsertarEspecialidad 'KINESIOLOGIA';
-EXEC Hospital.InsertarEspecialidad 'NEUROLOGIA';
-EXEC Hospital.InsertarEspecialidad 'NUTRICION';
-EXEC Hospital.InsertarEspecialidad 'OBSTETRICIA';
-EXEC Hospital.InsertarEspecialidad 'OFTALMOLOGIA';
-EXEC Hospital.InsertarEspecialidad 'TRAUMATOLOGIA';
-EXEC Hospital.InsertarEspecialidad 'UROLOGIA';
-EXEC Hospital.InsertarEspecialidad 'LABORATORIO';
-

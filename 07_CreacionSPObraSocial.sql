@@ -11,7 +11,9 @@ AS
 BEGIN
     BEGIN TRY
         -- Insertar el registro
-        IF EXISTS (SELECT 1 FROM ObraSocial.Prestador WHERE nombre_prestador = @nombrePrestador) -- Si existe, actualizo los datos. En nuestra regla de negocio cada prestador debe llamarse distinto
+        IF EXISTS (SELECT 1 FROM ObraSocial.Prestador 
+                  WHERE nombre_prestador = @nombrePrestador
+                  AND plan_prestador = @planPrestador) -- Si existe, actualizo los datos. En nuestra regla de negocio cada prestador debe llamarse distinto
         BEGIN
             SELECT 'Prestador ya existente. No se realiza accion';
         END

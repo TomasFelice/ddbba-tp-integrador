@@ -46,6 +46,4 @@ CREATE TABLE ObraSocial.Cobertura (
 )
 GO
 
-EXEC ObraSocial.InsertarPrestador 
-
 
