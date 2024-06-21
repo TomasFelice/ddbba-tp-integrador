@@ -14,14 +14,24 @@ CREATE OR ALTER PROCEDURE Paciente.ExportarTurnosXML
     @FechaFin DATETIME
 AS
 BEGIN
-    DECLARE @XMLData XML;
 
-    -- Generar el XML data
-    SET @XMLData = (
-        SELECT
+	CREATE TABLE #TempXML
+	(
+		nroDocumento INT,
+		apellido VARCHAR(100),
+		nombre VARCHAR(100),
+		nombreMedico VARCHAR(100),
+		matricula INT,
+		fecha DATE,
+		hora TIME,
+		especialidad VARCHAR(50)
+	)
+
+    INSERT INTO #TempXML(nroDocumento, apellido, nombre, nombreMedico, matricula, fecha, hora, especialidad)
+    SELECT
+            P.nro_de_documento AS 'Paciente/DNI',
             P.apellido AS 'Paciente/Apellido',
             P.nombre AS 'Paciente/Nombre',
-            P.nro_de_documento AS 'Paciente/DNI',
             PR.nombre AS 'Profesional/Nombre',
             PR.nro_matricula AS 'Profesional/Matricula',
             T.fecha AS 'Fecha',
@@ -38,27 +48,28 @@ BEGIN
             AND T.fecha >= @FechaInicio
             AND T.fecha <= @FechaFin
             AND ET.nombre_estado = 'Atendido'
-        FOR XML PATH ('Turno'), ROOT('TurnosAtendidos')
-    );
 
-    DECLARE @ExportSQL NVARCHAR(MAX);
-    DECLARE @FilePath NVARCHAR(MAX) = 'C:\Users\Ignacio Nogueira\Desktop\archivo.xml';
+	SELECT *
+	FROM #TempXML
+	FOR XML PATH ('Turno'), ROOT('TurnosAtendidos')
 
-    -- Exportar XML usando bcp
-    SET @ExportSQL = 'EXEC xp_cmdshell ''bcp "' + REPLACE(CONVERT(NVARCHAR(MAX), @XMLData), '"', '""') + '" queryout "' + @FilePath + '" -T -c -S DESKTOP-707ICIM\MSSQL''';
+	DECLARE @sqlCmd NVARCHAR(4000);
+	SET @sqlCmd = 'SELECT * FROM #TempXML FOR XML AUTO, ROOT(''TurnosAtendidos'')';
 
-    -- Ejecutar el comando generado
-    EXEC(@ExportSQL);
+    DECLARE @filePath NVARCHAR(255);
+	SET @filePath = '"C:\Users\Ignacio Nogueira\Desktop\Unlam\BDD Aplicadas\Tps\Integrador\ddbba-tp-integrador\Archivo.xml"'; -- Ruta y nombre del archivo XML entre comillas dobles
+	
+	SET @sqlCmd = 'bcp "' + @sqlCmd + '" queryout ' + @filePath + ' -S ' + @@SERVERNAME + ' -T -c';
+    EXEC xp_cmdshell @sqlCmd;
+
+    DROP TABLE #TempXML
 END;
-
-
 
 --********************************************************
 -- Reviso los médicos que tengo con sus especialidades, en este caso para jugar y demostrar que funciona la exportación de XML, voy a crear una reserva de turno con los siguientes datos:
 -- * Estado turno: 'Atendido' | Tipo de turno: CLINICA MEDICA
 
 -- Ingreso reservas históricas para que se corrobore que solo se exportan los turnos con estado: 'Atendido' 
-
 GO
 exec Turno.InsertarReservaTurnoMedico
     @idHistoriaClinica = 2, 
@@ -81,7 +92,7 @@ exec Turno.InsertarReservaTurnoMedico
     @idmedico = 1,
     @idMedicoEspecialidad = 3,
     @id_prestador =1,
-    @idSede = 1, -- NO TE INTERESA
+    @idSede = 1,
     @idEstadoTurno = 4,  -- Estado: Atendido
     @idTipoTurno = 1
 GO
@@ -90,7 +101,7 @@ exec Turno.InsertarReservaTurnoMedico
     @idmedico = 1,
     @idMedicoEspecialidad = 3,
     @id_prestador =1,
-    @idSede = 1, -- NO TE INTERESA
+    @idSede = 1,
     @idEstadoTurno = 4,  -- Estado: Atendido
     @idTipoTurno = 1
 GO
